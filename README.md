@@ -1,4 +1,4 @@
-# Lexer para Linguagem C, baseado no ANTLR
+# Lexer e Parser para Linguagem C, baseado no ANTLR
 
 Gramática derivada de https://docs.microsoft.com/pt-br/cpp/c-language e https://github.com/antlr/grammars-v4/tree/master/c
 
