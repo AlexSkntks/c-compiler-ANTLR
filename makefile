@@ -5,9 +5,9 @@ JAVAC=javac
 
 # Eu uso ROOT como o diretório raiz para os meus labs.
 YEAR=$(shell pwd | grep -o '20..-.')
-ROOT=/usr/local/lib
+ROOT=/home/lucas/desktop/ufes/compiladores
 
-ANTLR_PATH=$(ROOT)/antlr-4.9.3-complete.jar
+ANTLR_PATH=$(ROOT)/antlr-4.9.2-complete.jar
 CLASS_PATH_OPTION=-cp .:$(ANTLR_PATH)
 
 # Diretório para os arquivos .class
@@ -21,9 +21,9 @@ GRUN=$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) org.antlr.v4.gui.TestRig
 GEN_PATH=parser
 
 # Diretório para os casos de teste
-DATA=$(ROOT)/tests
-IN1=$(DATA)/entrada/corretas
-IN2=$(DATA)/entrada/incorretas
+DATA=$(ROOT)/c-compiler-ANTLR/entradas
+IN1=$(DATA)/corretas
+IN2=$(DATA)/incorretas
 
 all: antlr javac
 	@echo "Done."
@@ -42,15 +42,17 @@ run:
 	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(FILE)
 
 runall:
-	echo Entrada de dados que o lexer+parser reconhece \
-    -for FILE in $(IN1)/*.c; do \
-         echo -e "\nRunning $${FILE}" && \
-		 $(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $${FILE}; \
+	-for FILE in $(IN1)/*.c; do \
+        echo -e "\nRunning $${FILE}" &&\
+		$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $${FILE} &&\
+		echo;\
     done;
-	echo Entrada de dados que o lexer+parser nao reconhece \
+
+runallFalse:
 	-for FILE in $(IN2)/*.c; do \
-         echo -e "\nRunning $${FILE}" && \
-		 $(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $${FILE}; \
+        echo -e "\nRunning $${FILE}" &&\
+		$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $${FILE} &&\
+		echo;\
     done;
 
 clean:
