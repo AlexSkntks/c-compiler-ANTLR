@@ -23,3 +23,5 @@ Outra dificuldade foi conseguir identificar quando havia um erro no parser, pois
 
 Executamos testes sobre if else aninhados, alguns if's sem else e if com apenas umas linha de comando. Sobre parenteses encaixados (exceto o erro relatado acima). Nomes de variáveis, falta de ';', operações aritméticas sem um dos operandos, ou operando incorreto. Falta de chaves. Reconhecimento de estruturas e palavras reservadas da linguagem.
 
+Até onde o grupo conseguiu cobrir, o analisador léxico/sintático está correto, conseguindo indicar os erros e reconhecer entradas corretas.
+
