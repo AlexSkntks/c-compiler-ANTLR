@@ -5,7 +5,7 @@ void soma(int* n1, int* n2){
 int main(){
     int a, b;
     int *x = &a;
-    int y* = &b;
+    int y* = &b;//ERROR
     *x = 10;
     *y = 1;
 }
