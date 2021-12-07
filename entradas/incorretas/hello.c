@@ -1,1 +1,1 @@
-algo = 2;
+printf "Hello World!";
