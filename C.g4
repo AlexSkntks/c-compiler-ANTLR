@@ -63,7 +63,7 @@ postfixExpression
     |   '__extension__'? '(' typeName ')' '{' initializerList ','? '}'
     )
     ('[' expression ']'
-    | '(' argumentExpressionList? ')' {notifyErrorListeners("Too many parentheses");}
+    | '(' argumentExpressionList? ')'
     | ('.' | '->') Identifier
     | ('++' | '--')
     )*

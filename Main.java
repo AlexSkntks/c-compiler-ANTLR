@@ -34,12 +34,10 @@ public class Main {
 			System.out.println("Iniciando teste");
 			ParseTree tree = parser.compilationUnit(); // begin parsing at init rule
 			// System.out.println(tree.toStringTree(parser)); // print LISP-style tree
-			System.out.println("Tudo ok");
+			System.out.println("Revisão sintática realizada com êxito.");
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			System.out.println("Deu ruim!");
-		} 
-
+			System.out.println("Infelizmente um erro ocorreu no analisador sintático.");
+		}
 	}
 }
 
