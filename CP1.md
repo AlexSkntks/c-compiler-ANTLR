@@ -8,9 +8,6 @@ C é uma das linguagens de programação mais populares e existem poucas arquite
 
 Usamos a ferramenta [ANTLR](https://www.antlr.org/) que é implementada em JAVA e cria automaticamente o lexer e o parser do compilador diante da gramática representada em um arquivo _.g4_. Como já existem muitas referências na internet sobre gramáticas de linguagens de programação, em particular de C que é bastante famoso, fizemos o uso deste [repositório](https://github.com/antlr/grammars-v4/tree/master/c).
 
-//Melhorar
-Vale ressaltar que o programa não reconhece as macros '#', pois é uma parte integrada ao compilador que faz a ligação desses arquivos.
-
 ---
 
 ## Desenvolvimento
