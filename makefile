@@ -5,7 +5,7 @@ JAVAC=javac
 
 # Eu uso ROOT como o diretório raiz para os meus labs.
 YEAR=$(shell pwd | grep -o '20..-.')
-ROOT=/home/lucas/desktop/ufes/compiladores
+ROOT=/usr/local/lib/
 
 ANTLR_PATH=$(ROOT)/antlr-4.9.2-complete.jar
 CLASS_PATH_OPTION=-cp .:$(ANTLR_PATH)
@@ -21,7 +21,7 @@ GRUN=$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) org.antlr.v4.gui.TestRig
 GEN_PATH=parser
 
 # Diretório para os casos de teste
-DATA=$(ROOT)/c-compiler-ANTLR/entradas
+DATA=/home/alex/myGit/c-compiler-ANTLR/entradas
 IN1=$(DATA)/corretas
 IN2=$(DATA)/incorretas
 
@@ -43,14 +43,14 @@ run:
 
 runall:
 	-for FILE in $(IN1)/*.c; do \
-        echo -e "\nRunning $${FILE}" &&\
+        echo "\nRunning $${FILE}" &&\
 		$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $${FILE} &&\
 		echo;\
     done;
 
 runallFalse:
 	-for FILE in $(IN2)/*.c; do \
-        echo -e "\nRunning $${FILE}" &&\
+        echo "\nRunning $${FILE}" &&\
 		$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $${FILE} &&\
 		echo;\
     done;
