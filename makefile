@@ -21,7 +21,7 @@ GRUN=$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) org.antlr.v4.gui.TestRig
 GEN_PATH=parser
 
 # Diretório para os casos de teste
-DATA=/home/alex/myGit/c-compiler-ANTLR/entradas
+DATA=./entradas
 IN1=$(DATA)/corretas
 IN2=$(DATA)/incorretas
 
@@ -31,7 +31,7 @@ all: antlr javac
 # Opção -no-listener foi usada para que o ANTLR não gere alguns arquivos
 # desnecessários para o momento. Isto será explicado melhor nos próximos labs.
 antlr: C.g4
-	$(ANTLR4) -no-listener -o $(GEN_PATH) C.g4
+	$(ANTLR4) -no-listener -visitor -o $(GEN_PATH) C.g4
 
 javac:
 	if [ -d "$(BIN_PATH)" ]; then \
