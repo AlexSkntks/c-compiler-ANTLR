@@ -1,26 +1,8 @@
 package checker;
 import org.antlr.v4.runtime.Token;
 
-import parser.CParser;
-import parser.CParser.visitForExpression;
-import parser.CParser.visitDeclaration;
-import parser.CParser.visitUnaryOperator;
-import parser.CParser.visitMultiplicativeExpression;
-import parser.CParser.visitAdditiveExpression;
-import parser.CParser.visitLogicalAndExpression;
-import parser.CParser.visitConditionalExpression;
-import parser.CParser.visitAssignmentExpression;
-import parser.CParser.visitStructDeclaration;
-import parser.CParser.visitDeclaration;
-import parser.CParser.visitTypeName;
-import parser.CParser.visitRelationalExpression;
-import parser.CParser.visitEqualityExpression;
-import parser.CParser.visitAssignmentOperator;
-import parser.CParser.visitConstantExpression;
-import parser.CParser.visitTypeSpecifier;
-import parser.CParser.visitPrimaryExpression;
 import parser.CBaseVisitor;
-
+import parser.CParser;
 import tables.StrTable;
 import tables.VarInfo;
 import tables.VarTable;
@@ -137,8 +119,9 @@ public class SemanticChecker extends CBaseVisitor<Void> {
     //! AQUI ----------------
     @Override
     public Void visitDeclaration(CParser.DeclarationContext ctx) {
-        visit(ctx.type_spec());
-        newVar(ctx.ID().getSymbol());
+        visit(ctx.declarationSpecifiers());
+        // newVar(ctx.ID().getSymbol());
+		System.out.println("|teste " + ctx.getText() + "|");
         visitChildren(ctx);
         return null;
     }
@@ -180,7 +163,8 @@ public class SemanticChecker extends CBaseVisitor<Void> {
     //! AAAAAAAAAAAAAAAAAAAA
     @Override
     public Void visitTypeSpecifier(CParser.TypeSpecifierContext ctx) {
-        ctx.ID().getSymbol();
+        // ctx.ID().getSymbol();
+		System.out.println("|teste2 " + ctx.getText() + "|");
         visitChildren(ctx);
         return null;
     }

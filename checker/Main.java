@@ -1,5 +1,11 @@
 package checker;
 
+import java.io.IOException;
+
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
+
 // import ANTLR's runtime libraries
 import java.io.File;
 import java.io.FileReader;
@@ -9,12 +15,11 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.nio.file.NoSuchFileException;
 
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
 
 import tools.*;
 
 import parser.CLexer;
+import checker.SemanticChecker;
 import parser.CParser;
 
 public class Main {

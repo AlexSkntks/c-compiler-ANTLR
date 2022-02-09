@@ -5,7 +5,10 @@ JAVAC=javac
 
 # Eu uso ROOT como o diretório raiz para os meus labs.
 YEAR=$(shell pwd | grep -o '20..-.')
-ROOT=/usr/local/lib
+# Aleks
+# ROOT=/usr/local/lib 
+# Lucas
+ROOT=/home/lucas/desktop/ufes/compiladores
 
 ANTLR_PATH=$(ROOT)/antlr-4.9.2-complete.jar
 CLASS_PATH_OPTION=-cp .:$(ANTLR_PATH)
@@ -39,10 +42,10 @@ javac:
 	fi; 
 	mkdir $(BIN_PATH)
 	
-	$(JAVAC) $(CLASS_PATH_OPTION) -d $(BIN_PATH) */*.java Main.java
+	$(JAVAC) $(CLASS_PATH_OPTION) -d $(BIN_PATH) */*.java
 
 run:
-	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $(FILE)
+	$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) checker/Main $(FILE)
 
 runall:
 	-for FILE in $(IN1)/*.c; do \
