@@ -29,6 +29,13 @@
 /** C 2011 grammar built from the C11 Spec */
 grammar C;
 
+
+//Adiciona o package aos arquivos gerados na pasta parser
+@header {
+    package parser;
+}
+
+
 //executa aqui <<------
 compilationUnit
     :   translationUnit? EOF

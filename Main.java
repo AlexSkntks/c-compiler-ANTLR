@@ -1,3 +1,4 @@
+package checker;
 
 // import ANTLR's runtime libraries
 import java.io.File;
@@ -12,6 +13,9 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
 import tools.*;
+
+import parser.CLexer;
+import parser.CParser;
 
 public class Main {
 	public static void main(String[] args) throws Exception {

@@ -1,28 +1,25 @@
 package checker;
-
 import org.antlr.v4.runtime.Token;
 
 import parser.CParser;
 import parser.CParser.visitForExpression;
 import parser.CParser.visitDeclaration;
-
-import parser.CParserBaseVisitor;
-import parser.visitUnaryOperator;
-
-import parser.visitMultiplicativeExpression;
-import parser.visitAdditiveExpression;
-import parser.visitLogicalAndExpression;
-import parser.visitConditionalExpression;
-import parser.visitAssignmentExpression;
-import parser.visitStructDeclaration;
-import parser.visitDeclaration;
-import parser.visitTypeName;
-import parser.visitRelationalExpression;
-import parser.visitEqualityExpression;
-import parser.visitAssignmentOperator;
-import parser.visitConstantExpression;
-import parser.visitTypeSpecifier;
-import parser.visitPrimaryExpression;
+import parser.CParser.visitUnaryOperator;
+import parser.CParser.visitMultiplicativeExpression;
+import parser.CParser.visitAdditiveExpression;
+import parser.CParser.visitLogicalAndExpression;
+import parser.CParser.visitConditionalExpression;
+import parser.CParser.visitAssignmentExpression;
+import parser.CParser.visitStructDeclaration;
+import parser.CParser.visitDeclaration;
+import parser.CParser.visitTypeName;
+import parser.CParser.visitRelationalExpression;
+import parser.CParser.visitEqualityExpression;
+import parser.CParser.visitAssignmentOperator;
+import parser.CParser.visitConstantExpression;
+import parser.CParser.visitTypeSpecifier;
+import parser.CParser.visitPrimaryExpression;
+import parser.CBaseVisitor;
 
 import tables.StrTable;
 import tables.VarInfo;
