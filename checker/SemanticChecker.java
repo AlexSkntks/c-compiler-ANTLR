@@ -116,13 +116,70 @@ public class SemanticChecker extends CBaseVisitor<Void> {
         return null;
     }
     
-    //! AQUI ----------------
+    /**
+     * declaration : declarationSpecifiers initDeclaratorList? ';'
+     */
+    // @Override
+    // public Void visitDecVar(CParser.DecVarContext ctx){
+
+    //     visit(ctx.declarationSpecifiers());
+
+    //     if(ctx.initDeclaratorList() != null){
+    //      visit(ctx.initDeclaratorList());
+    //     }
+    //     return null;
+    // }
+
+    /**
+     * declarationSpecifiers : declarationSpecifier+
+     */
+    // @Override
+    // public Void visitDeclarationSpecifiers(CParser.DeclarationSpecifiersContext ctx){
+    //     visitChildren(ctx);
+        
+    //     return null;
+    // }
+
+    // Esta é uma regra terminal, ela retorna o tipo
     @Override
-    public Void visitDeclaration(CParser.DeclarationContext ctx) {
-        visit(ctx.declarationSpecifiers());
-        // newVar(ctx.ID().getSymbol());
-		System.out.println("|teste " + ctx.getText() + "|");
+    public Void visitTypeSpecifier(CParser.TypeSpecifierContext ctx) {
+        this.type = ctx.getText();
         visitChildren(ctx);
+        return null;
+    }
+
+    /**
+     * initDeclaratorList : initDeclarator (',' initDeclarator)*
+     */
+    // @Override
+    // public Void visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx){
+    //     visitChildren(ctx);
+    //     return null; 
+    // }
+
+    //initDeclarator : declarator ('=' initializer)?
+	// @Override
+    // public Void visitInitDeclarator(CParser.InitDeclaratorContext ctx) {        
+    //     visit(ctx.declarator());
+
+    //     if(ctx.initializer() != null){
+    //         visit(ctx.initializer());
+    //     }
+    //     return null;
+    // }
+
+    // declarator : pointer? directDeclarator gccDeclaratorExtension*
+    // @Override 
+    // public Void visitDeclarator(CParser.DeclaratorContext ctx) {
+    //     visitChildren(ctx);
+    //     return null;
+    // }
+
+    //directDeclarator : Identifier | ...
+    @Override 
+    public Void visitDirectDeclarator(CParser.DirectDeclaratorContext ctx) {
+        visitChildren(ctx);
+        System.out.println("Variavel ID: " + ctx.getText() + " Tipo " + this.type);
         return null;
     }
 
@@ -156,15 +213,6 @@ public class SemanticChecker extends CBaseVisitor<Void> {
 
     @Override
     public Void visitConstantExpression(CParser.ConstantExpressionContext ctx) {
-        visitChildren(ctx);
-        return null;
-    }
-
-    //! AAAAAAAAAAAAAAAAAAAA
-    @Override
-    public Void visitTypeSpecifier(CParser.TypeSpecifierContext ctx) {
-        // ctx.ID().getSymbol();
-		System.out.println("|teste2 " + ctx.getText() + "|");
         visitChildren(ctx);
         return null;
     }
