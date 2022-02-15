@@ -1,25 +1,35 @@
+package tables;
+
 import java.util.ArrayList;
 
 public class FunctionInfo{
     
-    String nome;
-    String tipo;//Retonrno
-	ArrayList<String> parametros = new ArrayList<String>();
+    private String nome;
+    private String tipo;//Retonrno
+	private ArrayList<String> parametros = new ArrayList<String>();
 
-    FunctionInfo(String nome, String tipo, ArrayList<String> args){
+    public FunctionInfo(String nome, String tipo){
         this.nome = nome;
         this.tipo = tipo;
-        this.parametros = args;
     }
 
     public void imprime(){
 
-        System.out.print("F - Nome : " nome + " parametros ");
-        for (String i : this.parametros) {
-            System.out.print(i + ", ");
+        System.out.print("F-Nome: [" + this.nome + "] parametros ");
+        if(this.parametros.isEmpty()){
+            System.out.println("NO PARAMS");
+        }else{
+            for (String i : this.parametros) {
+                System.out.print(i + ", ");
+            }
         }
+
         System.out.println();
 
+    }
+
+    public void inicializaParametros(ArrayList<String> params){
+        this.parametros = params;
     }
 
     public String getNome() {
@@ -32,6 +42,10 @@ public class FunctionInfo{
 
     public String getTipo() {
         return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
     
 }

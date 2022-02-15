@@ -1,4 +1,5 @@
 package tables;
+
 import java.util.ArrayList;
 
 public class FuncTable {
@@ -29,9 +30,35 @@ public class FuncTable {
 
     public Boolean insert(FunctionInfo n){
 
-        if(lookUp(n.nome, ))
+        for (FunctionInfo i : list) {
+            if(i.getNome().equals(n.getNome())){//Aqui verifica se a funçao está na tabela
+                return false;
+            }
+        }
 
         list.add(n);
         return true;
+    }
+
+    public void addParams(String nome, ArrayList<String> params){
+        for (FunctionInfo i : list) {
+            if(i.getNome().equals(nome)){//Aqui verifica se a funçao está na tabela
+                i.inicializaParametros(params);
+            }
+        }
+    }
+
+    public void addType(String nome, String tipo){
+        for (FunctionInfo i : list) {
+            if(i.getNome().equals(nome)){//Aqui verifica se a funçao está na tabela
+                i.setTipo(tipo);
+            }
+        }
+    }
+
+    public void imprime(){
+        for (FunctionInfo f : list) {
+            f.imprime();
+        }
     }
 }

@@ -2,6 +2,10 @@
         return 'a';
     }
 
+    int seila(int b){
+        return 0;
+    }
+
     //funções nome/tipos de parâmetro funcInfo
     //variaveis / nome/ tipo / escopo
     int soma(int a, int b){//2
@@ -9,7 +13,7 @@
         return 10;
     }
 
-    int main(int argc, char* argv[])
+    int main()
     {//3
         int i = 0;
 		int sum = 0;
