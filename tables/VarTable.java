@@ -2,17 +2,16 @@ package tables;
 
 import java.util.ArrayList;
 
-import javax.lang.model.element.VariableElement;
-
 public class VarTable{
 
 	VarInfo info;
 	ArrayList<VarInfo> list = new ArrayList<VarInfo>();
 
-	public Boolean verifyIfAlreadyExists(String name){
+	public Boolean lookUp(String name, int escopo){
 
 		for (VarInfo varInfo : list) {
-			if(varInfo.getName().compareTo(name) == 0){
+			//compara se a variável pertence ao escopo
+			if(varInfo.getName().compareTo(name) == 0 && (varInfo.getEscopo() == escopo)){
 				return true;
 			}
 		}
@@ -20,7 +19,7 @@ public class VarTable{
 	}
 
 	public void insert(VarInfo i){
-		if(this.verifyIfAlreadyExists(i.name)){
+		if(this.lookUp(i.name, i.escopo)){
 			return;
 		}
 		list.add(i);

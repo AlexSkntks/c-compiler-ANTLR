@@ -29,13 +29,6 @@
 /** C 2011 grammar built from the C11 Spec */
 grammar C;
 
-
-//Adiciona o package aos arquivos gerados na pasta parser
-@header {
-    package parser;
-}
-
-
 //executa aqui <<------
 compilationUnit
     :   translationUnit? EOF
@@ -163,8 +156,8 @@ constantExpression
     ;
 
 declaration
-    :   declarationSpecifiers initDeclaratorList? ';' # decVar
-    |   staticAssertDeclaration # decStatic
+    :   declarationSpecifiers initDeclaratorList? ';'
+    |   staticAssertDeclaration
     ;
 
 declarationSpecifiers
@@ -302,16 +295,16 @@ declarator
     ;
 
 directDeclarator
-    :   Identifier #varName
-    |   '(' declarator ')' #params
-    |   directDeclarator '[' typeQualifierList? assignmentExpression? ']' #naoInteressa1
-    |   directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']' #naoInteressa2
-    |   directDeclarator '[' typeQualifierList 'static' assignmentExpression ']' #naoInteressa3
-    |   directDeclarator '[' typeQualifierList? '*' ']' #naoInteressa3
-    |   directDeclarator '(' parameterTypeList ')' #funcDeclaration1
-    |   directDeclarator '(' identifierList? ')' #funcDeclaration2
-    |   Identifier ':' DigitSequence #naoInteressa5 // bit field
-    |   '(' typeSpecifier? pointer directDeclarator ')' #naoInteressa6 // function pointer like: (__cdecl *f)
+    :   Identifier
+    |   '(' declarator ')'
+    |   directDeclarator '[' typeQualifierList? assignmentExpression? ']'
+    |   directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
+    |   directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
+    |   directDeclarator '[' typeQualifierList? '*' ']'
+    |   directDeclarator '(' parameterTypeList ')'
+    |   directDeclarator '(' identifierList? ')'
+    |   Identifier ':' DigitSequence  // bit field
+    |   '(' typeSpecifier? pointer directDeclarator ')' // function pointer like: (__cdecl *f)
     ;
 
 gccDeclaratorExtension
