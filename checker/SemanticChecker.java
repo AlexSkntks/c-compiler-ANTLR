@@ -63,8 +63,8 @@ public class SemanticChecker extends CBaseVisitor<String> {
     // Exibe o conteúdo das tabelas em stdout.
     void printTables() {
         // System.out.print("\n\n");
-        // vt.showTable();
-        // System.out.print("\n\n");
+        vt.showTable();
+        System.out.println();
         // st.showTable();
         ft.imprime();
     }
@@ -97,9 +97,20 @@ public class SemanticChecker extends CBaseVisitor<String> {
         return ctx.getText();
     }
 
-    //Identifier
+    //Identifier #varName
 	@Override 
     public String visitVarName(CParser.VarNameContext ctx) {
+        String nome = ctx.Identifier().getText();
+        int escopo = 0;
+
+        if(this.isInBlock){
+            escopo = 10;
+        }
+
+        VarInfo nv = new VarInfo(nome, this.type, 0, this.escopoAtual);
+
+        vt.insert(nv);
+
         visitChildren(ctx);
         return ctx.Identifier().getText();
     }
@@ -145,7 +156,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
             return null;//Para o processo de análise semântica.
         }
 
-        return nome;
+        return visitChildren(ctx);
     }
 
     //Coloquei a regra, mas enfim, tem uma lista no nome :)
@@ -165,6 +176,21 @@ public class SemanticChecker extends CBaseVisitor<String> {
         }
         visitChildren(ctx);
         return params;
+    }
+
+	@Override 
+    public String visitBlockItemList(CParser.BlockItemListContext ctx) {
+        this.isInBlock = true;
+        visitChildren(ctx);
+        this.isInBlock = false;
+        return new String();
+    }
+
+
+    @Override 
+    public String visitStaticAssertDeclaration(CParser.StaticAssertDeclarationContext ctx) {
+
+        return visitChildren(ctx); 
     }
 
     @Override
