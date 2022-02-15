@@ -1,4 +1,4 @@
-visitChildren(ctx)    char seila(char letra, int size){//1
+ char seila(char letra, int size){//1
         return 'a';
     }  
 

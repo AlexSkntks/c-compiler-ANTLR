@@ -163,8 +163,8 @@ constantExpression
     ;
 
 declaration
-    :   declarationSpecifiers initDeclaratorList? ';' # decVar
-    |   staticAssertDeclaration # decStatic
+    :   declarationSpecifiers initDeclaratorList? ';' #declarationVar
+    |   staticAssertDeclaration #declarationAssert
     ;
 
 declarationSpecifiers
@@ -307,10 +307,10 @@ directDeclarator
     |   directDeclarator '[' typeQualifierList? assignmentExpression? ']' #naoInteressa1
     |   directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']' #naoInteressa2
     |   directDeclarator '[' typeQualifierList 'static' assignmentExpression ']' #naoInteressa3
-    |   directDeclarator '[' typeQualifierList? '*' ']' #naoInteressa3
+    |   directDeclarator '[' typeQualifierList? '*' ']' #naoInteressa4
     |   directDeclarator '(' parameterTypeList ')' #funcDeclaration1
     |   directDeclarator '(' identifierList? ')' #funcDeclaration2
-    |   Identifier ':' DigitSequence #naoInteressa5 // bit field
+    |   Identifier ':' DigitSequence #naoInteressa5 // bit field 
     |   '(' typeSpecifier? pointer directDeclarator ')' #naoInteressa6 // function pointer like: (__cdecl *f)
     ;
 

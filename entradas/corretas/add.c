@@ -7,10 +7,11 @@
     //funções nome/tipos de parâmetro funcInfo
     //variaveis / nome/ tipo / escopo
     int soma(int a, int b){//2
-        int r = 10;
+        int r;
         int a, b, c, d;
         return 10;
     }
+	int a = 2, b, c, e;
 
     int main(int argc, char* argv[])
     {//3

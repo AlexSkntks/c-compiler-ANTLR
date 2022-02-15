@@ -69,6 +69,53 @@ public class SemanticChecker extends CBaseVisitor<String> {
         ft.imprime();
     }
 
+	// Equivalente a declaration
+	@Override public String visitDeclarationVar(CParser.DeclarationVarContext ctx) { 
+		System.out.println("visitDeclarationVar");
+
+		String nome = ctx.toString();
+		ctx.declarationSpecifiers();
+
+		// for(int i = 0; i < ctx.initDeclaratorList().size(); i++){
+        //     //Não deixa ',' sobrando
+        //    System.out.println(ctx.initDeclaratorList().get(i).getText());
+        // }
+		String variaveis = ctx.initDeclaratorList().getText();
+		String tipo = ctx.declarationSpecifiers().getText();
+		
+
+		System.out.println("TEST"+nome+ " " + variaveis + " " + tipo);
+		return visitChildren(ctx); 
+	}
+
+	// initDeclarator
+    // :   declarator ('=' initializer)?
+    // ;
+	@Override public String visitInitDeclarator(CParser.InitDeclaratorContext ctx) { 
+		String nome = visit(ctx.declarator());
+		String tipo = this.type;
+		System.out.println(nome+ " " + tipo);
+		return visit(ctx.declarator());
+	}
+
+	// @Override public String visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx) { 
+		
+	// 	System.out.println("visitInitDeclaratorList");
+	// 	String aux = new String();
+	// 	for(int i = 0; i < ctx.initDeclarator().size(); i++){
+    //         //Não deixa ',' sobrando
+	// 		System.out.println(ctx.initDeclarator(i).getText());
+    //         aux += ", " + ctx.initDeclarator(i).getText();
+    //     }
+		
+
+	// 	// return visitChildren(ctx); 
+	// 	visitChildren(ctx);
+	// 	return aux;
+	// }
+
+
+
     // ^Declaração de função
     //functionDefinition : declarationSpecifiers? declarator declarationList? compoundStatement
     @Override public String visitFunctionDefinition(CParser.FunctionDefinitionContext ctx) {
