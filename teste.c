@@ -1,12 +1,25 @@
-#include <stdio.h>
-int* soma(){
-    float x = 2.0;
-    char* i = "sasas";
-    return i;
+int soma(int a, int b){
+    int x = 1;
+    char zebra = '2';
+    return 0;
 }
 
-int main(){
+int outX;
+float outY, outZ;
+char out1 = 'a', out2 = 'b';
 
-    printf("%s\n", soma());
+int main(int argc, char* argv[])
+{//3
+    int i = 0;
+    int sum;
+    float f = 0.0;
+    double dist;
+    char letra = 'a';
+    printf("Hello");
+    for ( i = 1; i <= LAST; i++ ) {
+        sum += i;
+    } /*-for-*/
+    printf("sum = %d\n", sum);
+
     return 0;
 }

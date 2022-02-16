@@ -62,59 +62,91 @@ public class SemanticChecker extends CBaseVisitor<String> {
 
     // Exibe o conteúdo das tabelas em stdout.
     void printTables() {
-        // System.out.print("\n\n");
-        vt.showTable();
         System.out.println();
+        vt.showTable();
+        System.out.println("--------------------------------");
+        System.out.println("Tabela de Funcoes: ");
         // st.showTable();
         ft.imprime();
     }
 
 	// Equivalente a declaration
 	@Override public String visitDeclarationVar(CParser.DeclarationVarContext ctx) { 
-		System.out.println("visitDeclarationVar");
+        
+		// String variaveis = visit(ctx.initDeclaratorList());
+		// String tipo = ctx.declarationSpecifiers().getText();
 
-		String nome = ctx.toString();
-		ctx.declarationSpecifiers();
+		//System.out.println("Tipo " + tipo + " nome " + variaveis);
+		return visitChildren(ctx);
 
-		// for(int i = 0; i < ctx.initDeclaratorList().size(); i++){
-        //     //Não deixa ',' sobrando
-        //    System.out.println(ctx.initDeclaratorList().get(i).getText());
-        // }
-		String variaveis = ctx.initDeclaratorList().getText();
-		String tipo = ctx.declarationSpecifiers().getText();
-		
-
-		System.out.println("TEST"+nome+ " " + variaveis + " " + tipo);
-		return visitChildren(ctx); 
 	}
 
-	// initDeclarator
-    // :   declarator ('=' initializer)?
-    // ;
-	@Override public String visitInitDeclarator(CParser.InitDeclaratorContext ctx) { 
-		String nome = visit(ctx.declarator());
-		String tipo = this.type;
-		System.out.println(nome+ " " + tipo);
-		return visit(ctx.declarator());
-	}
+	// @Override 
+    // public String visitDeclarator(CParser.DeclaratorContext ctx) { 
+    //     System.out.println("Direct " + ctx.directDeclarator().getText());
+    //     String lol =  visitChildren(ctx);
+    //     //System.out.println("Children " + lol);
+    //     return lol; 
+    // }
 
-	// @Override public String visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx) { 
-		
-	// 	System.out.println("visitInitDeclaratorList");
+
+	// @Override 
+    // public String visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx) { 
+    //     visitChildren(ctx);
 	// 	String aux = new String();
 	// 	for(int i = 0; i < ctx.initDeclarator().size(); i++){
     //         //Não deixa ',' sobrando
-	// 		System.out.println(ctx.initDeclarator(i).getText());
-    //         aux += ", " + ctx.initDeclarator(i).getText();
+    //         // System.out.println(ctx.initDeclarator(i).getText());
+    //         // aux += ", " + ctx.initDeclarator(i).getText();
+    //         aux += ", " + ctx.initDeclarator().get(i).getText();
+    //         System.out.println(ctx.initDeclarator().get(i).getText());
     //     }
-		
-
 	// 	// return visitChildren(ctx); 
-	// 	visitChildren(ctx);
+		
 	// 	return aux;
 	// }
 
+    // initDeclarator : declarator ('=' initializer)?
+    // É aqui que devemos tratar se a inicialização está correta!!!!!!!!
+	@Override 
+    public String visitInitDeclarator(CParser.InitDeclaratorContext ctx) {
 
+        String nome = ctx.declarator().getText();
+        int escopo = 0;
+
+        if(this.isInBlock){
+            escopo = this.escopoAtual;
+        }
+
+        VarInfo nv = new VarInfo(nome, this.type, 0, escopo);
+
+        vt.insert(nv);
+
+        visitChildren(ctx);
+        //System.out.println("Init declarator [" + nome + "] tipo " + this.type);
+		return ctx.declarator().getText();
+	}
+
+
+
+	@Override 
+    public String visitTypedefName(CParser.TypedefNameContext ctx) {
+        visitChildren(ctx);
+
+        String nome = ctx.Identifier().getText();
+        int escopo = 0;
+
+        if(this.isInBlock){
+            escopo = this.escopoAtual;
+        }
+
+        VarInfo nv = new VarInfo(nome, this.type, 0, escopo);
+
+        vt.insert(nv);
+
+        //System.out.println("TypeDefname [" + nome + "] tipo " + this.type);
+        return nome;
+    }
 
     // ^Declaração de função
     //functionDefinition : declarationSpecifiers? declarator declarationList? compoundStatement
@@ -131,38 +163,28 @@ public class SemanticChecker extends CBaseVisitor<String> {
             visit(ctx.declarationSpecifiers());
 
         }
+
         this.escopoAtual++;
+        this.isInBlock = true;
+        visit(ctx.compoundStatement());
+        this.isInBlock = false;
         return new String();
-        
     }
 
     // Esta é uma regra terminal, ela retorna o tipo
     @Override
     public String visitTypeSpecifier(CParser.TypeSpecifierContext ctx) {
-        this.type = ctx.getText();
+
+        //Caso esse tratamento não seja feito. O type é definido como o nome da variável
+        if(ctx.typedefName() == null){
+            this.type = ctx.getText();
+        }
+
         visitChildren(ctx);
         return ctx.getText();
     }
 
-    //Identifier #varName
-	@Override 
-    public String visitVarName(CParser.VarNameContext ctx) {
-        String nome = ctx.Identifier().getText();
-        int escopo = 0;
-
-        if(this.isInBlock){
-            escopo = 10;
-        }
-
-        VarInfo nv = new VarInfo(nome, this.type, 0, this.escopoAtual);
-
-        vt.insert(nv);
-
-        visitChildren(ctx);
-        return ctx.Identifier().getText();
-    }
-
-    //!directDeclarator '(' parameterTypeList ')' #funcDeclaration1
+    //directDeclarator '(' parameterTypeList ')' #funcDeclaration1
 	@Override 
     public String visitFuncDeclaration1(CParser.FuncDeclaration1Context ctx) {
 
@@ -225,18 +247,13 @@ public class SemanticChecker extends CBaseVisitor<String> {
         return params;
     }
 
-	@Override 
-    public String visitBlockItemList(CParser.BlockItemListContext ctx) {
-        this.isInBlock = true;
-        visitChildren(ctx);
-        this.isInBlock = false;
-        return new String();
+	@Override
+    public String visitVarName(CParser.VarNameContext ctx) {
+        return ctx.Identifier().getText();
     }
-
 
     @Override 
     public String visitStaticAssertDeclaration(CParser.StaticAssertDeclarationContext ctx) {
-
         return visitChildren(ctx); 
     }
 
