@@ -1,6 +1,6 @@
 int soma(int a, int b){
     int x = 1;
-    char x = 1;
+    char nome;
     char zebra = '2';
     return 0;
 }
