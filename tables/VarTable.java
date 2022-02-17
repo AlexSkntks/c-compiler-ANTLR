@@ -18,11 +18,13 @@ public class VarTable{
 		return false;
 	}
 
-	public void insert(VarInfo i){
+	public Boolean insert(VarInfo i){
+
 		if(this.lookUp(i.name, i.escopo)){
-			return;
+			return false;
 		}
 		list.add(i);
+		return true;
 	}
 
 	public void showTable(){

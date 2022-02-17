@@ -60,6 +60,12 @@ public class SemanticChecker extends CBaseVisitor<String> {
         vt.insert(nova);
     }
 
+    /** TODO
+     * Funções e variáveis estão nas tabelas
+     * Tratar InitDeclarator '='
+     * 
+     */
+
     // Exibe o conteúdo das tabelas em stdout.
     void printTables() {
         System.out.println();
@@ -120,7 +126,9 @@ public class SemanticChecker extends CBaseVisitor<String> {
 
         VarInfo nv = new VarInfo(nome, this.type, 0, escopo);
 
-        vt.insert(nv);
+        if(!vt.insert(nv)){
+            System.out.println("A variável : " + nome + " já foi declarada.");
+        }
 
         visitChildren(ctx);
         //System.out.println("Init declarator [" + nome + "] tipo " + this.type);
@@ -142,7 +150,10 @@ public class SemanticChecker extends CBaseVisitor<String> {
 
         VarInfo nv = new VarInfo(nome, this.type, 0, escopo);
 
-        vt.insert(nv);
+        if(!vt.insert(nv)){
+            System.out.println("A variável : " + nome + " já foi declarada anteriormente.");
+        }
+        
 
         //System.out.println("TypeDefname [" + nome + "] tipo " + this.type);
         return nome;
@@ -179,6 +190,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
         if(ctx.typedefName() == null){
             this.type = ctx.getText();
         }
+        //this.type = ctx.getText();
 
         visitChildren(ctx);
         return ctx.getText();
@@ -193,9 +205,10 @@ public class SemanticChecker extends CBaseVisitor<String> {
         FunctionInfo nf = new FunctionInfo(nome, "no_type");
 
         if(!ft.insert(nf)){
-            System.out.println("Function: " + nome + " already exists.");
+            System.out.println("A função: " + nome + " já existe.");
             return null;//Para o processo de análise semântica.
         }
+
         String params = visit(ctx.parameterTypeList());
 
         String[] aux = params.split(",");
@@ -221,7 +234,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
         FunctionInfo nf = new FunctionInfo(nome, "no_type");
 
         if(!ft.insert(nf)){
-            System.out.println("Function: " + nome + " already exists.");
+            System.out.println("A função: " + nome + " já existe.");
             return null;//Para o processo de análise semântica.
         }
 
