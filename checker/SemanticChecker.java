@@ -22,49 +22,57 @@ public class SemanticChecker extends CBaseVisitor<String> {
     private boolean isInBlock = false;
 
     private String type;// Armazenar os tipos das variáveis
-    private int lineVar;
+    private int line;
     private int lineFunc;
 
     private int escopoAtual = 0;
 
-    void checkVar(Token token) {
-        String text = token.getText();
-        int line = token.getLine();
+    // void checkVar(Token token) {
+    //     String text = token.getText();
+    //     int line = token.getLine();
 
-        Boolean idx = vt.lookUp(text, this.escopoAtual);
+    //     Boolean idx = vt.lookUp(text, this.escopoAtual);
 
-        if (idx == false) {
-            System.err.printf(
-                    "SEMANTIC _Y_ERROR (%d): variable '%s' was not declared.\n",
-                    line, text);
-            passed = false;
-            return;
-        }
+    //     if (idx == false) {
+    //         System.err.printf(
+    //                 "SEMANTIC _Y_ERROR (%d): variable '%s' was not declared.\n",
+    //                 line, text);
+    //         passed = false;
+    //         return;
+    //     }
 
-    }
+    // }
 
-    void newVar(Token token) {
-        String text = token.getText();
-        int line = token.getLine();
+    // void newVar(Token token) {
+    //     String text = token.getText();
+    //     int line = token.getLine();
 
-        Boolean idx = vt.lookUp(text, this.escopoAtual);//todo oaosaoposoaosasopop
+    //     Boolean idx = vt.lookUp(text, this.escopoAtual);//todo oaosaoposoaosasopop
 
-        if (idx == true) {
-            System.err.printf(
-                    "SEMANTIC _X_ERROR (%d): variable '%s' already exists.\n",
-                    line, text);
-            passed = false;
-            return;
-        }
+    //     if (idx == true) {
+    //         System.err.printf(
+    //                 "SEMANTIC _X_ERROR (%d): variable '%s' already exists.\n",
+    //                 line, text);
+    //         passed = false;
+    //         return;
+    //     }
 
-        VarInfo nova = new VarInfo(text, type, this.line, 0);//todo jakjksaksjajkajs
+    //     VarInfo nova = new VarInfo(text, type, this.line, 0);//todo jakjksaksjajkajs
 
-        vt.insert(nova);
-    }
+    //     vt.insert(nova);
+    // }
 
-    /** TODO
-     * Funções e variáveis estão nas tabelas
-     * Tratar InitDeclarator '='
+    /** 
+     * ~ TODOS
+     * *Funções e variáveis estão nas tabelas
+     * *Permite declarar variáveis em escopo diferente
+     * *Imprime o número da linha da variável
+     * ^Tratar InitDeclarator '='
+     * ^Tratar operadores Binários
+     * ^Chamada de função
+     * ^Tratar operadores lógicos
+     * !Uma declaração composta
+     * !Uma função de IO
      * 
      */
 
@@ -97,43 +105,47 @@ public class SemanticChecker extends CBaseVisitor<String> {
     //     return lol; 
     // }
 
-
-	// @Override 
-    // public String visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx) { 
-    //     visitChildren(ctx);
-	// 	String aux = new String();
-	// 	for(int i = 0; i < ctx.initDeclarator().size(); i++){
-    //         //Não deixa ',' sobrando
-    //         // System.out.println(ctx.initDeclarator(i).getText());
-    //         // aux += ", " + ctx.initDeclarator(i).getText();
-    //         aux += ", " + ctx.initDeclarator().get(i).getText();
-    //         System.out.println(ctx.initDeclarator().get(i).getText());
-    //     }
-	// 	// return visitChildren(ctx); 
-		
-	// 	return aux;
-	// }
+    
+    //initDeclaratorList : initDeclarator (',' initDeclarator)*
+	@Override 
+    public String visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx) { 
+        if(ctx.Comma(0) != null){
+            this.line = ctx.Comma(0).getSymbol().getLine();
+        }
+        
+		return visitChildren(ctx); 
+	}
 
     // initDeclarator : declarator ('=' initializer)?
-    // É aqui que devemos tratar se a inicialização está correta!!!!!!!!
+    //! É aqui que devemos tratar se a inicialização está correta!!!!!!!!
 	@Override 
     public String visitInitDeclarator(CParser.InitDeclaratorContext ctx) {
 
         String nome = ctx.declarator().getText();
         int escopo = 0;
+        VarInfo nv;
 
         if(this.isInBlock){
             escopo = this.escopoAtual;
         }
 
-        VarInfo nv = new VarInfo(nome, this.type, this.line, escopo);
+        if(ctx.Assign() != null){
+            this.line = ctx.Assign().getSymbol().getLine();
 
-        if(!vt.insert(nv)){
-            System.out.println("A variável : " + nome + " já foi declarada.");
+            nv = new VarInfo(nome, this.type, this.line, escopo);
+
+            if(!vt.insert(nv)){
+                System.out.println("A variável : " + nome + " já foi declarada.");
+            }
+
+        }else{
+            nv = new VarInfo(nome, this.type, this.line, escopo);
+            if(!vt.insert(nv)){
+                System.out.println("A variável : " + nome + " já foi declarada.");
+            }
         }
-
+        
         visitChildren(ctx);
-        //System.out.println("Init declarator [" + nome + "] tipo " + this.type);
 		return ctx.declarator().getText();
 	}
 
@@ -143,8 +155,6 @@ public class SemanticChecker extends CBaseVisitor<String> {
     public String visitTypedefName(CParser.TypedefNameContext ctx) {
         visitChildren(ctx);
 
-        System.out.println(ctx.Identifier().getSymbol().getLine());
-        // this.line = ctx.Identifier().getSymbol().getLine();
         String nome = ctx.Identifier().getText();
         int escopo = 0;
 
@@ -157,13 +167,10 @@ public class SemanticChecker extends CBaseVisitor<String> {
         if(!vt.insert(nv)){
             System.out.println("A variável : " + nome + " já foi declarada anteriormente.");
         }
-        
-
-        //System.out.println("TypeDefname [" + nome + "] tipo " + this.type);
+    
         return nome;
     }
 
-    // ^Declaração de função
     //functionDefinition : declarationSpecifiers? declarator declarationList? compoundStatement
     @Override public String visitFunctionDefinition(CParser.FunctionDefinitionContext ctx) {
 
@@ -265,12 +272,12 @@ public class SemanticChecker extends CBaseVisitor<String> {
     }
 
 	@Override
-    public String visitFuncName(CParser.VarNameContext ctx) {
+    public String visitFuncName(CParser.FuncNameContext ctx) {
         visitChildren(ctx);
-        System.out.println(ctx.Identifier().getSymbol().getLine());
-        this.line = ctx.Identifier().getSymbol().getLine();
+        this.lineFunc = ctx.Identifier().getSymbol().getLine();
         return ctx.Identifier().getText();
     }
+
 
     @Override 
     public String visitStaticAssertDeclaration(CParser.StaticAssertDeclarationContext ctx) {
