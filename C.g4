@@ -302,7 +302,7 @@ declarator
     ;
 
 directDeclarator
-    :   Identifier #varName
+    :   Identifier #funcName
     |   '(' declarator ')' #params
     |   directDeclarator '[' typeQualifierList? assignmentExpression? ']' #naoInteressa1
     |   directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']' #naoInteressa2

@@ -22,6 +22,8 @@ public class SemanticChecker extends CBaseVisitor<String> {
     private boolean isInBlock = false;
 
     private String type;// Armazenar os tipos das variáveis
+    private int lineVar;
+    private int lineFunc;
 
     private int escopoAtual = 0;
 
@@ -55,7 +57,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
             return;
         }
 
-        VarInfo nova = new VarInfo(text, type, line, 0);//todo jakjksaksjajkajs
+        VarInfo nova = new VarInfo(text, type, this.line, 0);//todo jakjksaksjajkajs
 
         vt.insert(nova);
     }
@@ -124,7 +126,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
             escopo = this.escopoAtual;
         }
 
-        VarInfo nv = new VarInfo(nome, this.type, 0, escopo);
+        VarInfo nv = new VarInfo(nome, this.type, this.line, escopo);
 
         if(!vt.insert(nv)){
             System.out.println("A variável : " + nome + " já foi declarada.");
@@ -141,6 +143,8 @@ public class SemanticChecker extends CBaseVisitor<String> {
     public String visitTypedefName(CParser.TypedefNameContext ctx) {
         visitChildren(ctx);
 
+        System.out.println(ctx.Identifier().getSymbol().getLine());
+        // this.line = ctx.Identifier().getSymbol().getLine();
         String nome = ctx.Identifier().getText();
         int escopo = 0;
 
@@ -148,7 +152,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
             escopo = this.escopoAtual;
         }
 
-        VarInfo nv = new VarInfo(nome, this.type, 0, escopo);
+        VarInfo nv = new VarInfo(nome, this.type, ctx.Identifier().getSymbol().getLine(), escopo);
 
         if(!vt.insert(nv)){
             System.out.println("A variável : " + nome + " já foi declarada anteriormente.");
@@ -261,7 +265,10 @@ public class SemanticChecker extends CBaseVisitor<String> {
     }
 
 	@Override
-    public String visitVarName(CParser.VarNameContext ctx) {
+    public String visitFuncName(CParser.VarNameContext ctx) {
+        visitChildren(ctx);
+        System.out.println(ctx.Identifier().getSymbol().getLine());
+        this.line = ctx.Identifier().getSymbol().getLine();
         return ctx.Identifier().getText();
     }
 

@@ -3538,9 +3538,9 @@ public class CParser extends Parser {
 		}
 		public NaoInteressa6Context(DirectDeclaratorContext ctx) { copyFrom(ctx); }
 	}
-	public static class VarNameContext extends DirectDeclaratorContext {
+	public static class FuncNameContext extends DirectDeclaratorContext {
 		public TerminalNode Identifier() { return getToken(CParser.Identifier, 0); }
-		public VarNameContext(DirectDeclaratorContext ctx) { copyFrom(ctx); }
+		public FuncNameContext(DirectDeclaratorContext ctx) { copyFrom(ctx); }
 	}
 	public static class NaoInteressa4Context extends DirectDeclaratorContext {
 		public DirectDeclaratorContext directDeclarator() {
@@ -3656,7 +3656,7 @@ public class CParser extends Parser {
 			switch ( getInterpreter().adaptivePredict(_input,59,_ctx) ) {
 			case 1:
 				{
-				_localctx = new VarNameContext(_localctx);
+				_localctx = new FuncNameContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
