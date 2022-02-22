@@ -5,17 +5,23 @@ public class VarInfo{
 	int line;
 	String name;
 	int escopo;
+	String valor;
 
-	public VarInfo(String name, String type, int line, int escopo){
+	public VarInfo(String name, String type, int line, int escopo, String valor){
 		this.name = name;
 		this.type = type;
 		this.line = line;
 		this.escopo = escopo;
+		this.valor = valor;
 	}
 
     //Provável erro
 	void showInfo(){
-		System.out.println("Name: " + this.name + " type: " + this.type + " Line: " + String.valueOf(this.line) + " Escopo : "  + this.escopo);
+		if(this.valor == null){
+			System.out.println("NOME: [" + this.name + "], TIPO: [" + this.type + "], LINHA: " + String.valueOf(this.line) + ",  VALOR: [null], ESCOPO : "  + this.escopo);
+		}else{
+			System.out.println("NOME: [" + this.name + "], TIPO: [" + this.type + "], LINHA: " + String.valueOf(this.line) + "VALOR: [" + this.valor +"], ESCOPO : "  + this.escopo);
+		}
 	}
 
 	public String getType() {

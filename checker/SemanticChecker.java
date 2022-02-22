@@ -47,7 +47,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
     //     String text = token.getText();
     //     int line = token.getLine();
 
-    //     Boolean idx = vt.lookUp(text, this.escopoAtual);//todo oaosaoposoaosasopop
+    //     Boolean idx = vt.lookUp(text, this.escopoAtual);
 
     //     if (idx == true) {
     //         System.err.printf(
@@ -57,7 +57,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
     //         return;
     //     }
 
-    //     VarInfo nova = new VarInfo(text, type, this.line, 0);//todo jakjksaksjajkajs
+    //     VarInfo nova = new VarInfo(text, type, this.line, 0);
 
     //     vt.insert(nova);
     // }
@@ -67,12 +67,14 @@ public class SemanticChecker extends CBaseVisitor<String> {
      * *Funções e variáveis estão nas tabelas
      * *Permite declarar variáveis em escopo diferente
      * *Imprime o número da linha da variável
+     * ^Tratar operadores Binários (Lógicos e/ou aritméticos)       <-----------
      * ^Tratar InitDeclarator '='
-     * ^Tratar operadores Binários
-     * ^Chamada de função
-     * ^Tratar operadores lógicos
-     * !Uma declaração composta
-     * !Uma função de IO
+     *      ? Atribuição simples
+     *      ? Atribuição com operações artméticas
+     * ^Tratar manipulação de variáveis
+     * ^Chamadas de função, verificação de parâmetros
+     * !Uma declaração e manipulação de tipo composto
+     * !Uma função de IO -> Função padrão na tabela de Funções
      * 
      */
 
@@ -113,7 +115,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
             this.line = ctx.Comma(0).getSymbol().getLine();
         }
         
-		return visitChildren(ctx); 
+		return visitChildren(ctx);
 	}
 
     // initDeclarator : declarator ('=' initializer)?
@@ -132,14 +134,14 @@ public class SemanticChecker extends CBaseVisitor<String> {
         if(ctx.Assign() != null){
             this.line = ctx.Assign().getSymbol().getLine();
 
-            nv = new VarInfo(nome, this.type, this.line, escopo);
+            nv = new VarInfo(nome, this.type, this.line, escopo, null);
 
             if(!vt.insert(nv)){
                 System.out.println("A variável : " + nome + " já foi declarada.");
             }
 
         }else{
-            nv = new VarInfo(nome, this.type, this.line, escopo);
+            nv = new VarInfo(nome, this.type, this.line, escopo, null);
             if(!vt.insert(nv)){
                 System.out.println("A variável : " + nome + " já foi declarada.");
             }
@@ -149,6 +151,115 @@ public class SemanticChecker extends CBaseVisitor<String> {
 		return ctx.declarator().getText();
 	}
 
+    //TODO ir desecebdo até encontrar onde retorna
+    //additiveExpression :  multiplicativeExpression (('+'|'-') multiplicativeExpression)*
+	@Override 
+    public String visitAdditiveExpression(CParser.AdditiveExpressionContext ctx) {
+
+        
+        String tipo = this.type;
+        String nome;
+
+        if(ctx.Plus() == null){
+            //System.out.println(ctx.multiplicativeExpression(1).getText());
+        }
+
+        for(int i = 0; i < ctx.multiplicativeExpression().size(); i++){
+            visit(ctx.multiplicativeExpression(i));
+            nome = ctx.multiplicativeExpression(i).getText();
+            //System.out.println("add " + nome);
+            // if(this.type.equals("CONST")){
+            //     //~Apenas retorna o valor ou cria a arvore, também pode verificar um a um
+            //    // System.out.println("const " + nome);
+                
+            //     //System.out.println("type const " + ctx.multiplicativeExpression(i).getText());
+            // }else{//Caso em que tem que verificar o tipo da variável/se a variável existe
+            //     System.out.println("name " + nome);
+            //     if(!vt.lookUp(nome, this.escopoAtual)){//^ERROR
+            //         //System.out.println("Simbolo " + nome +" não encontrado. " + this.line);
+            //     }
+            // }
+        }
+
+        this.type = tipo;
+
+        return "ok";
+    }
+
+
+    //multiplicativeExpression : castExpression (('*'|'/'|'%') castExpression)*
+	@Override 
+    public String visitMultiplicativeExpression(CParser.MultiplicativeExpressionContext ctx) {
+        
+       
+        
+        // for(int i = 0; i < ctx.castExpression().size(); i++){
+        //     if(i == ctx.castExpression().size()-1){
+        //         System.out.print(ctx.castExpression(i).getText());
+        //     }else{
+        //         System.out.print(ctx.castExpression(i).getText() + " op ");
+        //     }
+        // }
+        System.out.println();
+        visitChildren(ctx);
+        return "HAJHSJHS"; 
+    }
+
+
+    /**
+     * 
+     * postfixExpression
+    :
+    (   primaryExpression
+    |   '__extension__'? '(' typeName ')' '{' initializerList ','? '}'
+    )
+    ('[' expression ']'
+    | '(' argumentExpressionList? ')'
+    | ('.' | '->') Identifier
+    | ('++' | '--')
+    )*
+     */
+    //Por enquanto retorna só o nome da função, mas aqui verica-se os argumentos e outras partes do código
+    @Override
+    public String visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
+
+        visitChildren(ctx);
+
+        String nome = ctx.primaryExpression().getText();
+
+        if(!ctx.argumentExpressionList().isEmpty()){
+            System.out.println("typeName: " + ctx.typeName());
+            System.out.println("Funcao: " + nome + ", argumentos: ");
+            for(int i = 0; i < ctx.argumentExpressionList().size(); i++){
+                System.out.print(ctx.argumentExpressionList(i).getText() + " ");
+            }
+            System.out.println();
+        }
+        System.out.println("POST RECEBE " + nome);
+        return  nome;
+    }
+
+    // primaryExpression : Identifier | Constant | StringLiteral+ | '(' expression ')'
+	@Override 
+    public String visitPrimaryExpression(CParser.PrimaryExpressionContext ctx) {
+
+        if(!ctx.StringLiteral().isEmpty()){
+            this.type = "NAME";
+            //System.out.println("srlit " + ctx.StringLiteral(0).getText());
+            return ctx.StringLiteral(0).getText();
+        }
+        if(ctx.Identifier() != null){
+            this.type = "NAME";
+            //System.out.println("NAME " + ctx.Identifier().getText());
+            return ctx.Identifier().getText();
+        }
+        if(ctx.Constant() != null){
+            this.type = "CONST";
+           // System.out.println("CONST " + ctx.Constant().getText());
+            return ctx.Constant().getText();
+        }
+        return "SAHSHHAJJH";
+    }
 
 
 	@Override 
@@ -162,7 +273,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
             escopo = this.escopoAtual;
         }
 
-        VarInfo nv = new VarInfo(nome, this.type, ctx.Identifier().getSymbol().getLine(), escopo);
+        VarInfo nv = new VarInfo(nome, this.type, ctx.Identifier().getSymbol().getLine(), escopo, null);
 
         if(!vt.insert(nv)){
             System.out.println("A variável : " + nome + " já foi declarada anteriormente.");
@@ -174,7 +285,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
     //functionDefinition : declarationSpecifiers? declarator declarationList? compoundStatement
     @Override public String visitFunctionDefinition(CParser.FunctionDefinitionContext ctx) {
 
-        if(ctx.declarator() != null && ctx.declarationSpecifiers() != null){//?
+        if(ctx.declarator() != null && ctx.declarationSpecifiers() != null){
             
             String nome = visit(ctx.declarator());
 
@@ -199,7 +310,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
 
         //Caso esse tratamento não seja feito. O type é definido como o nome da variável
         if(ctx.typedefName() == null){
-            this.type = ctx.getText();
+            this.type = ctx.getText();//!Switch case
         }
         //this.type = ctx.getText();
 
@@ -289,18 +400,6 @@ public class SemanticChecker extends CBaseVisitor<String> {
         visitChildren(ctx);
         return new  String();
     }
-
-    @Override
-    public String visitMultiplicativeExpression(CParser.MultiplicativeExpressionContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-
-    @Override
-    public String visitAdditiveExpression(CParser.AdditiveExpressionContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
    
     @Override
     public String visitLogicalAndExpression(CParser.LogicalAndExpressionContext ctx) {
@@ -363,12 +462,6 @@ public class SemanticChecker extends CBaseVisitor<String> {
 
     @Override
     public String visitConstantExpression(CParser.ConstantExpressionContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-
-    @Override
-    public String visitPrimaryExpression(CParser.PrimaryExpressionContext ctx) {
         visitChildren(ctx);
         return new  String();
     }
