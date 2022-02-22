@@ -27,6 +27,16 @@ public class VarTable{
 		return true;
 	}
 
+    public String getType(String name, int escopo){
+        for (VarInfo varInfo : list) {
+			//compara se a variável pertence ao escopo
+			if(varInfo.getName().compareTo(name) == 0 && (varInfo.getEscopo() == escopo)){
+				return varInfo.getType();
+			}
+		}
+		return null;
+    }
+
 	public void showTable(){
 		for (VarInfo info : list) {
 			info.showInfo();

@@ -56,6 +56,15 @@ public class FuncTable {
         }
     }
 
+    public String getType(String name){
+        for (FunctionInfo i : list) {
+            if(i.getNome().equals(name)){//Aqui verifica se a funçao está na tabela
+                return i.getTipo();
+            }
+        }
+        return null;
+    }
+
     public void imprime(){
         for (FunctionInfo f : list) {
             f.imprime();

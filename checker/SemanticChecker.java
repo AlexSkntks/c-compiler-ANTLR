@@ -225,21 +225,42 @@ public class SemanticChecker extends CBaseVisitor<String> {
 
         visitChildren(ctx);
 
-        String nome = ctx.primaryExpression().getText();
+        String name = ctx.primaryExpression().getText();
+        if(!ctx.LeftParen().isEmpty()){
+            if(!ctx.argumentExpressionList().isEmpty()){
+                // ft.lookUp(nome, args)
+                ArrayList<String> args = new ArrayList<String>();
+                System.out.println("typeName: " + ft.getType(name));
+                System.out.println("Funcao: " + name + ", argumentos: ");
+                for(int i = 0; i < ctx.argumentExpressionList().size(); i++){
+                    System.out.print(ctx.argumentExpressionList(i).getText() + " ");
+                    args.add(ctx.argumentExpressionList(i).getText());
+                }
+                System.out.println();
+            } else{
 
-        if(!ctx.argumentExpressionList().isEmpty()){
-            System.out.println("typeName: " + ctx.typeName());
-            System.out.println("Funcao: " + nome + ", argumentos: ");
-            for(int i = 0; i < ctx.argumentExpressionList().size(); i++){
-                System.out.print(ctx.argumentExpressionList(i).getText() + " ");
             }
-            System.out.println();
+        } else {
+
+            if(vt.lookUp(name, this.escopoAtual)){
+                return vt.getType(name, this.escopoAtual);
+            }
+            
         }
-        System.out.println("POST RECEBE " + nome);
-        return  nome;
+        System.out.println("POST RECEBE " + name);
+        return  name;
     }
 
-    // primaryExpression : Identifier | Constant | StringLiteral+ | '(' expression ')'
+
+    // primaryExpression
+    // :   Identifier
+    // |   Constant
+    // |   StringLiteral+
+    // |   '(' expression ')'
+    // |   genericSelection 
+    // |   '__extension__'? '(' compoundStatement ')' // Blocks (GCC extension)
+    // |   '__builtin_va_arg' '(' unaryExpression ',' typeName ')'
+    // |   '__builtin_offsetof' '(' typeName ',' unaryExpression ')'
 	@Override 
     public String visitPrimaryExpression(CParser.PrimaryExpressionContext ctx) {
 
@@ -249,16 +270,18 @@ public class SemanticChecker extends CBaseVisitor<String> {
             return ctx.StringLiteral(0).getText();
         }
         if(ctx.Identifier() != null){
+
             this.type = "NAME";
-            //System.out.println("NAME " + ctx.Identifier().getText());
-            return ctx.Identifier().getText();
+            String name = ctx.Identifier().getText();
+            // System.out.println("NAME " + name);
+            return name;
         }
         if(ctx.Constant() != null){
             this.type = "CONST";
            // System.out.println("CONST " + ctx.Constant().getText());
             return ctx.Constant().getText();
         }
-        return "SAHSHHAJJH";
+        return visitChildren(ctx);
     }
 
 
