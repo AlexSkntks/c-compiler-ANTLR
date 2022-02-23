@@ -8,6 +8,18 @@ public class FuncTable {
     ArrayList<FunctionInfo> list = new ArrayList<FunctionInfo>();
 
     //Chamada da função
+    public Boolean verifyIfAlreadyExists(String nome){
+
+        for (FunctionInfo i : list) {
+
+            if(i.getNome().equals(nome)){//Aqui verifica se a funçao está na tabela
+                return true;
+            }
+
+        }
+        return false;
+    }
+
     public Boolean lookUp(String nome, ArrayList<String> args){
 
         for (FunctionInfo i : list) {
@@ -69,5 +81,14 @@ public class FuncTable {
         for (FunctionInfo f : list) {
             f.imprime();
         }
+    }
+
+    public int getListSize(String nome) {
+        for (FunctionInfo i : list) {
+            if(i.getNome().equals(nome)){//Aqui verifica se a funçao está na tabela
+                return i.getParametros().size();
+            }
+        }
+        return -1;
     }
 }

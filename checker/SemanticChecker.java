@@ -1,6 +1,8 @@
 package checker;
 import java.util.ArrayList;
 
+import javax.sound.midi.SysexMessage;
+
 import org.antlr.v4.runtime.Token;
 
 import parser.CBaseVisitor;
@@ -190,20 +192,45 @@ public class SemanticChecker extends CBaseVisitor<String> {
     //multiplicativeExpression : castExpression (('*'|'/'|'%') castExpression)*
 	@Override 
     public String visitMultiplicativeExpression(CParser.MultiplicativeExpressionContext ctx) {
-        
-       
-        
-        // for(int i = 0; i < ctx.castExpression().size(); i++){
-        //     if(i == ctx.castExpression().size()-1){
-        //         System.out.print(ctx.castExpression(i).getText());
-        //     }else{
-        //         System.out.print(ctx.castExpression(i).getText() + " op ");
-        //     }
-        // }
-        System.out.println();
+
         visitChildren(ctx);
-        return "HAJHSJHS"; 
+        
+        if(ctx.castExpression().size() != 1){
+            System.out.println("\nImprimindo expMult: ");
+            for(int i = 0; i < ctx.castExpression().size(); i++){
+                if(i == ctx.castExpression().size()-1){
+                    System.out.print(ctx.castExpression(i).getText());
+                }else{
+                    System.out.print(ctx.castExpression(i).getText() + " op ");
+                }
+            }
+            System.out.println();
+        }        
+        return null; 
     }
+
+    //castExpression : '__extension__'? '(' typeName ')' castExpression | unaryExpression | DigitSequence // for
+	@Override public String visitCastExpression(CParser.CastExpressionContext ctx) {
+        visitChildren(ctx);
+        return "jakjksjkajkjk";
+    }
+
+    /**
+     * unaryExpression
+    :
+    ('++' |  '--' |  'sizeof')*
+    (postfixExpression
+    |   unaryOperator castExpression
+    |   ('sizeof' | '_Alignof') '(' typeName ')'
+    |   '&&' Identifier // GCC extension address of label
+    )
+    ;
+     * 
+     */
+	// @Override public String visitUnaryExpression(CParser.UnaryExpressionContext ctx) {
+    //     // System.out.println("RETORNO DE POSTFIX " + ctx.postfixExpression().getText());
+    //     return visitChildren(ctx);
+    // }
 
 
     /**
@@ -219,38 +246,79 @@ public class SemanticChecker extends CBaseVisitor<String> {
     | ('++' | '--')
     )*
      */
-    //Por enquanto retorna só o nome da função, mas aqui verica-se os argumentos e outras partes do código
     @Override
     public String visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
 
-        visitChildren(ctx);
+        //visitChildren(ctx);
 
         String name = ctx.primaryExpression().getText();
+
+        //Verifica se o retorno foi uma função
         if(!ctx.LeftParen().isEmpty()){
-            if(!ctx.argumentExpressionList().isEmpty()){
-                // ft.lookUp(nome, args)
-                ArrayList<String> args = new ArrayList<String>();
-                System.out.println("typeName: " + ft.getType(name));
-                System.out.println("Funcao: " + name + ", argumentos: ");
-                for(int i = 0; i < ctx.argumentExpressionList().size(); i++){
-                    System.out.print(ctx.argumentExpressionList(i).getText() + " ");
-                    args.add(ctx.argumentExpressionList(i).getText());
-                }
-                System.out.println();
-            } else{
 
+            if(!ft.verifyIfAlreadyExists(name)){
+                System.out.println("Simbolo " + name + " nao encontrado.");
+                return "no_type";
             }
-        } else {
 
-            if(vt.lookUp(name, this.escopoAtual)){
-                return vt.getType(name, this.escopoAtual);
-            }
+            String aux[] = ctx.argumentExpressionList(0).getText().split(",");
+
+            //Posteriormente tratar os tipos
+
+            // for(int i = 0; i < aux.length; i++){
+            //     System.out.println(aux[i]);
+            // }
+
+            //System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
             
+            //Verifica se o tamanho da lista argumentos é coerente
+            if(ft.getListSize(name) == aux.length){
+                return ft.getType(name);
+            }else{
+                System.out.println("Funcao " + name + " tem argumentos demais.");
+                return "no_type";
+            }
+           
+        } else {
+            String aux = this.type;
+
+            visitChildren(ctx);
+            
+           
+            if(this.type.equals("NAME")){//Variável
+                
+                if(vt.lookUp(name, this.escopoAtual)){
+                    //System.out.println("Variavel " + name + " esta ok");
+                    return vt.getType(name, this.escopoAtual);
+                }else{
+                    System.out.println("Simbolo " + name + " nao encontrado");
+                    return "no_type";
+                }
+
+            }
+            //Valor constante
+            this.type = aux;
+            return "const";
         }
-        System.out.println("POST RECEBE " + name);
-        return  name;
     }
 
+
+    // argumentExpressionList : assignmentExpression (',' assignmentExpression)*
+
+	// @Override public String visitArgumentExpressionList(CParser.ArgumentExpressionListContext ctx){
+
+    //     String size = Integer.toString(ctx.assignmentExpression().size());
+    //     visitChildren(ctx);
+
+    //     return;
+    // }
+
+
+	@Override 
+    public String visitConstantExpression(CParser.ConstantExpressionContext ctx) {
+        System.out.println("CONSTANTEXP " + ctx.getText());
+        return visitChildren(ctx);
+    }
 
     // primaryExpression
     // :   Identifier
@@ -479,12 +547,6 @@ public class SemanticChecker extends CBaseVisitor<String> {
     
     @Override
     public String visitAssignmentOperator(CParser.AssignmentOperatorContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-
-    @Override
-    public String visitConstantExpression(CParser.ConstantExpressionContext ctx) {
         visitChildren(ctx);
         return new  String();
     }

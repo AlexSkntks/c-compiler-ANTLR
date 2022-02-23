@@ -3,5 +3,4 @@ int test_func(int a, int b){
     return 0;
 }
 
-char outX = 'a' + z + 'c' * 1.1 / test_func(1,2);
-
+char outX = 'a' + z + 'c' * 1.1 / test_func(1, 's');
