@@ -139,13 +139,13 @@ public class SemanticChecker extends CBaseVisitor<String> {
             nv = new VarInfo(nome, this.type, this.line, escopo, null);
 
             if(!vt.insert(nv)){
-                System.out.println("A variável : " + nome + " já foi declarada.");
+                // System.out.println("A variável : " + nome + " já foi declarada.");
             }
 
         }else{
             nv = new VarInfo(nome, this.type, this.line, escopo, null);
             if(!vt.insert(nv)){
-                System.out.println("A variável : " + nome + " já foi declarada.");
+                // System.out.println("A variável : " + nome + " já foi declarada.");
             }
         }
         
@@ -164,28 +164,38 @@ public class SemanticChecker extends CBaseVisitor<String> {
 
         if(ctx.Plus() == null){
             //System.out.println(ctx.multiplicativeExpression(1).getText());
+            
         }
 
+        String bigger_typer = new String();
+        String bigger_type_aux = new String();
+
         for(int i = 0; i < ctx.multiplicativeExpression().size(); i++){
-            visit(ctx.multiplicativeExpression(i));
-            nome = ctx.multiplicativeExpression(i).getText();
-            //System.out.println("add " + nome);
-            // if(this.type.equals("CONST")){
-            //     //~Apenas retorna o valor ou cria a arvore, também pode verificar um a um
-            //    // System.out.println("const " + nome);
-                
-            //     //System.out.println("type const " + ctx.multiplicativeExpression(i).getText());
-            // }else{//Caso em que tem que verificar o tipo da variável/se a variável existe
-            //     System.out.println("name " + nome);
-            //     if(!vt.lookUp(nome, this.escopoAtual)){//^ERROR
-            //         //System.out.println("Simbolo " + nome +" não encontrado. " + this.line);
-            //     }
-            // }
+            bigger_type_aux = visit(ctx.multiplicativeExpression(i));
+
+            if(bigger_type_aux.equals("float")){
+                bigger_typer = "float";
+            } else if(bigger_type_aux.equals("int") && !bigger_typer.equals("float")){
+                bigger_typer = "int";
+            } else if(bigger_type_aux.equals("char") && !bigger_typer.equals("float") && !bigger_typer.equals("int")){
+                bigger_typer = "char";
+            }
+
+            if(i == ctx.multiplicativeExpression().size()-1){
+                System.out.print(" (" + bigger_type_aux + ") ");
+            }else{
+                System.out.print( " (" + bigger_type_aux + ") " + " op ");
+            }
+
         }
+
+        System.out.println();
+        // System.out.println("Result of multi: " + bigger_typer);
+        // System.out.println();
 
         this.type = tipo;
 
-        return "ok";
+        return bigger_typer;
     }
 
 
@@ -197,22 +207,34 @@ public class SemanticChecker extends CBaseVisitor<String> {
         // String a = visit(ctx.castExpression(0));
 
         // System.out.println("Teste unary: " + a);
-
+        String bigger_typer = new String();
+        String bigger_type_aux = new String();
         
-        if(ctx.castExpression().size() != 1){
+        // System.out.println("\nImprimindo expMult: ");
+        for(int i = 0; i < ctx.castExpression().size(); i++){
+            bigger_type_aux = visit(ctx.castExpression(i));
 
-            System.out.println("\nImprimindo expMult: ");
-            for(int i = 0; i < ctx.castExpression().size(); i++){
-                if(i == ctx.castExpression().size()-1){
-                    System.out.print(visit(ctx.castExpression(i)));
-                }else{
-                    System.out.print(visit(ctx.castExpression(i)) + " op ");
-                }
+            if(bigger_type_aux.equals("float")){
+                bigger_typer = "float";
+            } else if(bigger_type_aux.equals("int") && !bigger_typer.equals("float")){
+                bigger_typer = "int";
+            } else if(bigger_type_aux.equals("char") && !bigger_typer.equals("float") && !bigger_typer.equals("int")){
+                bigger_typer = "char";
             }
-            System.out.println("---------");
+
+            // if(i == ctx.castExpression().size()-1){
+            //     System.out.print( bigger_type_aux);
+            // }else{
+            //     System.out.print( bigger_type_aux + " op ");
+            // }
         }
+
+        // System.out.println();
+        // System.out.println("Result of multi: " + bigger_typer);
+        // System.out.println();
+
                
-        return null; 
+        return bigger_typer; 
     }
 
     //castExpression : '__extension__'? '(' typeName ')' castExpression | unaryExpression | DigitSequence // for
@@ -257,8 +279,6 @@ public class SemanticChecker extends CBaseVisitor<String> {
     @Override
     public String visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
 
-        visitChildren(ctx);
-
         String name = ctx.primaryExpression().getText();
 
         //Verifica se o retorno foi uma função
@@ -269,7 +289,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
                 return "no_type";
             }
 
-            String aux[] = ctx.argumentExpressionList(0).getText().split(",");
+            String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
 
             //Posteriormente tratar os tipos
 
@@ -280,7 +300,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
             //System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
             
             //Verifica se o tamanho da lista argumentos é coerente
-            if(ft.getListSize(name) == aux.length){
+            if(ft.getListSize(name) == argumentList.length){
                 return ft.getType(name);
             }else{
                 System.out.println("Funcao " + name + " tem argumentos demais.");
@@ -290,8 +310,12 @@ public class SemanticChecker extends CBaseVisitor<String> {
         } else {
             String aux = this.type;
 
-            visitChildren(ctx);
+            String aux1 = visitChildren(ctx);
+
+            // System.out.println("argumentExpressionList: "+aux1);
             
+            // String s = ctx.argumentExpressionList(0).getText();
+            // System.out.println("Test argument List: "+s);
            
             if(this.type.equals("NAME")){//Variável
                 // Escopo atual = 0 siginifica que a variável está fora 
@@ -313,9 +337,17 @@ public class SemanticChecker extends CBaseVisitor<String> {
             }
             //Valor constante
             this.type = aux;
-            return "const";
+            return aux1;
         }
     }
+
+
+    //
+    // @Override public String visitArgumentExpressionList(CParser.ArgumentExpressionListContext ctx) { 
+    //     String aux = visitChildren(ctx);
+    //     System.out.println("VistArgumentExpressionList: "+aux);
+    //     return "CHAR,CHAR"; 
+    // }
 
 
     // argumentExpressionList : assignmentExpression (',' assignmentExpression)*
@@ -346,20 +378,37 @@ public class SemanticChecker extends CBaseVisitor<String> {
     // |   '__builtin_offsetof' '(' typeName ',' unaryExpression ')'
 	@Override 
     public String visitPrimaryExpression(CParser.PrimaryExpressionContext ctx) {
+        
 
         if(ctx.Identifier() != null){
-
+            // System.out.println("PrimaryExpression: "+ctx.Identifier().getText());
             this.type = "NAME";
             String name = ctx.Identifier().getText();
             // System.out.println("NAME " + name);
             return name;
         }
-        if(ctx.Constant() != null){
+        else if(ctx.Constant() != null){
+            // System.out.println("PrimaryExpression: "+ctx.Constant().getText());
             this.type = "CONST";
            // System.out.println("CONST " + ctx.Constant().getText());
-            return "CONST";
+            return const_type_checker(ctx.Constant().getText());
         }
         return visitChildren(ctx);
+    }
+
+    // Isso aqui converte as constantes para tipo. 
+    // O tipo é retornado em String.
+    public String const_type_checker(String s){
+        if(s.contains("\'")){
+            // System.out.println(s+"=char");
+            return "char";
+        }else if(s.contains(".")){
+            // System.out.println(s+"=float");
+            return "float";
+        } else{
+            // System.out.println(s+"=int");
+            return "int";
+        }
     }
 
 
