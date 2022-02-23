@@ -1,8 +1,7 @@
 int test_func(int a, int b){
-    int x = 1;
+    char x = 1;
     return 0;
 }
 
-int x = 2;
-char outX = 'a' + sqrt(2) + 'c' * 1.1 / test_func(1, z);
-
+float x = 2;
+int outX = x * 3 * test_func(2);

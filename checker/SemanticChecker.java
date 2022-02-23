@@ -193,26 +193,33 @@ public class SemanticChecker extends CBaseVisitor<String> {
 	@Override 
     public String visitMultiplicativeExpression(CParser.MultiplicativeExpressionContext ctx) {
 
-        visitChildren(ctx);
+        // visitChildren(ctx);
+        // String a = visit(ctx.castExpression(0));
+
+        // System.out.println("Teste unary: " + a);
+
         
         if(ctx.castExpression().size() != 1){
+
             System.out.println("\nImprimindo expMult: ");
             for(int i = 0; i < ctx.castExpression().size(); i++){
                 if(i == ctx.castExpression().size()-1){
-                    System.out.print(ctx.castExpression(i).getText());
+                    System.out.print(visit(ctx.castExpression(i)));
                 }else{
-                    System.out.print(ctx.castExpression(i).getText() + " op ");
+                    System.out.print(visit(ctx.castExpression(i)) + " op ");
                 }
             }
-            System.out.println();
-        }        
+            System.out.println("---------");
+        }
+               
         return null; 
     }
 
     //castExpression : '__extension__'? '(' typeName ')' castExpression | unaryExpression | DigitSequence // for
 	@Override public String visitCastExpression(CParser.CastExpressionContext ctx) {
-        visitChildren(ctx);
-        return "jakjksjkajkjk";
+        String aux = visitChildren(ctx);
+        // System.out.println("RETORNO DE UNARYEXPRESSION " + aux);
+        return aux;
     }
 
     /**
@@ -227,10 +234,11 @@ public class SemanticChecker extends CBaseVisitor<String> {
     ;
      * 
      */
-	// @Override public String visitUnaryExpression(CParser.UnaryExpressionContext ctx) {
-    //     // System.out.println("RETORNO DE POSTFIX " + ctx.postfixExpression().getText());
-    //     return visitChildren(ctx);
-    // }
+	@Override public String visitUnaryExpression(CParser.UnaryExpressionContext ctx) {
+        // String aux = visitChildren(ctx);
+        // System.out.println("RETORNO DE POSTFIX " + aux);
+        return visitChildren(ctx);
+    }
 
 
     /**
@@ -249,7 +257,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
     @Override
     public String visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
 
-        //visitChildren(ctx);
+        visitChildren(ctx);
 
         String name = ctx.primaryExpression().getText();
 
@@ -286,10 +294,17 @@ public class SemanticChecker extends CBaseVisitor<String> {
             
            
             if(this.type.equals("NAME")){//Variável
-                
-                if(vt.lookUp(name, this.escopoAtual)){
+                // Escopo atual = 0 siginifica que a variável está fora 
+                // de escopo, ou seja fora de uma função.
+                int scopo = 0;
+                // Caso ela esteja em uma função, ou bloco (inBlock), 
+                // ela terá escopo diferente de 0
+                if(this.isInBlock == true){
+                    scopo = this.escopoAtual;
+                }
+                if(vt.lookUp(name, scopo)){
                     //System.out.println("Variavel " + name + " esta ok");
-                    return vt.getType(name, this.escopoAtual);
+                    return vt.getType(name, scopo);
                 }else{
                     System.out.println("Simbolo " + name + " nao encontrado");
                     return "no_type";
@@ -332,11 +347,6 @@ public class SemanticChecker extends CBaseVisitor<String> {
 	@Override 
     public String visitPrimaryExpression(CParser.PrimaryExpressionContext ctx) {
 
-        if(!ctx.StringLiteral().isEmpty()){
-            this.type = "NAME";
-            //System.out.println("srlit " + ctx.StringLiteral(0).getText());
-            return ctx.StringLiteral(0).getText();
-        }
         if(ctx.Identifier() != null){
 
             this.type = "NAME";
@@ -347,7 +357,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
         if(ctx.Constant() != null){
             this.type = "CONST";
            // System.out.println("CONST " + ctx.Constant().getText());
-            return ctx.Constant().getText();
+            return "CONST";
         }
         return visitChildren(ctx);
     }
