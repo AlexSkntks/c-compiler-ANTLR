@@ -6,13 +6,11 @@ JAVAC=javac
 # Eu uso ROOT como o diretório raiz para os meus labs.
 YEAR=$(shell pwd | grep -o '20..-.')
 # Aleks
-ROOT=/usr/local/lib
-ANTLR_PATH=$(ROOT)/antlr-4.9.2-complete.jar
+# ROOT=/usr/local/lib
+# ANTLR_PATH=$(ROOT)/antlr-4.9.2-complete.jar
 # Lucas
-# ROOT=/home/lucas/desktop/ufes/compiladores
-# ANTLR_PATH=$(ROOT)/antlr-4.9.3-complete.jar
-
-
+ROOT=/home/lucas/desktop/ufes/compiladores
+ANTLR_PATH=$(ROOT)/antlr-4.9.3-complete.jar
 
 CLASS_PATH_OPTION=-cp .:$(ANTLR_PATH)
 
@@ -37,13 +35,18 @@ all: antlr javac
 # Opção -no-listener foi usada para que o ANTLR não gere alguns arquivos
 # desnecessários para o momento. Isto será explicado melhor nos próximos labs.
 antlr: C.g4
-	$(ANTLR4) C.g4
+	$(ANTLR4) -no-listener -visitor -o $(GEN_PATH) C.g4
 
 javac:
-	$(JAVAC) $(CLASS_PATH_OPTION) *.java
+	if [ -d "$(BIN_PATH)" ]; then \
+		rm -r $(BIN_PATH); \
+	fi; 
+	mkdir $(BIN_PATH)
+	
+	$(JAVAC) $(CLASS_PATH_OPTION) -d $(BIN_PATH) */*.java
 
 run:
-	$(GRUN) C compilationUnit -gui $(FILE)
+	$(GRUN) C compilationUnit -gui $(FILE) > tree.png
 
 clean:
-	@rm -rf *.java *.interp *.tokens *.class
+	@rm -rf $(GEN_PATH) $(BIN_PATH)

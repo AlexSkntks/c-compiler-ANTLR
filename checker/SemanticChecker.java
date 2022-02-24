@@ -153,6 +153,22 @@ public class SemanticChecker extends CBaseVisitor<String> {
 		return ctx.declarator().getText();
 	}
 
+
+    // Por algum motivo o retorno que definimos na função additiveExpression Não alcança o Itializer;
+    // por isso fizemos o Overrride de TODAS as funções intermediárias até alnaçar o Initializaer, e assim
+    // acessar os tipos corretamente.
+    @Override public String visitInitializer(CParser.InitializerContext ctx) { return visitChildren(ctx);}
+    @Override public String visitAssignmentExpression(CParser.AssignmentExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public String visitConditionalExpression(CParser.ConditionalExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public String visitLogicalOrExpression(CParser.LogicalOrExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public String visitLogicalAndExpression(CParser.LogicalAndExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public String visitInclusiveOrExpression(CParser.InclusiveOrExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public String visitExclusiveOrExpression(CParser.ExclusiveOrExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public String visitAndExpression(CParser.AndExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public String visitEqualityExpression(CParser.EqualityExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public String visitRelationalExpression(CParser.RelationalExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public String visitShiftExpression(CParser.ShiftExpressionContext ctx) { return visitChildren(ctx); }
+
     //TODO ir desecebdo até encontrar onde retorna
     //additiveExpression :  multiplicativeExpression (('+'|'-') multiplicativeExpression)*
 	@Override 
@@ -484,11 +500,15 @@ public class SemanticChecker extends CBaseVisitor<String> {
         String params = visit(ctx.parameterTypeList());
 
         String[] aux = params.split(",");
+        System.out.println("params: " + params);
 
         ArrayList<String> list = new ArrayList<String>();
 
         for(int i = 0; i < aux.length; i++){
-            list.add(aux[i]);
+            if(!aux[i].equals("")){
+                list.add(aux[i]);
+            }
+
         }
 
         ft.addParams(nome, list);
@@ -539,75 +559,5 @@ public class SemanticChecker extends CBaseVisitor<String> {
         return ctx.Identifier().getText();
     }
 
-
-    @Override 
-    public String visitStaticAssertDeclaration(CParser.StaticAssertDeclarationContext ctx) {
-        return visitChildren(ctx); 
-    }
-
-    @Override
-    public String visitUnaryOperator(CParser.UnaryOperatorContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-   
-    @Override
-    public String visitLogicalAndExpression(CParser.LogicalAndExpressionContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }   
-
-    @Override
-    public String visitLogicalOrExpression(CParser.LogicalOrExpressionContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-    
-    @Override
-    public String visitConditionalExpression(CParser.ConditionalExpressionContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-    
-    @Override
-    public String visitAssignmentExpression(CParser.AssignmentExpressionContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-    
-    // Possível tipo composto (Struct)
-    @Override
-    public String visitStructDeclaration(CParser.StructDeclarationContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-
-    // Typedef ?
-    @Override
-    public String visitTypeName(CParser.TypeNameContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-
-    
-    @Override
-    public String visitRelationalExpression(CParser.RelationalExpressionContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-
-   
-    @Override
-    public String visitEqualityExpression(CParser.EqualityExpressionContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
-
-    
-    @Override
-    public String visitAssignmentOperator(CParser.AssignmentOperatorContext ctx) {
-        visitChildren(ctx);
-        return new  String();
-    }
 
 }
