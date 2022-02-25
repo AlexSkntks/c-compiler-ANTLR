@@ -22,6 +22,16 @@ public enum NodeKind {
             return "int";
         }
 	},
+    FLOAT_VAL_NODE {
+		public String toString() {
+            return "float";
+        }
+	},
+    CHAR_VAL_NODE {
+		public String toString() {
+            return "char";
+        }
+	},
     LT_NODE {
 		public String toString() {
             return "<";
@@ -51,5 +61,22 @@ public enum NodeKind {
 		public String toString() {
             return "*";
         }
-	}
+	},
+    NULL_NODE {
+        public String toString() {
+            return null;
+        }
+    };
+
+    public static boolean hasData(NodeKind kind) {
+        switch(kind) {
+            case INT_VAL_NODE:
+            case FLOAT_VAL_NODE:
+            case STR_VAL_NODE:
+            case CHAR_VAL_NODE:
+                return true;
+            default:
+                return false;
+        }
+    }
 }

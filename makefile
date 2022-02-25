@@ -63,4 +63,4 @@ runallFalse:
     done;
 
 clean:
-	@rm -rf $(GEN_PATH) $(BIN_PATH)
+	@rm -rf $(GEN_PATH) $(BIN_PATH) ast/*.class
