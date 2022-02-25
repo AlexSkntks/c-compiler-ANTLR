@@ -66,7 +66,18 @@ public enum NodeKind {
         public String toString() {
             return null;
         }
-    };
+    },
+    INT2FLOAT{
+        public String toString() {
+            return null;
+        }
+    },
+    CHAR2INT{
+        public String toString() {
+            return null;
+        }
+    }
+    ;
 
     public static boolean hasData(NodeKind kind) {
         switch(kind) {

@@ -72,14 +72,14 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
 
     //initDeclaratorList : initDeclarator (',' initDeclarator)*
-	@Override
-    public String visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx) {
-        if(ctx.Comma(0) != null){
-            this.line = ctx.Comma(0).getSymbol().getLine();
-        }
+	// @Override
+    // public String visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx) {
+    //     if(ctx.Comma(0) != null){
+    //         this.line = ctx.Comma(0).getSymbol().getLine();
+    //     }
 
-		return visitChildren(ctx);
-	}
+	// 	return visitChildren(ctx);
+	// }
 
     // initDeclarator : declarator ('=' initializer)?
     //! É aqui que devemos tratar se a inicialização está correta!!!!!!!!
@@ -203,14 +203,19 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
         // visitChildren(ctx);
         // String a = visit(ctx.castExpression(0));
-
+        AST node;
         // System.out.println("Teste unary: " + a);
         String bigger_typer = new String();
         String bigger_type_aux = new String();
 
+        ArrayList<AST> listTypes = new ArrayList<AST>();
+        AST aux;
         // System.out.println("\nImprimindo expMult: ");
         for(int i = 0; i < ctx.castExpression().size(); i++){
-            bigger_type_aux = visit(ctx.castExpression(i));
+
+            aux = visit(ctx.castExpression(i));
+
+            bigger_type_aux = aux.getText();
 
             if(bigger_type_aux.equals("float")){
                 bigger_typer = "float";
@@ -220,19 +225,21 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 bigger_typer = "char";
             }
 
-            // if(i == ctx.castExpression().size()-1){
-            //     System.out.print( bigger_type_aux);
-            // }else{
-            //     System.out.print( bigger_type_aux + " op ");
-            // }
+            listTypes.add(aux);
+        }
+
+        AST multOP = new AST(NodeKind.TIMES_NODE);
+        for(int i = 0; i < ctx.castExpression().size(); i++){
+            
+            multOP.addChild(listTypes.get(i));
         }
 
         // System.out.println();
         // System.out.println("Result of multi: " + bigger_typer);
         // System.out.println();
 
-
-        return bigger_typer;
+        AST.printDot(multOP);
+        return new AST(NodeKind.NULL_NODE);
     }
 
     /**
@@ -330,21 +337,39 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     // |   '__builtin_offsetof' '(' typeName ',' unaryExpression ')'
 	@Override
     public AST visitPrimaryExpression(CParser.PrimaryExpressionContext ctx) {
-
+        AST null_node;
+        null_node = new AST(NodeKind.NULL_NODE);
 
         if(ctx.Identifier() != null){
-            // System.out.println("PrimaryExpression: "+ctx.Identifier().getText());
             this.type = "NAME";
             String name = ctx.Identifier().getText();
-            AST null_node = new AST()
-            // System.out.println("NAME " + name);
-            return name;
+
+            null_node.addInfo(name);
+
+            return null_node;
         }
         else if(ctx.Constant() != null){
-            // System.out.println("PrimaryExpression: "+ctx.Constant().getText());
             this.type = "CONST";
-           // System.out.println("CONST " + ctx.Constant().getText());
-            return const_type_checker(ctx.Constant().getText());
+            AST node;
+
+            String value = ctx.Constant().getText();
+
+            String type = const_type_checker(value);
+
+            switch (type) {
+                case "int":
+                    node = new AST(NodeKind.INT_VAL_NODE, Integer.valueOf(value));
+                    break;
+                case "float":
+                    node = new AST(NodeKind.FLOAT_VAL_NODE, Float.valueOf(value));
+                case "char":
+                    node = new AST(NodeKind.CHAR_VAL_NODE, value.charAt(0));
+                default:
+                    node = new AST(NodeKind.NULL_NODE);
+                    node.addInfo(null);
+            }
+
+            return null_node;
         }
         return visitChildren(ctx);
     }

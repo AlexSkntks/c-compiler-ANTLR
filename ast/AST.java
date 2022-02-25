@@ -16,7 +16,7 @@ public class AST {
     public  final char charData;
 	public  final float floatData;
 
-    public  final String text;
+    public String text;
 
 	private final List<AST> children; // Privado para que a manipulação da lista seja controlável.
 
@@ -48,10 +48,14 @@ public class AST {
 		this(kind, 0, 0.0f, charData, null);
 	}
 
-    public AST(NodeKind kind, String info){
-		this(kind, 0, 0, ' ', info);//Talvez precise trocar o 0
+    public AST(NodeKind kind){
+		this(kind, 0);//Talvez precise trocar o 0
 	}
-    
+	
+	//Adiciona um campo texto de informações extras ao nó
+	public void addInfo(String info){
+		this.text = info;
+	}
 
 	// Adiciona um novo filho ao nó.
 	public void addChild(AST child) {
@@ -67,6 +71,14 @@ public class AST {
 	    return this.children.get(idx);
 	}
 
+	public String getText(){
+		return this.text;
+	}
+
+	public NodeKind getNodeKind(){
+		return this.kind;
+	}
+	
 	// Cria um nó e pendura todos os filhos passados como argumento.
 	public static AST newSubtree(NodeKind kind, AST... children) {
 		AST node = new AST(kind, 0);

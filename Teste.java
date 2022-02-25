@@ -27,9 +27,6 @@ public class Teste {
         node_multi2.addChild(node3);
         node_multi2.addChild(node4);
 
-
-        
-
         // root.addChild(child);
 
         AST.printDot(root);
