@@ -69,15 +69,19 @@ public class SemanticChecker extends CBaseVisitor<String> {
      * *Funções e variáveis estão nas tabelas
      * *Permite declarar variáveis em escopo diferente
      * *Imprime o número da linha da variável
-     * ^Tratar operadores Binários (Lógicos e/ou aritméticos)       <-----------
-     * ^Tratar InitDeclarator '='
+     * *Tratar manipulação de variáveis
+     * * Chamadas de função, verificação de parâmetros <----Isso não tem!!!
+     * 
+     * ^Tratar InitDeclarator '='   "DOWNCAST?? SS ou NN?"
      *      ? Atribuição simples
      *      ? Atribuição com operações artméticas
-     * ^Tratar manipulação de variáveis
-     * ^Chamadas de função, verificação de parâmetros
-     * !Uma declaração e manipulação de tipo composto
-     * !Uma função de IO -> Função padrão na tabela de Funções
      * 
+     * ^Uma função de IO -> Função padrão na tabela de Funções
+     * 
+     * !Uma declaração e manipulação de tipo composto
+
+     * todo Tratar operadores Binários (Lógicos e/ou aritméticos)    "O que é booleano? É de comer?"
+     * todo Funções n recebem outras funções nos argumentos
      */
 
     // Exibe o conteúdo das tabelas em stdout.
@@ -126,6 +130,7 @@ public class SemanticChecker extends CBaseVisitor<String> {
     public String visitInitDeclarator(CParser.InitDeclaratorContext ctx) {
 
         String nome = ctx.declarator().getText();
+        String typeAtt = visit(ctx.initializer()
         int escopo = 0;
         VarInfo nv;
 
@@ -138,18 +143,38 @@ public class SemanticChecker extends CBaseVisitor<String> {
 
             nv = new VarInfo(nome, this.type, this.line, escopo, null);
 
+            System.out.println("A variavel " + nome + " esta recebendo " + typeAtt);
+            int x = 's';
+
+            float z = 3;
+            float z = 'b';
+
+            if(this.type == "float"){
+                if(typeAtt == "int"){
+                    //Nó de conversão int2Float
+                }
+                if(typeAtt == "char"){
+                    //char2Int
+                    //Int2Float
+                }
+            }
+            if(this.type == "int"){
+                if(typeAtt == "char"){
+                    //char2Int
+                }
+            }
+
             if(!vt.insert(nv)){
-                // System.out.println("A variável : " + nome + " já foi declarada.");
+                System.out.println("A variável : " + nome + " já foi declarada.");
             }
 
         }else{
             nv = new VarInfo(nome, this.type, this.line, escopo, null);
             if(!vt.insert(nv)){
-                // System.out.println("A variável : " + nome + " já foi declarada.");
+                System.out.println("A variável : " + nome + " já foi declarada.");
             }
         }
         
-        visitChildren(ctx);
 		return ctx.declarator().getText();
 	}
 
