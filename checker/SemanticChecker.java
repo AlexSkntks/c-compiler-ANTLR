@@ -72,14 +72,14 @@ public class SemanticChecker extends CBaseVisitor<String> {
      * *Tratar manipulação de variáveis
      * * Chamadas de função, verificação de parâmetros <----Isso não tem!!!
      * 
-     * ^Tratar InitDeclarator '='   "DOWNCAST?? SS ou NN?"
+     * ^Tratar InitDeclarator '='   "ERROR em Downcast"
      *      ? Atribuição simples
      *      ? Atribuição com operações artméticas
      * 
      * ^Uma função de IO -> Função padrão na tabela de Funções
      * 
-     * !Uma declaração e manipulação de tipo composto
-
+     * ! Uma declaração e manipulação de tipo composto
+     * ! Um loop
      * todo Tratar operadores Binários (Lógicos e/ou aritméticos)    "O que é booleano? É de comer?"
      * todo Funções n recebem outras funções nos argumentos
      */
