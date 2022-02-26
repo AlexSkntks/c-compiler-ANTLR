@@ -49,7 +49,7 @@ public class Main {
 
 			System.out.println("Revisão sintática realizada com êxito.");
 		} catch (Exception e) {
-			System.out.println("Infelizmente um erro ocorreu no analisador sintático.");
+			System.out.println(e);
 		}
 	}
 }

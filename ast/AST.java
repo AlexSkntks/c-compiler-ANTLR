@@ -34,22 +34,22 @@ public class AST {
 	}
 
 	// Cria o nó com um dado inteiro.
-	public AST(NodeKind kind, int intData) {
-		this(kind, intData, 0.0f, ' ', null);
+	public AST(NodeKind kind, int intData, String value) {
+		this(kind, intData, 0.0f, ' ', value);
 	}
 
 	// Cria o nó com um dado float.
-	public AST(NodeKind kind, float floatData) {
+	public AST(NodeKind kind, float floatData, String value) {
 		this(kind, 0, floatData, ' ', null);
 	}
 
     // Cria o nó com um dado char.
-	public AST(NodeKind kind, char charData) {
+	public AST(NodeKind kind, char charData, String value) {
 		this(kind, 0, 0.0f, charData, null);
 	}
 
     public AST(NodeKind kind){
-		this(kind, 0);//Talvez precise trocar o 0
+		this(kind, 0, "");//Talvez precise trocar o 0
 	}
 	
 	//Adiciona um campo texto de informações extras ao nó
@@ -81,7 +81,7 @@ public class AST {
 	
 	// Cria um nó e pendura todos os filhos passados como argumento.
 	public static AST newSubtree(NodeKind kind, AST... children) {
-		AST node = new AST(kind, 0);
+		AST node = new AST(kind, 0, "");
 	    for (AST child: children) {
 	    	node.addChild(child);
 	    }

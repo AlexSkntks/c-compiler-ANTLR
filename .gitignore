@@ -1,0 +1,6 @@
+*.class
+*.interp
+*.tokens
+bin
+parser
+faz-arvore/bin

@@ -139,17 +139,22 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     // Por algum motivo o retorno que definimos na função additiveExpression Não alcança o Itializer;
     // por isso fizemos o Overrride de TODAS as funções intermediárias até alnaçar o Initializaer, e assim
     // acessar os tipos corretamente.
-    // @Override public String visitInitializer(CParser.InitializerContext ctx) { return visitChildren(ctx);}
-    // @Override public String visitAssignmentExpression(CParser.AssignmentExpressionContext ctx) { return visitChildren(ctx); }
-    // @Override public String visitConditionalExpression(CParser.ConditionalExpressionContext ctx) { return visitChildren(ctx); }
-    // @Override public String visitLogicalOrExpression(CParser.LogicalOrExpressionContext ctx) { return visitChildren(ctx); }
-    // @Override public String visitLogicalAndExpression(CParser.LogicalAndExpressionContext ctx) { return visitChildren(ctx); }
-    // @Override public String visitInclusiveOrExpression(CParser.InclusiveOrExpressionContext ctx) { return visitChildren(ctx); }
-    // @Override public String visitExclusiveOrExpression(CParser.ExclusiveOrExpressionContext ctx) { return visitChildren(ctx); }
-    // @Override public String visitAndExpression(CParser.AndExpressionContext ctx) { return visitChildren(ctx); }
-    // @Override public String visitEqualityExpression(CParser.EqualityExpressionContext ctx) { return visitChildren(ctx); }
-    // @Override public String visitRelationalExpression(CParser.RelationalExpressionContext ctx) { return visitChildren(ctx); }
-    // @Override public String visitShiftExpression(CParser.ShiftExpressionContext ctx) { return visitChildren(ctx); }
+    @Override public AST visitInitializer(CParser.InitializerContext ctx) { System.out.println("Initializer"); return visitChildren(ctx);}
+    @Override public AST visitAssignmentExpression(CParser.AssignmentExpressionContext ctx) { System.out.println("AssignmentExpression"); return visitChildren(ctx); }
+    @Override public AST visitConditionalExpression(CParser.ConditionalExpressionContext ctx) { System.out.println("ConditionalExpression"); return visitChildren(ctx); }
+    @Override public AST visitLogicalOrExpression(CParser.LogicalOrExpressionContext ctx) { System.out.println("LogicalOrExpression"); return visitChildren(ctx); }
+    @Override public AST visitLogicalAndExpression(CParser.LogicalAndExpressionContext ctx) { System.out.println("LogicalAndExpression"); return visitChildren(ctx); }
+    @Override public AST visitInclusiveOrExpression(CParser.InclusiveOrExpressionContext ctx) { System.out.println("InclusiveOrExpression"); return visitChildren(ctx); }
+    @Override public AST visitExclusiveOrExpression(CParser.ExclusiveOrExpressionContext ctx) { System.out.println("ExclusiveOrExpression"); return visitChildren(ctx); }
+    @Override public AST visitAndExpression(CParser.AndExpressionContext ctx) { System.out.println("AndExpression"); return visitChildren(ctx); }
+    @Override public AST visitEqualityExpression(CParser.EqualityExpressionContext ctx) { System.out.println("EqualityExpression"); return visitChildren(ctx); }
+    @Override public AST visitRelationalExpression(CParser.RelationalExpressionContext ctx) { System.out.println("RelationalExpression"); return visitChildren(ctx); }
+    @Override public AST visitShiftExpression(CParser.ShiftExpressionContext ctx) { System.out.println("Expression"); return visitChildren(ctx); }
+	@Override public AST visitAdditiveExpression(CParser.AdditiveExpressionContext ctx) { System.out.println("AdditiveExpression"); return visitChildren(ctx); }
+	@Override public AST visitCastExpression(CParser.CastExpressionContext ctx) { System.out.println("CastExpression"); return visitChildren(ctx); }
+	@Override public AST visitUnaryExpression(CParser.UnaryExpressionContext ctx) { System.out.println("UnaryExpression"); return visitChildren(ctx); }
+	@Override public AST visitPostfixExpression(CParser.PostfixExpressionContext ctx) { System.out.println("PostfixExpression"); return visitChildren(ctx); }
+    
 
     //TODO ir desecebdo até encontrar onde retorna
     //additiveExpression :  multiplicativeExpression (('+'|'-') multiplicativeExpression)*
@@ -200,7 +205,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     //multiplicativeExpression : castExpression (('*'|'/'|'%') castExpression)*
 	@Override
     public AST visitMultiplicativeExpression(CParser.MultiplicativeExpressionContext ctx) {
-
+        System.out.println("MULTIPICATIVE EXPRESSION");
         // visitChildren(ctx);
         // String a = visit(ctx.castExpression(0));
         AST node;
@@ -322,6 +327,8 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
 	@Override
     public AST visitConstantExpression(CParser.ConstantExpressionContext ctx) {
+        System.out.println("Constant Expression");
+
         System.out.println("CONSTANTEXP " + ctx.getText());
         return visitChildren(ctx);
     }
@@ -337,40 +344,56 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     // |   '__builtin_offsetof' '(' typeName ',' unaryExpression ')'
 	@Override
     public AST visitPrimaryExpression(CParser.PrimaryExpressionContext ctx) {
+        System.out.println("Primary Expression");
+
         AST null_node;
         null_node = new AST(NodeKind.NULL_NODE);
+        System.out.println("Primary Expression2");
 
         if(ctx.Identifier() != null){
+            System.out.println("Primary Expression3");
             this.type = "NAME";
             String name = ctx.Identifier().getText();
-
+            
             null_node.addInfo(name);
-
+            
             return null_node;
         }
+        
         else if(ctx.Constant() != null){
             this.type = "CONST";
             AST node;
-
+            
             String value = ctx.Constant().getText();
-
+            
             String type = const_type_checker(value);
-
+            
             switch (type) {
                 case "int":
-                    node = new AST(NodeKind.INT_VAL_NODE, Integer.valueOf(value));
-                    break;
+                    node = new AST(NodeKind.INT_VAL_NODE, Integer.valueOf(value), value);
+                    System.out.println("Primary Expression4");
+                    System.out.println(node.getText());
+                    return node;
                 case "float":
-                    node = new AST(NodeKind.FLOAT_VAL_NODE, Float.valueOf(value));
+                    node = new AST(NodeKind.FLOAT_VAL_NODE, Float.valueOf(value), value);
+                    System.out.println("Primary Expression5");
+                    return node;
                 case "char":
-                    node = new AST(NodeKind.CHAR_VAL_NODE, value.charAt(0));
+                    node = new AST(NodeKind.CHAR_VAL_NODE, value.charAt(0), value);
+                    System.out.println("Primary Expression6");
+                    return node;
                 default:
                     node = new AST(NodeKind.NULL_NODE);
+                    System.out.println("Primary Expression7");
                     node.addInfo(null);
+                    return node;
             }
 
-            return null_node;
+            // System.out.println("Primary Expression8");
+            // return null_node;
         }
+
+
         return visitChildren(ctx);
     }
 
