@@ -139,21 +139,21 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     // Por algum motivo o retorno que definimos na função additiveExpression Não alcança o Itializer;
     // por isso fizemos o Overrride de TODAS as funções intermediárias até alnaçar o Initializaer, e assim
     // acessar os tipos corretamente.
-    @Override public AST visitInitializer(CParser.InitializerContext ctx) { System.out.println("Initializer"); return visitChildren(ctx);}
-    @Override public AST visitAssignmentExpression(CParser.AssignmentExpressionContext ctx) { System.out.println("AssignmentExpression"); return visitChildren(ctx); }
-    @Override public AST visitConditionalExpression(CParser.ConditionalExpressionContext ctx) { System.out.println("ConditionalExpression"); return visitChildren(ctx); }
-    @Override public AST visitLogicalOrExpression(CParser.LogicalOrExpressionContext ctx) { System.out.println("LogicalOrExpression"); return visitChildren(ctx); }
-    @Override public AST visitLogicalAndExpression(CParser.LogicalAndExpressionContext ctx) { System.out.println("LogicalAndExpression"); return visitChildren(ctx); }
-    @Override public AST visitInclusiveOrExpression(CParser.InclusiveOrExpressionContext ctx) { System.out.println("InclusiveOrExpression"); return visitChildren(ctx); }
-    @Override public AST visitExclusiveOrExpression(CParser.ExclusiveOrExpressionContext ctx) { System.out.println("ExclusiveOrExpression"); return visitChildren(ctx); }
-    @Override public AST visitAndExpression(CParser.AndExpressionContext ctx) { System.out.println("AndExpression"); return visitChildren(ctx); }
-    @Override public AST visitEqualityExpression(CParser.EqualityExpressionContext ctx) { System.out.println("EqualityExpression"); return visitChildren(ctx); }
-    @Override public AST visitRelationalExpression(CParser.RelationalExpressionContext ctx) { System.out.println("RelationalExpression"); return visitChildren(ctx); }
-    @Override public AST visitShiftExpression(CParser.ShiftExpressionContext ctx) { System.out.println("Expression"); return visitChildren(ctx); }
-	@Override public AST visitAdditiveExpression(CParser.AdditiveExpressionContext ctx) { System.out.println("AdditiveExpression"); return visitChildren(ctx); }
-	@Override public AST visitCastExpression(CParser.CastExpressionContext ctx) { System.out.println("CastExpression"); return visitChildren(ctx); }
-	@Override public AST visitUnaryExpression(CParser.UnaryExpressionContext ctx) { System.out.println("UnaryExpression"); return visitChildren(ctx); }
-	@Override public AST visitPostfixExpression(CParser.PostfixExpressionContext ctx) { System.out.println("PostfixExpression"); return visitChildren(ctx); }
+    // @Override public AST visitInitializer(CParser.InitializerContext ctx) { System.out.println("Initializer"); return visitChildren(ctx);}
+    // @Override public AST visitAssignmentExpression(CParser.AssignmentExpressionContext ctx) { System.out.println("AssignmentExpression"); return visitChildren(ctx); }
+    // @Override public AST visitConditionalExpression(CParser.ConditionalExpressionContext ctx) { System.out.println("ConditionalExpression"); return visitChildren(ctx); }
+    // @Override public AST visitLogicalOrExpression(CParser.LogicalOrExpressionContext ctx) { System.out.println("LogicalOrExpression"); return visitChildren(ctx); }
+    // @Override public AST visitLogicalAndExpression(CParser.LogicalAndExpressionContext ctx) { System.out.println("LogicalAndExpression"); return visitChildren(ctx); }
+    // @Override public AST visitInclusiveOrExpression(CParser.InclusiveOrExpressionContext ctx) { System.out.println("InclusiveOrExpression"); return visitChildren(ctx); }
+    // @Override public AST visitExclusiveOrExpression(CParser.ExclusiveOrExpressionContext ctx) { System.out.println("ExclusiveOrExpression"); return visitChildren(ctx); }
+    // @Override public AST visitAndExpression(CParser.AndExpressionContext ctx) { System.out.println("AndExpression"); return visitChildren(ctx); }
+    // @Override public AST visitEqualityExpression(CParser.EqualityExpressionContext ctx) { System.out.println("EqualityExpression"); return visitChildren(ctx); }
+    // @Override public AST visitRelationalExpression(CParser.RelationalExpressionContext ctx) { System.out.println("RelationalExpression"); return visitChildren(ctx); }
+    // @Override public AST visitShiftExpression(CParser.ShiftExpressionContext ctx) { System.out.println("Expression"); return visitChildren(ctx); }
+	// @Override public AST visitAdditiveExpression(CParser.AdditiveExpressionContext ctx) { System.out.println("AdditiveExpression"); return visitChildren(ctx); }
+	// @Override public AST visitCastExpression(CParser.CastExpressionContext ctx) { System.out.println("CastExpression"); return visitChildren(ctx); }
+	// @Override public AST visitUnaryExpression(CParser.UnaryExpressionContext ctx) { System.out.println("UnaryExpression"); return visitChildren(ctx); }
+	// @Override public AST visitPostfixExpression(CParser.PostfixExpressionContext ctx) { System.out.println("PostfixExpression"); return visitChildren(ctx); }
     
 
     //TODO ir desecebdo até encontrar onde retorna
@@ -205,7 +205,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     //multiplicativeExpression : castExpression (('*'|'/'|'%') castExpression)*
 	@Override
     public AST visitMultiplicativeExpression(CParser.MultiplicativeExpressionContext ctx) {
-        System.out.println("MULTIPICATIVE EXPRESSION");
+        //System.out.println("MULTIPICATIVE EXPRESSION");
         // visitChildren(ctx);
         // String a = visit(ctx.castExpression(0));
         AST node;
@@ -220,30 +220,59 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
             aux = visit(ctx.castExpression(i));
 
-            bigger_type_aux = aux.getText();
+            // bigger_type_aux = aux.getText();
 
-            if(bigger_type_aux.equals("float")){
-                bigger_typer = "float";
-            } else if(bigger_type_aux.equals("int") && !bigger_typer.equals("float")){
-                bigger_typer = "int";
-            } else if(bigger_type_aux.equals("char") && !bigger_typer.equals("float") && !bigger_typer.equals("int")){
-                bigger_typer = "char";
-            }
+            // if(bigger_type_aux.equals("float")){
+            //     bigger_typer = "float";
+            // } else if(bigger_type_aux.equals("int") && !bigger_typer.equals("float")){
+            //     bigger_typer = "int";
+            // } else if(bigger_type_aux.equals("char") && !bigger_typer.equals("float") && !bigger_typer.equals("int")){
+            //     bigger_typer = "char";
+            // }
 
             listTypes.add(aux);
         }
 
-        AST multOP = new AST(NodeKind.TIMES_NODE);
-        for(int i = 0; i < ctx.castExpression().size(); i++){
+        System.out.println("hjhhjhjhjjh");
+        AST multOP;
+        AST c1, c2;
+        for(int i = 0; i < ctx.castExpression().size()-1; i++){
+
+            multOP= new AST(NodeKind.TIMES_NODE);
+            if(i == 0){
+                
+                c1 = listTypes.get(0);
+                c2 = listTypes.get(1);
+                System.out.println("TYPE: " + c1.getText());
+                //A tabela de unificação entra aqui, mais eficiente para pegar os types e saber qual a conversão
+               
+                multOP.addChild(c1);
+                multOP.addChild(c2);
+                
+                listTypes.remove(0);
+                listTypes.remove(0);
+                listTypes.add(0, multOP);
+            }else{
+
+                c1 = listTypes.get(i-1);
+                c2 = listTypes.get(i);
+
+                //A tabela de unificação entra aqui, mais eficiente para pegar os types e saber qual a conversão
+
+                multOP.addChild(c1);
+                multOP.addChild(c2);
+                listTypes.remove(i);
+                listTypes.add(i, multOP);
+            }
             
-            multOP.addChild(listTypes.get(i));
         }
 
         // System.out.println();
         // System.out.println("Result of multi: " + bigger_typer);
         // System.out.println();
 
-        AST.printDot(multOP);
+        //AST.printDot(multOP);
+        AST.printDot(listTypes.get(listTypes.size()-1));
         return new AST(NodeKind.NULL_NODE);
     }
 
@@ -260,78 +289,80 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     | ('++' | '--')
     )*
      */
-    // @Override
-    // public String visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
+    @Override
+    public AST visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
 
-    //     String name = ctx.primaryExpression().getText();
+        AST node = visit(ctx.primaryExpression());
+        String name = node.getText();
 
-    //     //Verifica se o retorno foi uma função
-    //     if(!ctx.LeftParen().isEmpty()){
+        // Verifica se o retorno foi uma função
+        if(!ctx.LeftParen().isEmpty()){
 
-    //         if(!ft.verifyIfAlreadyExists(name)){
-    //             System.out.println("Simbolo " + name + " nao encontrado.");
-    //             return "no_type";
-    //         }
+            // if(!ft.verifyIfAlreadyExists(name)){
+            //     System.out.println("Simbolo " + name + " nao encontrado.");
+            //     return new AST(NodeKind.NULL_NODE);
+            // }
 
-    //         String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
+            // String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
 
-    //         //Posteriormente tratar os tipos
+            //Posteriormente tratar os tipos
 
-    //         // for(int i = 0; i < aux.length; i++){
-    //         //     System.out.println(aux[i]);
-    //         // }
+            // for(int i = 0; i < aux.length; i++){
+            //     System.out.println(aux[i]);
+            // }
 
-    //         //System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
+            //System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
 
-    //         //Verifica se o tamanho da lista argumentos é coerente
-    //         if(ft.getListSize(name) == argumentList.length){
-    //             return ft.getType(name);
-    //         }else{
-    //             System.out.println("Funcao " + name + " tem argumentos demais.");
-    //             return "no_type";
-    //         }
+            //Verifica se o tamanho da lista argumentos é coerente
+            // if(ft.getListSize(name) == argumentList.length){
+            //     return ft.getType(name);
+            // }else{
+            //     System.out.println("Funcao " + name + " tem argumentos demais.");
+            //     return "no_type";
+            // }
 
-    //     } else {
-    //         String aux = this.type;
+        } else {//Verifica se foi constante ou variável
+            String aux = this.type;
 
-    //         String aux1 = visitChildren(ctx);
+            // String aux1 = visitChildren(ctx);
 
-    //         // System.out.println("argumentExpressionList: "+aux1);
+            // System.out.println("argumentExpressionList: "+aux1);
 
-    //         // String s = ctx.argumentExpressionList(0).getText();
-    //         // System.out.println("Test argument List: "+s);
+            // String s = ctx.argumentExpressionList(0).getText();
+            // System.out.println("Test argument List: "+s);
 
-    //         if(this.type.equals("NAME")){//Variável
-    //             // Escopo atual = 0 siginifica que a variável está fora
-    //             // de escopo, ou seja fora de uma função.
-    //             int scopo = 0;
-    //             // Caso ela esteja em uma função, ou bloco (inBlock),
-    //             // ela terá escopo diferente de 0
-    //             if(this.isInBlock == true){
-    //                 scopo = this.escopoAtual;
-    //             }
-    //             if(vt.lookUp(name, scopo)){
-    //                 //System.out.println("Variavel " + name + " esta ok");
-    //                 return vt.getType(name, scopo);
-    //             }else{
-    //                 System.out.println("Simbolo " + name + " nao encontrado");
-    //                 return "no_type";
-    //             }
+            if(this.type.equals("NAME")){//Variável
+                // Escopo atual = 0 siginifica que a variável está fora
+                // de escopo, ou seja fora de uma função.
+                // int scopo = 0;
+                // // Caso ela esteja em uma função, ou bloco (inBlock),
+                // // ela terá escopo diferente de 0
+                // if(this.isInBlock == true){
+                //     scopo = this.escopoAtual;
+                // }
+                // if(vt.lookUp(name, scopo)){
+                //     //System.out.println("Variavel " + name + " esta ok");
+                //     return vt.getType(name, scopo);
+                // }else{
+                //     System.out.println("Simbolo " + name + " nao encontrado");
+                //     return "no_type";
+                // }
 
-    //         }
-    //         //Valor constante
-    //         this.type = aux;
-    //         return aux1;
-    //     }
-    // }
-
-	@Override
-    public AST visitConstantExpression(CParser.ConstantExpressionContext ctx) {
-        System.out.println("Constant Expression");
-
-        System.out.println("CONSTANTEXP " + ctx.getText());
-        return visitChildren(ctx);
+            }
+            //Valor constante
+            this.type = aux;
+            return  node;
+        }
+        return visit(ctx.primaryExpression());
     }
+
+	// @Override
+    // public AST visitConstantExpression(CParser.ConstantExpressionContext ctx) {
+    //     System.out.println("Constant Expression");
+
+    //     System.out.println("CONSTANTEXP " + ctx.getText());
+    //     return visitChildren(ctx);
+    // }
 
     // primaryExpression
     // :   Identifier
@@ -344,14 +375,14 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     // |   '__builtin_offsetof' '(' typeName ',' unaryExpression ')'
 	@Override
     public AST visitPrimaryExpression(CParser.PrimaryExpressionContext ctx) {
-        System.out.println("Primary Expression");
+        //System.out.println("Primary Expression");
 
         AST null_node;
         null_node = new AST(NodeKind.NULL_NODE);
-        System.out.println("Primary Expression2");
+        //System.out.println("Primary Expression2");
 
         if(ctx.Identifier() != null){
-            System.out.println("Primary Expression3");
+            //System.out.println("Primary Expression3");
             this.type = "NAME";
             String name = ctx.Identifier().getText();
             
@@ -365,26 +396,26 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             AST node;
             
             String value = ctx.Constant().getText();
-            
+            System.out.println("VALOR: " + value);
             String type = const_type_checker(value);
             
             switch (type) {
                 case "int":
                     node = new AST(NodeKind.INT_VAL_NODE, Integer.valueOf(value), value);
-                    System.out.println("Primary Expression4");
-                    System.out.println(node.getText());
+                    //System.out.println("Primary Expression4");
+                    //System.out.println(node.getText());
                     return node;
                 case "float":
                     node = new AST(NodeKind.FLOAT_VAL_NODE, Float.valueOf(value), value);
-                    System.out.println("Primary Expression5");
+                    //System.out.println("Primary Expression5");
                     return node;
                 case "char":
-                    node = new AST(NodeKind.CHAR_VAL_NODE, value.charAt(0), value);
-                    System.out.println("Primary Expression6");
+                    node = new AST(NodeKind.CHAR_VAL_NODE, 'c', value);
+                    //System.out.println("Primary Expression6");
                     return node;
                 default:
                     node = new AST(NodeKind.NULL_NODE);
-                    System.out.println("Primary Expression7");
+                    //System.out.println("Primary Expression7");
                     node.addInfo(null);
                     return node;
             }
@@ -542,11 +573,28 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     // É uma reescrita do identifier. Funciona como uma interface entre
     // Identifier e DirectDeclarator para guardar o nome de uma função.
 	// @Override
-    // public String visitFuncName(CParser.FuncNameContext ctx) {
-    //     visitChildren(ctx);
-    //     this.lineFunc = ctx.Identifier().getSymbol().getLine();
-    //     return ctx.Identifier().getText();
-    // }
+    // public AST visitFuncName(CParser.FuncNameContext ctx) {
+    //     AST node = new AST(NodeKind.NULL_NODE);
+    //     String type = ctx.Identifier().getText();
 
+    //     if(type.equals("int")){
+    //         node.addInfo("int");
+    //         //return node;
+    //     }
+
+    //     if(type.equals("float")){
+    //         node.addInfo("float");
+    //         //return node;
+    //     }
+
+    //     if(type.equals("char")){
+    //         node.addInfo("char");
+    //         //return node;
+    //     }
+    //     System.out.println("type : " + type);
+        
+    //     this.lineFunc = ctx.Identifier().getSymbol().getLine();
+    //     return visitChildren(ctx);
+    // }
 
 }
