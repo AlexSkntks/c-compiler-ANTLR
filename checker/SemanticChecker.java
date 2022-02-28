@@ -33,22 +33,26 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
     /**
      * ~ TODOS
-     * *Funções e variáveis estão nas tabelas
-     * *Permite declarar variáveis em escopo diferente
-     * *Imprime o número da linha da variável
-     * *Tratar manipulação de variáveis
-     * * Chamadas de função, verificação de parâmetros <----Isso não tem!!!
-     *
-     * ^Tratar InitDeclarator '='   "ERROR em Downcast"
+     * * Funções e variáveis estão nas tabelas
+     * * Permite declarar variáveis em escopo diferente
+     * * Imprime o número da linha da variável
+     * 
+     * ^ Chamada de variáveis
+     * ^ Chamadas de função, verificação de parâmetros
+     * ^ Tratar operadores Aritméticos
+     * ^ Tratar InitDeclarator '='   "ERROR em Downcast"
      *      ? Atribuição simples
      *      ? Atribuição com operações artméticas
      *
-     * ^Uma função de IO -> Função padrão na tabela de Funções
+     * ^ Uma função de IO -> Função padrão na tabela de Funções
      *
+     * todo Tratar operadores Lógicos
      * ! Uma declaração e manipulação de tipo composto
      * ! Um loop
-     * todo Tratar operadores Binários (Lógicos e/ou aritméticos)    "O que é booleano? É de comer?"
-     * todo Funções n recebem outras funções nos argumentos
+     * 
+     * ~ Limitações
+     *  Funções não recebem outras funções nos argumentos
+     *  Atribuições fora de escopo com inicializador não estático pode ter comportamento inesperado
      */
 
     // Exibe o conteúdo das tabelas em stdout.
@@ -70,70 +74,139 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     //     return lol;
     // }
 
+    //declaration : declarationSpecifiers initDeclaratorList? ';' | ...
+	@Override 
+    public AST visitDeclaration(CParser.DeclarationContext ctx) {
+        AST node = new AST(NodeKind.VAR_DECLARATION_NODE);
+        AST typeChild = new AST(NodeKind.NULL_NODE);
+        AST varDec = new AST(NodeKind.NULL_NODE);
+
+        if(ctx.initDeclaratorList() == null){//Ver visitDeclarationSpecifiers
+            varDec = visit(ctx.declarationSpecifiers());
+            node.addChild(varDec);
+            //AST.printDot(node);
+        }else{
+            //Deve retornar o node com informações de tipo, mas aqui não é necessário colocar na AST
+            visit(ctx.declarationSpecifiers());
+
+            varDec = visit(ctx.initDeclaratorList());
+            node.addChild(varDec);
+            //AST.printDot(node);
+        }
+
+        return new AST(NodeKind.NULL_NODE);
+    }
+
 
     //initDeclaratorList : initDeclarator (',' initDeclarator)*
-	// @Override
-    // public String visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx) {
-    //     if(ctx.Comma(0) != null){
-    //         this.line = ctx.Comma(0).getSymbol().getLine();
-    //     }
+	@Override
+    public AST visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx) {
+        AST list = new AST(NodeKind.VAR_DECLARATION_LIST_NODE);
+        AST child;
 
-	// 	return visitChildren(ctx);
-	// }
+        if(ctx.Comma(0) != null){
+            this.line = ctx.Comma(0).getSymbol().getLine();
+        }
+
+        for(int i = 0; i < ctx.initDeclarator().size(); i++){
+            child = visit(ctx.initDeclarator(i));
+            list.addChild(child);
+        }
+        //AST.printDot(list);
+        
+		return list;
+	}
 
     // initDeclarator : declarator ('=' initializer)?
     //! É aqui que devemos tratar se a inicialização está correta!!!!!!!!
-	// @Override
-    // public String visitInitDeclarator(CParser.InitDeclaratorContext ctx) {
+	@Override
+    public AST visitInitDeclarator(CParser.InitDeclaratorContext ctx) {
 
-    //     String nome = ctx.declarator().getText();
-    //     String typeAtt = visit(ctx.initializer()
-    //     int escopo = 0;
-    //     VarInfo nv;
+        AST node = new AST(NodeKind.NULL_NODE);
 
-    //     if(this.isInBlock){
-    //         escopo = this.escopoAtual;
-    //     }
+        AST initializer;
 
-    //     if(ctx.Assign() != null){
-    //         this.line = ctx.Assign().getSymbol().getLine();
+        String nome = visit(ctx.declarator()).getText();
 
-    //         nv = new VarInfo(nome, this.type, this.line, escopo, null);
+        int escopo = 0;
+        VarInfo nv;
 
-    //         System.out.println("A variavel " + nome + " esta recebendo " + typeAtt);
-    //         int x = 's';
+        if(this.isInBlock){
+            escopo = this.escopoAtual;
+        }
 
-    //         float z = 3;
-    //         float z = 'b';
+        if(ctx.Assign() != null){
+            this.line = ctx.Assign().getSymbol().getLine();
 
-    //         if(this.type == "float"){
-    //             if(typeAtt == "int"){
-    //                 //Nó de conversão int2Float
-    //             }
-    //             if(typeAtt == "char"){
-    //                 //char2Int
-    //                 //Int2Float
-    //             }
-    //         }
-    //         if(this.type == "int"){
-    //             if(typeAtt == "char"){
-    //                 //char2Int
-    //             }
-    //         }
+            nv = new VarInfo(nome, this.type, this.line, escopo, null);  
 
-    //         if(!vt.insert(nv)){
-    //             System.out.println("A variável : " + nome + " já foi declarada.");
-    //         }
+            //* Nó de conversão na atribuição
+            // if(this.type == "float"){
+            //     if(typeAtt == "int"){
+            //         //Nó de conversão int2Float
+            //     }
+            //     if(typeAtt == "char"){
+            //         //char2Int
+            //         //Int2Float
+            //     }
+            // }
+            // if(this.type == "int"){
+            //     if(typeAtt == "char"){
+            //         //char2Int
+            //     }
+            // }
 
-    //     }else{
-    //         nv = new VarInfo(nome, this.type, this.line, escopo, null);
-    //         if(!vt.insert(nv)){
-    //             System.out.println("A variável : " + nome + " já foi declarada.");
-    //         }
-    //     }
+            if(!vt.insert(nv)){
+                System.out.println("A variável : " + nome + " já foi declarada.");
+            }
 
-	// 	return ctx.declarator().getText();
-	// }
+            String aux = this.type;
+            //! Quando operações aritméticas estiverem completas, adicionar o child de atribuição
+            visit(ctx.initializer());//Arvore de initializer
+            this.type = aux;
+
+        }else{
+            nv = new VarInfo(nome, this.type, this.line, escopo, null);
+            if(!vt.insert(nv)){
+                System.out.println("A variável : " + nome + " já foi declarada.");
+            }
+        }
+
+        switch (type) {
+            case "int":
+                node = new AST(NodeKind.VAR_INT_NODE);
+                break;
+            case "float":
+                node = new AST(NodeKind.VAR_FLOAT_NODE);
+                break;
+            case "char":
+                node = new AST(NodeKind.VAR_CHAR_NODE);
+                break;
+            default://ERRO DE TIPO INDEFINIDO, ver visitTypeSpecifier
+                System.out.println();
+                break;
+        }
+
+        node.addInfo(nome);
+        //System.out.println("VARDECLARATION");
+        //AST.printDot(node);
+		return node;
+	}
+
+    // declarationSpecifiers : declarationSpecifier+
+    @Override 
+    public AST visitDeclarationSpecifiers(CParser.DeclarationSpecifiersContext ctx) {
+
+        AST node;
+        if(ctx.declarationSpecifier().size() == 1){//Variável com initDeclarator
+            node = visit(ctx.declarationSpecifier(0));
+            return node;//Retornando node com type
+        }else{//Variável sem initDeclarator
+            node = visit(ctx.declarationSpecifier(1));
+            return node;//Retornando node de variável
+        }
+
+    }
 
 
     // Por algum motivo o retorno que definimos na função additiveExpression Não alcança o Itializer;
@@ -154,7 +227,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 	// @Override public AST visitCastExpression(CParser.CastExpressionContext ctx) { System.out.println("CastExpression"); return visitChildren(ctx); }
 	// @Override public AST visitUnaryExpression(CParser.UnaryExpressionContext ctx) { System.out.println("UnaryExpression"); return visitChildren(ctx); }
 	// @Override public AST visitPostfixExpression(CParser.PostfixExpressionContext ctx) { System.out.println("PostfixExpression"); return visitChildren(ctx); }
-    
+
 
     //TODO ir desecebdo até encontrar onde retorna
     //additiveExpression :  multiplicativeExpression (('+'|'-') multiplicativeExpression)*
@@ -233,22 +306,21 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             listTypes.add(aux);
         }
 
-        System.out.println("hjhhjhjhjjh");
         AST multOP;
         AST c1, c2;
         for(int i = 0; i < ctx.castExpression().size()-1; i++){
 
             multOP= new AST(NodeKind.TIMES_NODE);
             if(i == 0){
-                
+
                 c1 = listTypes.get(0);
                 c2 = listTypes.get(1);
-                System.out.println("TYPE: " + c1.getText());
+
                 //A tabela de unificação entra aqui, mais eficiente para pegar os types e saber qual a conversão
-               
+
                 multOP.addChild(c1);
                 multOP.addChild(c2);
-                
+
                 listTypes.remove(0);
                 listTypes.remove(0);
                 listTypes.add(0, multOP);
@@ -264,7 +336,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 listTypes.remove(i);
                 listTypes.add(i, multOP);
             }
-            
+
         }
 
         // System.out.println();
@@ -272,7 +344,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         // System.out.println();
 
         //AST.printDot(multOP);
-        AST.printDot(listTypes.get(listTypes.size()-1));
+        //AST.printDot(listTypes.get(listTypes.size()-1));
         return new AST(NodeKind.NULL_NODE);
     }
 
@@ -289,72 +361,72 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     | ('++' | '--')
     )*
      */
-    @Override
-    public AST visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
+    // @Override
+    // public AST visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
 
-        AST node = visit(ctx.primaryExpression());
-        String name = node.getText();
+    //     AST node = visit(ctx.primaryExpression());
+    //     String name = node.getText();
 
-        // Verifica se o retorno foi uma função
-        if(!ctx.LeftParen().isEmpty()){
+    //     // Verifica se o retorno foi uma função
+    //     if(!ctx.LeftParen().isEmpty()){
 
-            // if(!ft.verifyIfAlreadyExists(name)){
-            //     System.out.println("Simbolo " + name + " nao encontrado.");
-            //     return new AST(NodeKind.NULL_NODE);
-            // }
+    //         if(!ft.verifyIfAlreadyExists(name)){
+    //             System.out.println("Simbolo " + name + " nao encontrado.");
+    //             return new AST(NodeKind.NULL_NODE);
+    //         }
 
-            // String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
+    //         String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
 
-            //Posteriormente tratar os tipos
+    //         Posteriormente tratar os tipos
 
-            // for(int i = 0; i < aux.length; i++){
-            //     System.out.println(aux[i]);
-            // }
+    //         for(int i = 0; i < aux.length; i++){
+    //             System.out.println(aux[i]);
+    //         }
 
-            //System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
+    //         System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
 
-            //Verifica se o tamanho da lista argumentos é coerente
-            // if(ft.getListSize(name) == argumentList.length){
-            //     return ft.getType(name);
-            // }else{
-            //     System.out.println("Funcao " + name + " tem argumentos demais.");
-            //     return "no_type";
-            // }
+    //         Verifica se o tamanho da lista argumentos é coerente
+    //         if(ft.getListSize(name) == argumentList.length){
+    //             return ft.getType(name);
+    //         }else{
+    //             System.out.println("Funcao " + name + " tem argumentos demais.");
+    //             return "no_type";
+    //         }
 
-        } else {//Verifica se foi constante ou variável
-            String aux = this.type;
+    //     } else {//Verifica se foi constante ou variável
+    //         String aux = this.type;
 
-            // String aux1 = visitChildren(ctx);
+    //         String aux1 = visitChildren(ctx);
 
-            // System.out.println("argumentExpressionList: "+aux1);
+    //         System.out.println("argumentExpressionList: "+aux1);
 
-            // String s = ctx.argumentExpressionList(0).getText();
-            // System.out.println("Test argument List: "+s);
+    //         String s = ctx.argumentExpressionList(0).getText();
+    //         System.out.println("Test argument List: "+s);
 
-            if(this.type.equals("NAME")){//Variável
-                // Escopo atual = 0 siginifica que a variável está fora
-                // de escopo, ou seja fora de uma função.
-                // int scopo = 0;
-                // // Caso ela esteja em uma função, ou bloco (inBlock),
-                // // ela terá escopo diferente de 0
-                // if(this.isInBlock == true){
-                //     scopo = this.escopoAtual;
-                // }
-                // if(vt.lookUp(name, scopo)){
-                //     //System.out.println("Variavel " + name + " esta ok");
-                //     return vt.getType(name, scopo);
-                // }else{
-                //     System.out.println("Simbolo " + name + " nao encontrado");
-                //     return "no_type";
-                // }
+    //         if(this.type.equals("NAME")){//Variável
+    //             Escopo atual = 0 siginifica que a variável está fora
+    //             de escopo, ou seja fora de uma função.
+    //             int scopo = 0;
+    //             // Caso ela esteja em uma função, ou bloco (inBlock),
+    //             // ela terá escopo diferente de 0
+    //             if(this.isInBlock == true){
+    //                 scopo = this.escopoAtual;
+    //             }
+    //             if(vt.lookUp(name, scopo)){
+    //                 //System.out.println("Variavel " + name + " esta ok");
+    //                 return vt.getType(name, scopo);
+    //             }else{
+    //                 System.out.println("Simbolo " + name + " nao encontrado");
+    //                 return "no_type";
+    //             }
 
-            }
-            //Valor constante
-            this.type = aux;
-            return  node;
-        }
-        return visit(ctx.primaryExpression());
-    }
+    //         }
+    //         //Valor constante
+    //         this.type = aux;
+    //         return  node;
+    //     }
+    //     return visit(ctx.primaryExpression());
+    // }
 
 	// @Override
     // public AST visitConstantExpression(CParser.ConstantExpressionContext ctx) {
@@ -385,20 +457,19 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             //System.out.println("Primary Expression3");
             this.type = "NAME";
             String name = ctx.Identifier().getText();
-            
+
             null_node.addInfo(name);
-            
+
             return null_node;
         }
-        
+
         else if(ctx.Constant() != null){
             this.type = "CONST";
             AST node;
-            
+
             String value = ctx.Constant().getText();
-            System.out.println("VALOR: " + value);
             String type = const_type_checker(value);
-            
+
             switch (type) {
                 case "int":
                     node = new AST(NodeKind.INT_VAL_NODE, Integer.valueOf(value), value);
@@ -443,114 +514,179 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         }
     }
 
+    //typedefName : Identifier
+	@Override
+    public AST visitTypedefName(CParser.TypedefNameContext ctx) {
 
-	// @Override
-    // public String visitTypedefName(CParser.TypedefNameContext ctx) {
-    //     visitChildren(ctx);
+        AST node = new AST(NodeKind.NULL_NODE);
+        String nome = ctx.Identifier().getText();
+        int escopo = 0;
 
-    //     String nome = ctx.Identifier().getText();
-    //     int escopo = 0;
+        if(this.isInBlock){
+            escopo = this.escopoAtual;
+        }
 
-    //     if(this.isInBlock){
-    //         escopo = this.escopoAtual;
-    //     }
+        switch (this.type) {
+            case "int":
+                node = new AST(NodeKind.VAR_INT_NODE);
+                break;
+            case "float":
+                node = new AST(NodeKind.VAR_FLOAT_NODE);
+                break;
+            case "char":
+                node = new AST(NodeKind.VAR_CHAR_NODE);
+                break;
+            default://ERRO DE TIPO INDEFINIDO
+                System.out.println();
+                break;
+        }
 
-    //     VarInfo nv = new VarInfo(nome, this.type, ctx.Identifier().getSymbol().getLine(), escopo, null);
+        VarInfo nv = new VarInfo(nome, this.type, ctx.Identifier().getSymbol().getLine(), escopo, null);
 
-    //     if(!vt.insert(nv)){
-    //         System.out.println("A variável : " + nome + " já foi declarada anteriormente.");
-    //     }
-
-    //     return nome;
-    // }
+        if(!vt.insert(nv)){
+            System.out.println("A variável : " + nome + " já foi declarada anteriormente.");
+        }
+        node.addInfo(nome);
+        //AST.printDot(node);
+        return node;
+    }
 
     //functionDefinition : declarationSpecifiers? declarator declarationList? compoundStatement
-    // @Override public String visitFunctionDefinition(CParser.FunctionDefinitionContext ctx) {
+    @Override
+    public AST visitFunctionDefinition(CParser.FunctionDefinitionContext ctx) {
+        AST funcDec = new AST(NodeKind.FUNCTION_DECLARATION_NODE);
+        AST aux;
+        AST typeNode;
+        AST nameAndParamsNode;
 
-    //     if(ctx.declarator() != null && ctx.declarationSpecifiers() != null){
+        this.escopoAtual++;
+        this.isInBlock = true;
 
-    //         String nome = visit(ctx.declarator());
+        if(ctx.declarator() != null && ctx.declarationSpecifiers() != null){
+            aux = visit(ctx.declarationSpecifiers());
 
-    //         String tipo = ctx.declarationSpecifiers().getText();
+            //Isto é um reaproveitamento de node
+            //Definimos o tipo da função como um PARAM_TYPE com text = null
+            if(aux.getText().equals("char")){
+                typeNode = new AST(NodeKind.PARAMETER_CHAR_NODE);
+            }else if(aux.getText().equals("int")){
+                typeNode = new AST(NodeKind.PARAMETER_INT_NODE);
+            }else if(aux.getText().equals("float")){
+                typeNode = new AST(NodeKind.PARAMETER_FLOAT_NODE);
+            }else if(aux.getText().equals("void")){
+                typeNode =  new AST(NodeKind.TYPE_VOID_NODE);
+            }else{
+                typeNode = aux;
+            }
+            
+            nameAndParamsNode = visit(ctx.declarator());
+            funcDec.addChild(typeNode);
+            funcDec.addChild(nameAndParamsNode);
+            
+            // System.out.println("FUNCTION DECLARATION");
+            // AST.printDot(funcDec);
 
-    //         ft.addType(nome, tipo);
+            visit(ctx.compoundStatement());
+            this.isInBlock = false;
+            return null;
+        }
 
-    //         visit(ctx.declarationSpecifiers());
+        return null;
+    }
 
-    //     }
+    // typeSpecifier : ('void' | 'char' | 'int' | 'float' | ...
+    @Override
+    public AST visitTypeSpecifier(CParser.TypeSpecifierContext ctx) {
 
-    //     this.escopoAtual++;
-    //     this.isInBlock = true;
-    //     visit(ctx.compoundStatement());
-    //     this.isInBlock = false;
-    //     return new String();
-    // }
 
-    // Esta é uma regra terminal, ela retorna o tipo
-    // @Override
-    // public String visitTypeSpecifier(CParser.TypeSpecifierContext ctx) {
+        AST node = new AST(NodeKind.NULL_NODE);
+        String type = ctx.getText();
 
-    //     //Caso esse tratamento não seja feito. O type é definido como o nome da variável
-    //     if(ctx.typedefName() == null){
-    //         this.type = ctx.getText();//!Switch case
-    //     }
-    //     //this.type = ctx.getText();
+        //Caso esse tratamento não seja feito. O type é definido como o nome da variável
+        //Ver C.g4 declarationSpecifiers
+        if(ctx.typedefName() == null){
+            switch (type) {
+                case "int":
+                case "char":
+                case "float":
+                case "void":
+                    node.addInfo(type);
+                    this.type = type;
+                    break;
+                default:
+                    System.out.println("Simbolo desconhecido: " + type + ".");
+            }
+        }else{
+            return visit(ctx.typedefName());
+        }
 
-    //     visitChildren(ctx);
-    //     return ctx.getText();
-    // }
+        return node;
+    }
 
     //directDeclarator '(' parameterTypeList ')' #funcDeclaration1
-	// @Override
-    // public String visitFuncDeclaration1(CParser.FuncDeclaration1Context ctx) {
+	@Override
+    public AST visitFuncDeclaration1(CParser.FuncDeclaration1Context ctx) {
 
-    //     String nome = visit(ctx.directDeclarator());
+        String name = visit(ctx.directDeclarator()).getText();
+        String paramName, paramType;
 
-    //     FunctionInfo nf = new FunctionInfo(nome, "no_type");
+        AST func = new AST(NodeKind.FUNCTION_NODE);
+        func.addInfo(name);
+        AST nodeAux;
+        AST params = visit(ctx.parameterTypeList());
 
-    //     if(!ft.insert(nf)){
-    //         System.out.println("A função: " + nome + " já existe.");
-    //         return null;//Para o processo de análise semântica.
-    //     }
+        FunctionInfo nf = new FunctionInfo(name, this.type);
+        VarInfo nv;
+        int line = ctx.LeftParen().getSymbol().getLine();
 
-    //     String params = visit(ctx.parameterTypeList());
+        ArrayList<String> list = new ArrayList<String>();
 
-    //     String[] aux = params.split(",");
-    //     System.out.println("params: " + params);
+        if(!ft.insert(nf)){
+            System.out.println("A função: " + name + " já existe. " + line + ".");
+            return new AST(NodeKind.NULL_NODE);// ------ ?
+        }
 
-    //     ArrayList<String> list = new ArrayList<String>();
+        //Cria a lista de tipos que a função aceita
+        //Cria as variáveis declaradas como parâmetros da função
+        for(int i = 0; i < params.getChildrenSize(); i++){
+            nodeAux = params.getChild(i);
 
-    //     for(int i = 0; i < aux.length; i++){
-    //         if(!aux[i].equals("")){
-    //             list.add(aux[i]);
-    //         }
+            paramName = nodeAux.getText();
+            paramType = nodeAux.getNodeKind().toString();
 
-    //     }
+            nv = new VarInfo(paramName, paramType, line, this.escopoAtual, null);
+            list.add(paramType);
+            vt.insert(nv);
+        }
 
-    //     ft.addParams(nome, list);
+        func.addChild(params);
+        ft.addParams(name, list);
 
-    //     return nome;
-    // }
+        return func;
+    }
 
-    //pelo que percebi por tentativa e erro, isso identifica uma função sem parâmetros
+    //Funções sem parâmetros
     //directDeclarator '(' identifierList? ')' #funcDeclaration2
-    // @Override
-    // public String visitFuncDeclaration2(CParser.FuncDeclaration2Context ctx) {
+    @Override
+    public AST visitFuncDeclaration2(CParser.FuncDeclaration2Context ctx) {
 
-    //     String nome = visit(ctx.directDeclarator());
+        String nome = visit(ctx.directDeclarator()).getText();
 
-    //     FunctionInfo nf = new FunctionInfo(nome, "no_type");
+        AST func = new AST(NodeKind.FUNCTION_NODE);
+        func.addInfo(nome);
+    
+        FunctionInfo nf = new FunctionInfo(nome, this.type);
 
-    //     if(!ft.insert(nf)){
-    //         System.out.println("A função: " + nome + " já existe.");
-    //         return null;//Para o processo de análise semântica.
-    //     }
+        if(!ft.insert(nf)){
+            System.out.println("A função: " + nome + " já existe.");
+            return new AST(NodeKind.NULL_NODE);//Para o processo de análise semântica.
+        }
 
-    //     return visitChildren(ctx);
-    // }
+        return func;
+    }
 
-    //Coloquei a regra, mas enfim, tem uma lista no nome :)
-    //parameterList :  parameterDeclaration (',' parameterDeclaration)*
+    // // Coloquei a regra, mas enfim, tem uma lista no nome :)
+    // // parameterList :  parameterDeclaration (',' parameterDeclaration)*
     // @Override
     // public String visitParameterList(CParser.ParameterListContext ctx) {
     //     String params = new String();
@@ -568,33 +704,63 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     //     return params;
     // }
 
-    // Abaixo: Identifier
-    // Acima: DirectDeclaretor
-    // É uma reescrita do identifier. Funciona como uma interface entre
-    // Identifier e DirectDeclarator para guardar o nome de uma função.
-	// @Override
-    // public AST visitFuncName(CParser.FuncNameContext ctx) {
-    //     AST node = new AST(NodeKind.NULL_NODE);
-    //     String type = ctx.Identifier().getText();
+    //É o filho identifier de DirectDeclarator, 
+    //Identifica nomes de função e de variáveis quando são declarados
+	@Override
+    public AST visitFuncName(CParser.FuncNameContext ctx) {
+        AST node = new AST(NodeKind.NULL_NODE);
+        String nome = ctx.Identifier().getText();
 
-    //     if(type.equals("int")){
-    //         node.addInfo("int");
-    //         //return node;
-    //     }
+        node.addInfo(nome);
+        this.lineFunc = ctx.Identifier().getSymbol().getLine();
+        return node;
+    }
 
-    //     if(type.equals("float")){
-    //         node.addInfo("float");
-    //         //return node;
-    //     }
+    //parameterList : parameterDeclaration (',' parameterDeclaration)*
+	@Override
+    public AST visitParameterList(CParser.ParameterListContext ctx) {
+        AST node = new AST(NodeKind.PARAMS_NODE);
+        AST aux;
+        for(int i = 0; i < ctx.parameterDeclaration().size(); i++){
+            aux = visit(ctx.parameterDeclaration(i));
+            node.addChild(aux);
+        }
 
-    //     if(type.equals("char")){
-    //         node.addInfo("char");
-    //         //return node;
-    //     }
-    //     System.out.println("type : " + type);
-        
-    //     this.lineFunc = ctx.Identifier().getSymbol().getLine();
-    //     return visitChildren(ctx);
-    // }
+        //AST.printDot(node);
+        return node;
+    }
 
+
+    //parameterDeclaration : declarationSpecifiers declarator | declarationSpecifiers2 abstractDeclarator?
+    @Override
+    public AST visitParameterDeclaration(CParser.ParameterDeclarationContext ctx) {
+        if(ctx.declarationSpecifiers() != null){
+            String paramType = ctx.declarationSpecifiers().getText();
+            String paramName = ctx.declarator().getText();
+
+            AST node;
+            if(paramType.equals("char")){
+                node = new AST(NodeKind.PARAMETER_CHAR_NODE);
+                node.addInfo(paramName);
+                //AST.printDot(node);
+                return node;
+            }
+
+            if(paramType.equals("int")){
+                node = new AST(NodeKind.PARAMETER_INT_NODE);
+                node.addInfo(paramName);
+                //AST.printDot(node);
+                return node;
+            }
+
+            if(paramType.equals("float")){
+                node = new AST(NodeKind.PARAMETER_FLOAT_NODE);
+                node.addInfo(paramName);
+                //AST.printDot(node);
+                return node;
+            }
+
+        }
+        return null;
+    }
 }

@@ -16,7 +16,7 @@ public class AST {
     public  final char charData;
 	public  final float floatData;
 
-    public String text;
+    public String text = null;
 
 	private final List<AST> children; // Privado para que a manipulação da lista seja controlável.
 
@@ -78,6 +78,10 @@ public class AST {
 	public NodeKind getNodeKind(){
 		return this.kind;
 	}
+
+	public int getChildrenSize(){
+		return this.children.size();
+	}
 	
 	// Cria um nó e pendura todos os filhos passados como argumento.
 	public static AST newSubtree(NodeKind kind, AST... children) {
@@ -111,10 +115,24 @@ public class AST {
 	        	System.err.printf("@%d", this.intData);
 	        } else if(this.kind == NodeKind.INT_VAL_NODE) {
 	        	System.err.printf("%d", this.intData);
-	        } else {
+	        } else if (this.kind == NodeKind.CHAR_VAL_NODE){
 	        	System.err.printf("%c", this.charData);
+            } else if(this.kind == NodeKind.PARAMETER_INT_NODE){
+	        	System.err.printf("%s", this.getText());
+			} else if(this.kind == NodeKind.PARAMETER_CHAR_NODE){
+	        	System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.PARAMETER_FLOAT_NODE){
+	        	System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.FUNCTION_NODE){
+	        	System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.VAR_CHAR_NODE){
+	        	System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.VAR_INT_NODE){
+	        	System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.VAR_FLOAT_NODE){
+	        	System.err.printf("%s", this.getText());
+			}
 
-            }
 	    }
 
 	    System.err.printf("\"];\n");

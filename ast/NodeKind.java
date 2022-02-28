@@ -76,6 +76,66 @@ public enum NodeKind {
         public String toString() {
             return null;
         }
+    },
+    PARAMETER_INT_NODE{
+        public String toString() {
+            return "int";
+        }
+    },
+    PARAMETER_CHAR_NODE{
+        public String toString() {
+            return "char";
+        }
+    },
+    PARAMETER_FLOAT_NODE{
+        public String toString() {
+            return "float";
+        }
+    },
+    TYPE_VOID_NODE{
+        public String toString() {
+            return "void";
+        }
+    },
+    PARAMS_NODE{
+        public String toString() {
+            return "params";
+        }
+    },
+    FUNCTION_NODE{
+        public String toString() {
+            return "function";
+        }
+    },
+    FUNCTION_DECLARATION_NODE{
+        public String toString() {
+            return "function_definition";
+        }
+    },
+    VAR_INT_NODE{
+        public String toString() {
+            return "int";
+        }
+    },
+    VAR_FLOAT_NODE{
+        public String toString() {
+            return "float";
+        }
+    },
+    VAR_CHAR_NODE{
+        public String toString() {
+            return "char";
+        }
+    },
+    VAR_DECLARATION_LIST_NODE{
+        public String toString() {
+            return "var_declaration_list";
+        }
+    },
+    VAR_DECLARATION_NODE{
+        public String toString() {
+            return "var_declaration";
+        }   
     }
     ;
 
@@ -85,6 +145,13 @@ public enum NodeKind {
             case FLOAT_VAL_NODE:
             case STR_VAL_NODE:
             case CHAR_VAL_NODE:
+            case PARAMETER_CHAR_NODE:
+            case PARAMETER_FLOAT_NODE:
+            case PARAMETER_INT_NODE:
+            case FUNCTION_NODE:
+            case VAR_INT_NODE:
+            case VAR_CHAR_NODE:
+            case VAR_FLOAT_NODE:
                 return true;
             default:
                 return false;

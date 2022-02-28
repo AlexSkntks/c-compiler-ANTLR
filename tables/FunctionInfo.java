@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class FunctionInfo{
     
     private String nome;
-    private String tipo;//Retonrno
+    private String tipo;//Retorno
 	private ArrayList<String> parametros = new ArrayList<String>();
 
     public FunctionInfo(String nome, String tipo){
@@ -15,7 +15,7 @@ public class FunctionInfo{
 
     public void imprime(){
 
-        System.out.print("F-Nome: [" + this.nome + "] parametros ");
+        System.out.print("F-Nome: [" + this.nome + "] Tipo [" + this.tipo + "]" + " parametros ");
         if(this.parametros.isEmpty()){
             System.out.println("NO PARAMS");
         }else{
