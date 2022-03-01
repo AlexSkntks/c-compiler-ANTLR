@@ -157,22 +157,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             this.line = ctx.Assign().getSymbol().getLine();
             
             nv = new VarInfo(nome, this.type, this.line, escopo, null);  
-            
-            //* Nó de conversão na atribuição
-            // if(this.type == "float"){
-            //     if(typeAtt == "int"){
-            //         //Nó de conversão int2Float
-            //     }
-            //     if(typeAtt == "char"){
-            //         //char2Int
-            //         //Int2Float
-            //     }
-            // }
-            // if(this.type == "int"){
-            //     if(typeAtt == "char"){
-            //         //char2Int
-            //     }
-            // }
 
             if(!vt.insert(nv)){
                 System.out.println("A variável : " + nome + " já foi declarada.");
@@ -181,9 +165,38 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             String aux = this.type;
             //! Quando operações aritméticas estiverem completas, adicionar o child de atribuição
             AST chieldInitializer = visit(ctx.initializer());//Arvore de initializer
-            System.out.println("-------------------------------"+chieldInitializer.getNodeKind().toString());
+            
             assign.addChild(node);
-            assign.addChild(chieldInitializer);
+            
+            if(AST.is_tree(chieldInitializer)){
+                if( node.getText().equals(chieldInitializer.getNodeKind().toString()) ){
+                    assign.addChild(chieldInitializer);
+                } else{
+                    AST cast_type = AST.convertion_node_generator(
+                        node.getNodeKind().toString(), 
+                        chieldInitializer.getText()
+                    );
+
+                    cast_type.addChild(chieldInitializer);
+                    assign.addChild(cast_type);
+
+                }
+                
+            } else{
+                if( node.getNodeKind().toString().equals(chieldInitializer.getNodeKind().toString()) ){
+                    assign.addChild(chieldInitializer);
+                } else{
+                    AST cast_type = AST.convertion_node_generator(
+                        node.getNodeKind().toString(), 
+                        chieldInitializer.getNodeKind().toString()
+                    );
+
+                    cast_type.addChild(chieldInitializer);
+                    assign.addChild(cast_type);
+
+                }
+                
+            }
             this.type = aux;
             AST.printDot(assign);
 
@@ -334,8 +347,10 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         AST multOP;
         AST c1, c2;
         String bigger_type;
-        for(int i = 0; i < ctx.castExpression().size()-1; i++){
 
+        // System.out.println(ctx.);
+        for(int i = 0; i < ctx.castExpression().size()-1; i++){
+            
             multOP= new AST(NodeKind.TIMES_NODE);
             
             if(i == 0){
