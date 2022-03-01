@@ -337,22 +337,85 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         for(int i = 0; i < ctx.castExpression().size()-1; i++){
 
             multOP= new AST(NodeKind.TIMES_NODE);
-            // IF FOLHAS
+            
             if(i == 0){
-
                 c1 = listTypes.get(0);
-                c2 = listTypes.get(1);
+                c2 = listTypes.get(1);     
+            } else {
+                c1 = listTypes.get(i-1);
+                c2 = listTypes.get(i);
+            }
 
-                //A tabela de unificação entra aqui, mais eficiente para pegar os types e saber qual a conversão
-                bigger_type = AST.unification(c1.getNodeKind(), c2.getNodeKind());
-                multOP.addInfo(bigger_type);
+            //A tabela de unificação entra aqui, mais eficiente para pegar os types e saber qual a conversão
+
+            // Checa se um dos filhos da operação e uma arvore.
+            // c1 será sempre uma arvore nesse caso, pois é averiguado
+            // no if acima deste.
+            NodeKind c1_NodeKind = null;
+            NodeKind c2_NodeKind = null;
+
+            if(AST.is_tree(c1) && AST.is_tree(c2)){
+                // System.out.println("GALHO - DUAS ARVORES");
+                // AST.printDot(c1);
+                // AST.printDot(c2);
                 
+                c1_NodeKind = AST.string_to_nodekind(c1.getText());
+                c2_NodeKind = AST.string_to_nodekind(c2.getText());
+                
+                // Pega o tipo maior entre as duas arvores
+                bigger_type = AST.unification(
+                    c1_NodeKind, 
+                    c2_NodeKind
+                );
+                multOP.addInfo(bigger_type);
 
-                // se c1.nodekind != multOP.nodekind -> c1.nodekind = multOP
-                // else se c2.nodekind != multOP.nodekind -> c2.nodekind = multOP
+                // Atribui o tipo das mesmas a uma variável para
+                // facilitar
 
-                if(!c1.getNodeKind().toString().equals(bigger_type)){
-                    AST unification_node = AST.convertion_node_generator(c1.getNodeKind().toString(), bigger_type);
+                // Caso o tipo da primeira arvore seja difente do 
+                // tipo maior é necessário um nó de conversão.
+                // Não haverá o caso onde ambas sejam diferentes do 
+                // tipo maior, pois o tipo maior pega o maior entre 
+                // os tipos dos filhos.
+                if(!c1_NodeKind.toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c1_NodeKind.toString(), bigger_type);
+                    unification_node.addChild(c1);
+                    multOP.addChild(unification_node);
+                    multOP.addChild(c2);
+
+                } else if(!c2_NodeKind.toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c2_NodeKind.toString(), bigger_type);
+                    multOP.addChild(c1);
+                    unification_node.addChild(c2);
+                    multOP.addChild(unification_node);
+
+                }else{
+                    multOP.addChild(c1);
+                    multOP.addChild(c2);
+                }
+
+            } else if (AST.is_tree(c1) || AST.is_tree(c2)){
+                // System.out.println("GALHO - UMA ARVORE");
+                if (AST.is_tree(c2)){
+                    AST aux_node = c2;
+                    c2 = c1;
+                    c1 = aux_node;
+                }
+                // AST.printDot(c1);
+                // AST.printDot(c2);
+                
+                // Atribui o tipo da arvore para facilitar
+                c1_NodeKind = AST.string_to_nodekind(c1.getText());
+
+                // Pega o tipo maior entre uma arvore e um nó simples
+                bigger_type = AST.unification(
+                    c1_NodeKind, 
+                    c2.getNodeKind()
+                );
+                multOP.addInfo(bigger_type);
+
+                if(!c1_NodeKind.toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c1_NodeKind.toString(), bigger_type);
                     unification_node.addChild(c1);
                     multOP.addChild(unification_node);
                     multOP.addChild(c2);
@@ -362,100 +425,44 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     multOP.addChild(c1);
                     unification_node.addChild(c2);
                     multOP.addChild(unification_node);
-
                 }else{
                     multOP.addChild(c1);
                     multOP.addChild(c2);
                 }
                 
-                
+            } else {
 
+                // Pega o tipo maior entre uma arvore e um nó simples
+                bigger_type = AST.unification(
+                    c1.getNodeKind(), 
+                    c2.getNodeKind()
+                );
+                multOP.addInfo(bigger_type);
+
+                if(!c1.getNodeKind().toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c1.getNodeKind().toString(), bigger_type);
+                    unification_node.addChild(c1);
+                    multOP.addChild(unification_node);
+                    multOP.addChild(c2);
+                
+                } else if(!c2.getNodeKind().toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c2.getNodeKind().toString(), bigger_type);
+                    multOP.addChild(c1);
+                    unification_node.addChild(c2);
+                    multOP.addChild(unification_node);
+                }else{
+                    multOP.addChild(c1);
+                    multOP.addChild(c2);
+                }
+
+            }
+               
+                
+            if(i == 0){
                 listTypes.remove(0);
                 listTypes.remove(0);
                 listTypes.add(0, multOP);
-
-            // ELSE GALHOS
-            }else{
-
-                c1 = listTypes.get(i-1);
-                c2 = listTypes.get(i);
-
-                //A tabela de unificação entra aqui, mais eficiente para pegar os types e saber qual a conversão
-
-                // Checa se um dos filhos da operação e uma arvore.
-                // c1 será sempre uma arvore nesse caso, pois é averiguado
-                // no if acima deste.
-                NodeKind c1_NodeKind = null;
-                NodeKind c2_NodeKind = null;
-
-                if(AST.is_tree(c2)){
-                    // Pega o tipo maior entre as duas arvores
-                    bigger_type = AST.unification(
-                        AST.string_to_nodekind(c1.getText()), 
-                        AST.string_to_nodekind(c2.getText())
-                    );
-                    multOP.addInfo(bigger_type);
-
-                    // Atribui o tipo das mesmas a uma variável para
-                    // facilitar
-                    c1_NodeKind = AST.string_to_nodekind(c1.getText());
-                    c2_NodeKind = AST.string_to_nodekind(c2.getText());
-
-                    // Caso o tipo da primeira arvore seja difente do 
-                    // tipo maior é necessário um nó de conversão.
-                    // Não haverá o caso onde ambas sejam diferentes do 
-                    // tipo maior, pois o tipo maior pega o maior entre 
-                    // os tipos dos filhos.
-                    if(!c1_NodeKind.toString().equals(bigger_type)){
-                        AST unification_node = AST.convertion_node_generator(c1_NodeKind.toString(), bigger_type);
-                        unification_node.addChild(c1);
-                        multOP.addChild(unification_node);
-                        multOP.addChild(c2);
-    
-                    } else if(!c2_NodeKind.toString().equals(bigger_type)){
-                        AST unification_node = AST.convertion_node_generator(c2_NodeKind.toString(), bigger_type);
-                        System.out.println("STAGE-3");
-                        System.out.println("c2.getNodeKind(): " + c2.getNodeKind().toString());
-                        System.out.println("bigger_type: " + bigger_type);
-                        System.out.println("Unification node: " + unification_node.getNodeKind());
-                        multOP.addChild(c1);
-                        unification_node.addChild(c2);
-                        multOP.addChild(unification_node);
-    
-                    }else{
-                        multOP.addChild(c1);
-                        multOP.addChild(c2);
-                    }
-
-                } else {
-                    // Atribui o tipo da arvore para facilitar
-                    c1_NodeKind = AST.string_to_nodekind(c1.getText());
-
-                    // Pega o tipo maior entre uma arvore e um nó simples
-                    bigger_type = AST.unification(
-                        c1_NodeKind, 
-                        c2.getNodeKind()
-                    );
-                    multOP.addInfo(bigger_type);
-
-                    if(!c1_NodeKind.toString().equals(bigger_type)){
-                        AST unification_node = AST.convertion_node_generator(c1_NodeKind.toString(), bigger_type);
-                        unification_node.addChild(c1);
-                        multOP.addChild(unification_node);
-                        multOP.addChild(c2);
-    
-                    } else if(!c2.getNodeKind().toString().equals(bigger_type)){
-                        AST unification_node = AST.convertion_node_generator(c2.getNodeKind().toString(), bigger_type);
-                        multOP.addChild(c1);
-                        unification_node.addChild(c2);
-                        multOP.addChild(unification_node);
-                    }else{
-                        multOP.addChild(c1);
-                        multOP.addChild(c2);
-                    }
-                    
-                }
-
+            } else {
                 listTypes.remove(i);
                 listTypes.add(i, multOP);
             }
@@ -620,8 +627,8 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             // return null_node;
         }
         
-
-        return visitChildren(ctx);
+        AST aux = visit(ctx.expression());
+        return aux;
     }
 
     // Isso aqui converte as constantes para tipo.

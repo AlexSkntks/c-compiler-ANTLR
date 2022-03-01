@@ -16,6 +16,6 @@
 // int x = 1;
 
 int main(){
-    int count = 4.0*9*1;
+    int count = (2*(4.0*3))*(9*1);
     return 0;
 }
