@@ -20,6 +20,12 @@ public class AST {
 
 	private final List<AST> children; // Privado para que a manipulação da lista seja controlável.
 
+    static String [][] unification_table = {
+        {"char",  "int",   "float"},
+        {"int",   "int",   "float"},
+        {"float", "float", "float"}
+    };
+
 	// private AST(){}
 
 	// Construtor completo para poder tornar todos os campos finais.
@@ -152,5 +158,39 @@ public class AST {
 	    tree.printNodeDot();
 	    System.err.printf("}\n");
 	}
+    //        char:  int:   float:
+    // char:  char,  int,   float
+    // int:   int,   int,   float
+    // float: float, float, float
+    public static String unification(NodeKind n1, NodeKind n2){
+        int index1 = 0;
+        int index2 = 1;
+
+        switch (n1.toString()) {
+            case "char":
+                index1 = 0;
+                break;
+            case "int":
+                index1 = 1;
+                break;
+            case "float":
+                index1 = 2;
+                break;
+        }
+
+        switch (n2.toString()) {
+            case "char":
+                index2 = 0;
+                break;
+            case "int":
+                index2 = 1;
+                break;
+            case "float":
+                index2 = 2;
+                break;
+        }       
+
+        return unification_table[index1][index2];
+    }
     
 }
