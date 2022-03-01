@@ -197,6 +197,11 @@ public class AST {
         return unification_table[index1][index2];
     }
 
+	//O objetivo da função é retornar a unificação de tipos em atribuição ou
+	//operação aritmética.
+
+	//Quando é uma atribuição
+	//A variável que está sofrenado cast (old_type), vai ganhar um cast para new_type (lado esquerdo)
     public static AST convertion_node_generator(String old_type, String new_type){
         
         if(old_type.equals("no_type")){

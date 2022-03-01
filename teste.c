@@ -1,21 +1,13 @@
-// float pow(int leao, char coelho){
-//     int lol;
-//     return 0;
-// }
+float pow(int a, int b){
+    return 0;
+}
 
-// void funcTeste(int a, char b, float c){
-//     a = b * c;
-//     return 0;
-// }
-
-// void print(){
-//     float raiz = 1+1;
-//     return;
-// }
-
-// int x = 1;
 
 int main(){
-    int count = (2*(4.0*3))*(9*1);
+    float z = 10;
+    
+    int y = z;
+
+    //int count = 1 + pow(1,2);
     return 0;
 }

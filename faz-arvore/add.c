@@ -1,4 +1,11 @@
+#include <stdio.h>
+
 int main(){
-    int count = 1*4.0*9;
+    int x = 2.34;
+
+    float z = 0 + x;
+
+    printf("%d\n", z);//2.000
+
     return 0;
 }

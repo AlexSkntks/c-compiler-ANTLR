@@ -37,18 +37,20 @@ public class SemanticChecker extends CBaseVisitor<AST> {
      * * Funções e variáveis estão nas tabelas
      * * Permite declarar variáveis em escopo diferente
      * * Imprime o número da linha da variável
+     * * Tratar InitDeclarator (Liberado para conversões de todos os tipos)
+     *      * Atribuição simples
+     *      * Atribuição com operações artméticas
+     * * Chamada de variáveis
      * 
-     * ^ Chamada de variáveis
      * ^ Chamadas de função, verificação de parâmetros
+     * 
      * ^ Tratar operadores Aritméticos
-     * ^ Tratar InitDeclarator '='   "ERROR em Downcast"
-     *      ? Atribuição simples
-     *      ? Atribuição com operações artméticas
      *
      * ^ Uma função de IO -> Função padrão na tabela de Funções
      *
      * todo Tratar operadores Lógicos
      * ! Uma declaração e manipulação de tipo composto
+     * ! Identificar qual é o operador
      * ! Um loop
      * 
      * ~ Limitações
@@ -146,7 +148,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 node = new AST(NodeKind.VAR_CHAR_NODE);
                 break;
             default://ERRO DE TIPO INDEFINIDO, ver visitTypeSpecifier
-                System.out.println();
+                System.out.println("DEU UM ERRÂO");
                 break;
         }
 
@@ -165,8 +167,16 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             String aux = this.type;
             //! Quando operações aritméticas estiverem completas, adicionar o child de atribuição
             AST chieldInitializer = visit(ctx.initializer());//Arvore de initializer
-            
+
             assign.addChild(node);
+
+            //Trata quando algum valor de inicialização é incorreto
+            //função com parâmetro errado, variável não declarada, função indefinida
+            if(chieldInitializer.getNodeKind() == NodeKind.NULL_NODE){
+                assign.addChild(chieldInitializer);
+                //AST.printDot(assign);
+                return assign;
+            }
             
             if(AST.is_tree(chieldInitializer)){
                 if( node.getText().equals(chieldInitializer.getNodeKind().toString()) ){
@@ -186,14 +196,18 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 if( node.getNodeKind().toString().equals(chieldInitializer.getNodeKind().toString()) ){
                     assign.addChild(chieldInitializer);
                 } else{
+                    //System.out.println("ENVIANDO " + node.getNodeKind().toString() + " e " +  chieldInitializer.getNodeKind().toString());
+                    //int a = 2.3;
+                    //float b = 3;
+
                     AST cast_type = AST.convertion_node_generator(
-                        node.getNodeKind().toString(), 
-                        chieldInitializer.getNodeKind().toString()
+                        chieldInitializer.getNodeKind().toString(),
+                        node.getNodeKind().toString()
                     );
+                    //System.out.println(chieldInitializer.getNodeKind().toString() + " para " + cast_type.getNodeKind().toString());
 
                     cast_type.addChild(chieldInitializer);
                     assign.addChild(cast_type);
-
                 }
                 
             }
@@ -205,7 +219,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             if(!vt.insert(nv)){
                 System.out.println("A variável : " + nome + " já foi declarada.");
             }
-            AST.printDot(node);
+            //AST.printDot(node);
 
         }
 
@@ -341,7 +355,9 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         // temos um assign de uma variavel, assim basta retornar
         // a mesma.
         if(listTypes.size() == 1){
-            return listTypes.get(0);
+            AST ax = listTypes.get(0);
+            //System.out.println("TESTE " + ax.getText());
+            return ax;
         }
 
         AST multOP;
@@ -382,6 +398,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     c1_NodeKind, 
                     c2_NodeKind
                 );
+
                 multOP.addInfo(bigger_type);
 
                 // Atribui o tipo das mesmas a uma variável para
@@ -508,72 +525,92 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     | ('++' | '--')
     )*
      */
-    // @Override
-    // public AST visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
+    @Override
+    public AST visitPostfixExpression(CParser.PostfixExpressionContext ctx) {
 
-    //     AST node = visit(ctx.primaryExpression());
-    //     String name = node.getText();
+        String aux_type = this.type;//O visitador do filho altera o type
 
-    //     // Verifica se o retorno foi uma função
-    //     if(!ctx.LeftParen().isEmpty()){
+        AST node = visit(ctx.primaryExpression());
+        String name = node.getText();
+    
+        // Verifica se o retorno foi uma função
+        if(!ctx.LeftParen().isEmpty()){
 
-    //         if(!ft.verifyIfAlreadyExists(name)){
-    //             System.out.println("Simbolo " + name + " nao encontrado.");
-    //             return new AST(NodeKind.NULL_NODE);
-    //         }
+            // if(!ft.verifyIfAlreadyExists(name)){
+            //     System.out.println("Simbolo " + name + " nao encontrado.");
+            //     return new AST(NodeKind.NULL_NODE);
+            // }
 
-    //         String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
+            // String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
 
-    //         Posteriormente tratar os tipos
+            // //Posteriormente tratar os tipos
 
-    //         for(int i = 0; i < aux.length; i++){
-    //             System.out.println(aux[i]);
-    //         }
+            // for(int i = 0; i < aux.length; i++){
+            //     System.out.println(aux[i]);
+            // }
 
-    //         System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
+            // System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
 
-    //         Verifica se o tamanho da lista argumentos é coerente
-    //         if(ft.getListSize(name) == argumentList.length){
-    //             return ft.getType(name);
-    //         }else{
-    //             System.out.println("Funcao " + name + " tem argumentos demais.");
-    //             return "no_type";
-    //         }
+            // //Verifica se o tamanho da lista argumentos é coerente
+            // if(ft.getListSize(name) == argumentList.length){
+            //     return ft.getType(name);
+            // }else{
+            //     System.out.println("Funcao " + name + " tem argumentos demais.");
+            //     return "no_type";
+            // }
 
-    //     } else {//Verifica se foi constante ou variável
-    //         String aux = this.type;
+        } else {//Verifica se foi constante ou variável
+            
+            if(this.type.equals("NAME")){//Variável
+                // Escopo atual = 0 siginifica que a variável está fora
+                // de escopo, ou seja fora de uma função.
+                int escopo = 0;
+                // Caso ela esteja em uma função, ou bloco (inBlock),
+                // ela terá escopo diferente de 0
+                if(this.isInBlock == true){
+                    escopo = this.escopoAtual;
+                }
+                //name = x;
+                if(vt.lookUp(name, escopo)){//A variável existe
+                    
+                    //Criando node correspondente
 
-    //         String aux1 = visitChildren(ctx);
+                    String var_type = vt.getType(name, escopo);
+                    //System.out.println("TYPE " + var_type);
 
-    //         System.out.println("argumentExpressionList: "+aux1);
+                    switch (var_type){
+                        case "int":
+                            node = new AST(NodeKind.VAR_INT_NODE);
+                            break;
+                        case "char":
+                            node = new AST(NodeKind.VAR_CHAR_NODE);
+                            break;
+                        case "float":
+                            node = new AST(NodeKind.VAR_FLOAT_NODE);
+                            break;
+                        default:
+                            break;
+                    }
+                    node.addInfo(name);
 
-    //         String s = ctx.argumentExpressionList(0).getText();
-    //         System.out.println("Test argument List: "+s);
+                    //System.out.println("PRIMARY " + name);
+                    //AST.printDot(node);
+                    return node;//NODE_VAR*
+                }else{
+                    AST rt = new AST(NodeKind.NULL_NODE);
+                    rt.addInfo(name);
+                    System.out.println("Simbolo " + name + " nao encontrado");
+                    return rt;//NULL_NODE
+                }
 
-    //         if(this.type.equals("NAME")){//Variável
-    //             Escopo atual = 0 siginifica que a variável está fora
-    //             de escopo, ou seja fora de uma função.
-    //             int scopo = 0;
-    //             // Caso ela esteja em uma função, ou bloco (inBlock),
-    //             // ela terá escopo diferente de 0
-    //             if(this.isInBlock == true){
-    //                 scopo = this.escopoAtual;
-    //             }
-    //             if(vt.lookUp(name, scopo)){
-    //                 //System.out.println("Variavel " + name + " esta ok");
-    //                 return vt.getType(name, scopo);
-    //             }else{
-    //                 System.out.println("Simbolo " + name + " nao encontrado");
-    //                 return "no_type";
-    //             }
+            }
+            //Valor constante
+            this.type = aux_type;
+            return  node;
+        }
 
-    //         }
-    //         //Valor constante
-    //         this.type = aux;
-    //         return  node;
-    //     }
-    //     return visit(ctx.primaryExpression());
-    // }
+        return node;
+    }
 
 	// @Override
     // public AST visitConstantExpression(CParser.ConstantExpressionContext ctx) {
