@@ -67,16 +67,50 @@ public enum NodeKind {
             return null;
         }
     },
-    INT2FLOAT{
-        public String toString() {
-            return null;
-        }
-    },
+    
+    // Nós de conversão
+    // downcast (ou narrowing) não serão aceitos na linguagem
+    // porém estamos refletindo sobre a forma de lidar com
+    // atribuição que irá receber um tipo maior q o dela.
+    // Nesse caso, deve ocorrer um narrowing? Ou retornar
+    // um no_type seria o bastante para o caso da linguagem 
+    // não aceitar a operação de narrowing?
+    
+    // UPCAST (ou widening)
     CHAR2INT{
         public String toString() {
-            return null;
+            return "int";
         }
     },
+    CHAR2FLOAT{
+        public String toString() {
+            return "float";
+        }
+    },
+    INT2FLOAT{
+        public String toString() {
+            return "float";
+        }
+    },
+    
+    // DOWNCAST (ou narrowing)
+    INT2CHAR{
+        public String toString() {
+            return "float";
+        }
+    },
+    FLOAT2CHAR{
+        public String toString() {
+            return "char";
+        }
+    },
+    FLOAT2INT{
+        public String toString() {
+            return "int";
+        }
+    },   
+
+    // Leitura de parametro de função
     PARAMETER_INT_NODE{
         public String toString() {
             return "int";

@@ -176,6 +176,8 @@ public class AST {
             case "float":
                 index1 = 2;
                 break;
+            default:
+                return "no_type";
         }
 
         switch (n2.toString()) {
@@ -188,9 +190,61 @@ public class AST {
             case "float":
                 index2 = 2;
                 break;
+            default:
+                return "no_type";
         }       
 
         return unification_table[index1][index2];
+    }
+
+    public static AST convertion_node_generator(String old_type, String new_type){
+        
+        if(old_type.equals("no_type")){
+            return new AST(NodeKind.NULL_NODE);
+        }
+        
+        // UPCAST
+        if (old_type.equals("char") && new_type.equals("int") ){
+            return new AST(NodeKind.CHAR2INT);
+        } else if (old_type.equals("char") && new_type.equals("float") ){
+            return new AST(NodeKind.CHAR2FLOAT);
+        } else if (old_type.equals("int") && new_type.equals("float") ){
+            return new AST(NodeKind.INT2FLOAT);
+        } else{
+            // DOWNCAST
+            if (old_type.equals("int") && new_type.equals("char") ){
+                return new AST(NodeKind.INT2CHAR);
+            } else if (old_type.equals("float") && new_type.equals("char") ){
+                return new AST(NodeKind.FLOAT2CHAR);   
+            } else if (old_type.equals("float") && new_type.equals("int") ){
+                return new AST(NodeKind.FLOAT2INT);    
+            }
+        }
+
+        return new AST(NodeKind.NULL_NODE);
+    }
+
+    public static NodeKind string_to_nodekind(String s){
+        switch(s) {
+            case "char":
+                return NodeKind.CHAR_VAL_NODE;
+            case "int":
+                return NodeKind.INT_VAL_NODE;
+            case "float":
+                return NodeKind.FLOAT_VAL_NODE;
+            default:
+                return NodeKind.NULL_NODE;
+        }
+    }
+
+    public static boolean is_tree(AST a){
+        switch(a.getNodeKind()) {
+            case PLUS_NODE:
+            case TIMES_NODE:
+                return true;
+            default:
+                return false;
+        }
     }
     
 }
