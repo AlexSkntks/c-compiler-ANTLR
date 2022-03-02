@@ -1,13 +1,8 @@
-float pow(int a, int b){
+int test_func(int a, int b){
     return 0;
 }
 
-
 int main(){
-    float z = 10;
-    
-    int y = z;
-
-    //int count = 1 + pow(1,2);
+    float z = test_func(1, 2) * 2.0;
     return 0;
 }

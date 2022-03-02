@@ -470,13 +470,12 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     c2.getNodeKind()
                 );
                 multOP.addInfo(bigger_type);
-
                 if(!c1.getNodeKind().toString().equals(bigger_type)){
                     AST unification_node = AST.convertion_node_generator(c1.getNodeKind().toString(), bigger_type);
                     unification_node.addChild(c1);
                     multOP.addChild(unification_node);
                     multOP.addChild(c2);
-                
+                    
                 } else if(!c2.getNodeKind().toString().equals(bigger_type)){
                     AST unification_node = AST.convertion_node_generator(c2.getNodeKind().toString(), bigger_type);
                     multOP.addChild(c1);
@@ -486,6 +485,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     multOP.addChild(c1);
                     multOP.addChild(c2);
                 }
+                System.out.println("----- TEST ----- "+c2.getNodeKind().toString());
 
             }
                
@@ -536,28 +536,41 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         // Verifica se o retorno foi uma função
         if(!ctx.LeftParen().isEmpty()){
 
-            // if(!ft.verifyIfAlreadyExists(name)){
-            //     System.out.println("Simbolo " + name + " nao encontrado.");
-            //     return new AST(NodeKind.NULL_NODE);
-            // }
+            if(!ft.verifyIfAlreadyExists(name)){
+                System.out.println("Simbolo " + name + " nao encontrado.");
+                return new AST(NodeKind.NULL_NODE);
+            }
 
-            // String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
+            String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
 
-            // //Posteriormente tratar os tipos
+            //Posteriormente tratar os tipos
 
-            // for(int i = 0; i < aux.length; i++){
-            //     System.out.println(aux[i]);
+            // for(int i = 0; i < argumentList.length; i++){
+            //     System.out.println(argumentList[i]);
             // }
 
             // System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
 
-            // //Verifica se o tamanho da lista argumentos é coerente
-            // if(ft.getListSize(name) == argumentList.length){
-            //     return ft.getType(name);
-            // }else{
-            //     System.out.println("Funcao " + name + " tem argumentos demais.");
-            //     return "no_type";
-            // }
+            //Verifica se o tamanho da lista argumentos é coerente
+            if(ft.getListSize(name) == argumentList.length){
+                ArrayList<String> args = new ArrayList<String>();
+                for(int i = 0; i < argumentList.length; i++){
+                    String type_arg = const_type_checker(argumentList[i]);
+                    args.add(type_arg); 
+                }
+                if(!ft.lookUp(name, args)){
+                    System.out.println("Parametros incorretos para a função " + name + ".");
+                    return new AST(NodeKind.NULL_NODE);
+                }
+                String func_type = ft.getType(name);
+                AST func_node = new AST(AST.string_to_nodekind(func_type));
+                func_node.addInfo("(func)" + name);
+
+                return func_node;
+            }else{
+                System.out.println("Funcao " + name + " tem argumentos demais.");
+                return new AST(NodeKind.NULL_NODE);
+            }
 
         } else {//Verifica se foi constante ou variável
             
@@ -608,8 +621,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             this.type = aux_type;
             return  node;
         }
-
-        return node;
     }
 
 	// @Override

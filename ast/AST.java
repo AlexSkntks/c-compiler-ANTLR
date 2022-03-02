@@ -113,16 +113,31 @@ public class AST {
 	    if (this.kind.toString() != "no_type") {
 	    	System.err.printf("(%s) ", this.kind.toString());
 	    }
-	    
-	    if (NodeKind.hasData(this.kind)) {
+        
+        if (NodeKind.hasData(this.kind)) {
 	        if (this.kind == NodeKind.FLOAT_VAL_NODE) {
-	        	System.err.printf("%.2f", this.floatData);
+                // System.out.println("---- TEST FLOAT ---");
+	        	if(this.text.contains("(func)")){
+                    System.err.printf("%s", this.text);
+                }else{
+                    System.err.printf("%.2f", this.floatData);
+                }
 	        } else if (this.kind == NodeKind.STR_VAL_NODE) {
 	        	System.err.printf("@%d", this.intData);
 	        } else if(this.kind == NodeKind.INT_VAL_NODE) {
-	        	System.err.printf("%d", this.intData);
+                // System.out.println("TEST INT");
+                if(this.text.contains("(func)")){
+                    System.err.printf("%s", this.text);
+                }else{
+                    System.err.printf("%d", this.intData);
+                }
 	        } else if (this.kind == NodeKind.CHAR_VAL_NODE){
-	        	System.err.printf("%c", this.charData);
+                // System.out.println("TEST CHAR");
+	        	if(this.text.contains("(func)")){
+                    System.err.printf("%s", this.text);
+                }else{
+                    System.err.printf("%c", this.charData);
+                }
             } else if(this.kind == NodeKind.PARAMETER_INT_NODE){
 	        	System.err.printf("%s", this.getText());
 			} else if(this.kind == NodeKind.PARAMETER_CHAR_NODE){
@@ -138,8 +153,9 @@ public class AST {
 			}else if(this.kind == NodeKind.VAR_FLOAT_NODE){
 	        	System.err.printf("%s", this.getText());
 			}
-
+            
 	    }
+        System.out.println("TEST");
 
 	    System.err.printf("\"];\n");
 
