@@ -64,7 +64,7 @@ public enum NodeKind {
 	},
     NULL_NODE {
         public String toString() {
-            return null;
+            return "null";
         }
     },
     

@@ -552,8 +552,18 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 return new AST(NodeKind.NULL_NODE);
             }
 
-            String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
+            String string_args = ctx.argumentExpressionList(0).getText();
 
+            if(string_args.contains("(")){
+                System.out.println(name + " - O compilador não aceita funções como argumento de função.");
+                AST voidNode = new AST(NodeKind.NULL_NODE);
+                voidNode.addInfo("void");
+                return voidNode;
+            }
+           
+
+            String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
+            
             // System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
 
             // //Verifica se o tamanho da lista argumentos é coerente
@@ -563,16 +573,26 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                                     
                 ArrayList<String> args = new ArrayList<String>();
                 String auxArgs = "";
-
+                Boolean err = false;
+                String arg = "";
                 for(int i = 0; i < argumentList.length; i++){
+                    arg = const_type_checker(argumentList[i]);
 
                     if(i == argumentList.length-1){
                         auxArgs += argumentList[i];
                     }else{
                         auxArgs += argumentList[i] + ", ";
                     }
+                    if(arg.equals("no_type")){
+                        err = true;
+                    }
+                    args.add(arg);
+                }
 
-                    args.add(const_type_checker(argumentList[i]));
+                if(err){
+                    AST voidNode = new AST(NodeKind.NULL_NODE);
+                    voidNode.addInfo("void");
+                    return voidNode;
                 }
 
                 if(ft.lookUp(name, args)){
@@ -599,13 +619,13 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                             break;
                     }
 
-                    System.out.println("Function name " + name);
+                    //System.out.println("Function name " + name);
                     node.addInfo(name + "(" + auxArgs + ")");
 
                     AST.printDot(node);
                     return node;
                 }else{
-                    System.out.println("Erro de tipo inconsistente na funcção " + name + ".");
+                    System.out.println("Erro de tipo inconsistente na função " + name + ".");
                     AST voidNode = new AST(NodeKind.NULL_NODE);
                     voidNode.addInfo("void");
                     return voidNode;
@@ -619,8 +639,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             }
 
             //Inicializando a lista de argumentos passada para a função
-
-
 
         } else {//Verifica se foi constante ou variável
             
@@ -748,15 +766,35 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     // O tipo é retornado em String.
     public String const_type_checker(String s){
 
-        if(s.contains("\'")){
-            // System.out.println(s+"=char");
-            return "char";
-        }else if(s.contains(".")){
-            // System.out.println(s+"=float");
-            return "float";
-        } else{
-            // System.out.println(s+"=int");
-            return "int";
+        int escopo = 0;
+
+        if(s.contains("(")){
+            return "no_type";
+        }else{
+
+            if(this.isInBlock){
+                escopo = escopoAtual;
+            }
+
+            if(s.contains("\'")){
+                // System.out.println(s+"=char");
+                return "char";
+            }else if(s.contains(".")){
+                // System.out.println(s+"=float");
+                return "float";
+            } else{
+                if(Character.isDigit(s.charAt(0))){
+                    return "int";
+                }else{
+                    if(vt.lookUp(s, escopo)){
+                        return vt.getType(s, escopo);
+                    }else{
+                        System.out.println("Simbolo " + s + " nao encontrado.");
+                        return "no_type";
+                    }
+                }
+            }
+
         }
     }
 
