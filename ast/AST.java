@@ -137,6 +137,14 @@ public class AST {
 	        	System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.VAR_FLOAT_NODE){
 	        	System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.FUNC_TYPE_FLOAT_NODE){
+	        	System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.FUNC_TYPE_INT_NODE){
+	        	System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.FUNC_TYPE_CHAR_NODE){
+	        	System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.FUNC_TYPE_VOID_NODE){
+	        	System.err.printf("%s", this.getText());
 			}
 
 	    }

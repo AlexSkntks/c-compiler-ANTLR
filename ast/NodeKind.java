@@ -170,6 +170,26 @@ public enum NodeKind {
         public String toString() {
             return "var_declaration";
         }   
+    },
+    FUNC_TYPE_FLOAT_NODE{
+        public String toString() {
+            return "float";
+        }
+    },
+    FUNC_TYPE_INT_NODE{
+        public String toString() {
+            return "int";
+        }
+    },
+    FUNC_TYPE_CHAR_NODE{
+        public String toString() {
+            return "char";
+        }
+    },
+    FUNC_TYPE_VOID_NODE{
+        public String toString() {
+            return "void";
+        }
     }
     ;
 
@@ -186,6 +206,10 @@ public enum NodeKind {
             case VAR_INT_NODE:
             case VAR_CHAR_NODE:
             case VAR_FLOAT_NODE:
+            case FUNC_TYPE_FLOAT_NODE:
+            case FUNC_TYPE_INT_NODE:
+            case FUNC_TYPE_CHAR_NODE:
+            case FUNC_TYPE_VOID_NODE:
                 return true;
             default:
                 return false;

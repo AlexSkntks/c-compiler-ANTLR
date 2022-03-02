@@ -1,6 +1,7 @@
 package checker;
 import java.util.ArrayList;
 
+import javax.print.DocFlavor.STRING;
 import javax.sound.midi.SysexMessage;
 
 import org.antlr.v4.runtime.Token;
@@ -544,28 +545,82 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         // Verifica se o retorno foi uma função
         if(!ctx.LeftParen().isEmpty()){
 
-            // if(!ft.verifyIfAlreadyExists(name)){
-            //     System.out.println("Simbolo " + name + " nao encontrado.");
-            //     return new AST(NodeKind.NULL_NODE);
-            // }
+            //NÓS DE FUNÇÃO TEM TYPE ESPECÍFICO, TALVEZ DÊ ERRO
 
-            // String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
+            if(!ft.verifyIfAlreadyExists(name)){ 
+                System.out.println("Simbolo " + name + " nao encontrado.");
+                return new AST(NodeKind.NULL_NODE);
+            }
 
-            // //Posteriormente tratar os tipos
-
-            // for(int i = 0; i < aux.length; i++){
-            //     System.out.println(aux[i]);
-            // }
+            String argumentList[] = ctx.argumentExpressionList(0).getText().split(",");
 
             // System.out.println(ft.getListSize(name) + " , " + ctx.argumentExpressionList().size());
 
             // //Verifica se o tamanho da lista argumentos é coerente
-            // if(ft.getListSize(name) == argumentList.length){
-            //     return ft.getType(name);
-            // }else{
-            //     System.out.println("Funcao " + name + " tem argumentos demais.");
-            //     return "no_type";
-            // }
+            if(ft.getListSize(name) == argumentList.length){
+                //Tamanho de argumentos está OK
+
+                                    
+                ArrayList<String> args = new ArrayList<String>();
+                String auxArgs = "";
+
+                for(int i = 0; i < argumentList.length; i++){
+
+                    if(i == argumentList.length-1){
+                        auxArgs += argumentList[i];
+                    }else{
+                        auxArgs += argumentList[i] + ", ";
+                    }
+
+                    args.add(const_type_checker(argumentList[i]));
+                }
+
+                if(ft.lookUp(name, args)){
+
+                    node = new AST(NodeKind.NULL_NODE);
+
+                    String func_type = ft.getType(name);
+
+                    switch (func_type) {
+                        case "int":
+                            node = new AST(NodeKind.FUNC_TYPE_INT_NODE);
+                            break;
+                        case "char":
+                            node = new AST(NodeKind.FUNC_TYPE_CHAR_NODE);
+                            break;
+                        case "float":
+                            node = new AST(NodeKind.FUNC_TYPE_FLOAT_NODE);
+                            break;
+                        case "void":
+                            node = new AST(NodeKind.FUNC_TYPE_VOID_NODE);
+                            break;
+                        default:
+                            System.out.println("Tipo inválido " + func_type + ". " + lineFunc + ".");
+                            break;
+                    }
+
+                    System.out.println("Function name " + name);
+                    node.addInfo(name + "(" + auxArgs + ")");
+
+                    AST.printDot(node);
+                    return node;
+                }else{
+                    System.out.println("Erro de tipo inconsistente na funcção " + name + ".");
+                    AST voidNode = new AST(NodeKind.NULL_NODE);
+                    voidNode.addInfo("void");
+                    return voidNode;
+                }
+
+            }else{
+                System.out.println("Funcao " + name + " tem argumentos demais.");
+                AST voidNode = new AST(NodeKind.NULL_NODE);
+                voidNode.addInfo("void");
+                return voidNode;
+            }
+
+            //Inicializando a lista de argumentos passada para a função
+
+
 
         } else {//Verifica se foi constante ou variável
             
@@ -616,8 +671,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             this.type = aux_type;
             return  node;
         }
-
-        return node;
     }
 
 	// @Override
@@ -694,6 +747,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     // Isso aqui converte as constantes para tipo.
     // O tipo é retornado em String.
     public String const_type_checker(String s){
+
         if(s.contains("\'")){
             // System.out.println(s+"=char");
             return "char";
