@@ -179,20 +179,28 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             }
             
             if(AST.is_tree(chieldInitializer)){
-                if( node.getText().equals(chieldInitializer.getNodeKind().toString()) ){
+                System.out.println("LEFTTYPE " + node.getNodeKind().toString());
+                System.out.println("RIGHT TYPE " + chieldInitializer.getText());
+
+                if( node.getNodeKind().toString().equals(chieldInitializer.getText()) ){
                     assign.addChild(chieldInitializer);
                 } else{
-                    AST cast_type = AST.convertion_node_generator(
-                        node.getNodeKind().toString(), 
-                        chieldInitializer.getText()
-                    );
 
+                    System.out.println("ENVIANDO " + node.getNodeKind().toString() 
+                    + " e " +  chieldInitializer.getText());
+
+                    //oldType (INT), newType (float)
+                    AST cast_type = AST.convertion_node_generator(
+                        chieldInitializer.getText(), // -> ladoDireito
+                        node.getNodeKind().toString() //node -> ladoEsquerdo
+                    );
+                    System.out.println("CAST_TYPE " + cast_type.getNodeKind().toString());
                     cast_type.addChild(chieldInitializer);
                     assign.addChild(cast_type);
 
                 }
                 
-            } else{
+            }else{
                 if( node.getNodeKind().toString().equals(chieldInitializer.getNodeKind().toString()) ){
                     assign.addChild(chieldInitializer);
                 } else{

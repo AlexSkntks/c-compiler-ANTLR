@@ -203,11 +203,12 @@ public class AST {
 	//Quando é uma atribuição
 	//A variável que está sofrenado cast (old_type), vai ganhar um cast para new_type (lado esquerdo)
     public static AST convertion_node_generator(String old_type, String new_type){
-        
+		///oldType (INT), newType (float)
+
         if(old_type.equals("no_type")){
             return new AST(NodeKind.NULL_NODE);
         }
-        
+        //System.out.println("OLD " + old_type + " e NEW " + new_type);
         // UPCAST
         if (old_type.equals("char") && new_type.equals("int") ){
             return new AST(NodeKind.CHAR2INT);

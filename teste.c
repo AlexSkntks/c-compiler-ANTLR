@@ -4,9 +4,9 @@ float pow(int a, int b){
 
 
 int main(){
-    float z = 10;
+    int z = 10;
     
-    int y = z;
+    int y = 4.5 * 'a' * z;
 
     //int count = 1 + pow(1,2);
     return 0;

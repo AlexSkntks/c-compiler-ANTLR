@@ -96,7 +96,7 @@ public enum NodeKind {
     // DOWNCAST (ou narrowing)
     INT2CHAR{
         public String toString() {
-            return "float";
+            return "char";
         }
     },
     FLOAT2CHAR{
