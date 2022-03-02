@@ -180,22 +180,22 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             }
             
             if(AST.is_tree(chieldInitializer)){
-                System.out.println("LEFTTYPE " + node.getNodeKind().toString());
-                System.out.println("RIGHT TYPE " + chieldInitializer.getText());
+                // System.out.println("LEFTTYPE " + node.getNodeKind().toString());
+                // System.out.println("RIGHT TYPE " + chieldInitializer.getText());
 
                 if( node.getNodeKind().toString().equals(chieldInitializer.getText()) ){
                     assign.addChild(chieldInitializer);
                 } else{
 
-                    System.out.println("ENVIANDO " + node.getNodeKind().toString() 
-                    + " e " +  chieldInitializer.getText());
+                    // System.out.println("ENVIANDO " + node.getNodeKind().toString() 
+                    // + " e " +  chieldInitializer.getText());
 
                     //oldType (INT), newType (float)
                     AST cast_type = AST.convertion_node_generator(
                         chieldInitializer.getText(), // -> ladoDireito
                         node.getNodeKind().toString() //node -> ladoEsquerdo
                     );
-                    System.out.println("CAST_TYPE " + cast_type.getNodeKind().toString());
+                    // System.out.println("CAST_TYPE " + cast_type.getNodeKind().toString());
                     cast_type.addChild(chieldInitializer);
                     assign.addChild(cast_type);
 
@@ -295,64 +295,201 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
     //TODO ir desecebdo até encontrar onde retorna
     //additiveExpression :  multiplicativeExpression (('+'|'-') multiplicativeExpression)*
-	// @Override
-    // public String visitAdditiveExpression(CParser.AdditiveExpressionContext ctx) {
-
-
-    //     String tipo = this.type;
-    //     String nome;
-
-    //     if(ctx.Plus() == null){
-    //         //System.out.println(ctx.multiplicativeExpression(1).getText());
-
-    //     }
-
-    //     String bigger_typer = new String();
-    //     String bigger_type_aux = new String();
-
-    //     for(int i = 0; i < ctx.multiplicativeExpression().size(); i++){
-    //         bigger_type_aux = visit(ctx.multiplicativeExpression(i));
-
-    //         if(bigger_type_aux.equals("float")){
-    //             bigger_typer = "float";
-    //         } else if(bigger_type_aux.equals("int") && !bigger_typer.equals("float")){
-    //             bigger_typer = "int";
-    //         } else if(bigger_type_aux.equals("char") && !bigger_typer.equals("float") && !bigger_typer.equals("int")){
-    //             bigger_typer = "char";
-    //         }
-
-    //         if(i == ctx.multiplicativeExpression().size()-1){
-    //             System.out.print(" (" + bigger_type_aux + ") ");
-    //         }else{
-    //             System.out.print( " (" + bigger_type_aux + ") " + " op ");
-    //         }
-
-    //     }
-
-    //     System.out.println();
-    //     // System.out.println("Result of multi: " + bigger_typer);
-    //     // System.out.println();
-
-    //     this.type = tipo;
-
-    //     return bigger_typer;
-    // }
-
-
-    //multiplicativeExpression : castExpression (('*'|'/'|'%') castExpression)*
 	@Override
-    public AST visitMultiplicativeExpression(CParser.MultiplicativeExpressionContext ctx) {
-        //System.out.println("MULTIPICATIVE EXPRESSION");
-        // visitChildren(ctx);
-        // String a = visit(ctx.castExpression(0));
+    public AST visitAdditiveExpression(CParser.AdditiveExpressionContext ctx) {
         AST node;
-        // System.out.println("Teste unary: " + a);
         String bigger_typer = new String();
         String bigger_type_aux = new String();
 
         ArrayList<AST> listTypes = new ArrayList<AST>();
         AST aux;
-        // System.out.println("\nImprimindo expMult: ");
+        
+        for(int i = 0; i < ctx.multiplicativeExpression().size(); i++){
+
+            aux = visit(ctx.multiplicativeExpression(i));
+
+            listTypes.add(aux);
+        }
+
+        // Caso tenhamos apenas um tipo na lista significa que
+        // temos um assign de uma variavel, assim basta retornar
+        // a mesma.
+        if(listTypes.size() == 1){
+            AST ax = listTypes.get(0);
+            //System.out.println("TESTE " + ax.getText());
+            return ax;
+        }
+
+        AST multOP;
+        AST c1, c2;
+        String bigger_type;
+
+        // System.out.println(ctx.);
+        for(int i = 0; i < ctx.multiplicativeExpression().size()-1; i++){
+            
+            multOP= new AST(NodeKind.PLUS_NODE);
+            
+            if(i == 0){
+                c1 = listTypes.get(0);
+                c2 = listTypes.get(1);     
+            } else {
+                c1 = listTypes.get(i-1);
+                c2 = listTypes.get(i);
+            }
+
+            //A tabela de unificação entra aqui, mais eficiente para pegar os types e saber qual a conversão
+
+            // Checa se um dos filhos da operação e uma arvore.
+            // c1 será sempre uma arvore nesse caso, pois é averiguado
+            // no if acima deste.
+            NodeKind c1_NodeKind = null;
+            NodeKind c2_NodeKind = null;
+
+            if(AST.is_tree(c1) && AST.is_tree(c2)){
+                System.out.println("------DUAS ARVORES-----");
+
+                // System.out.println("GALHO - DUAS ARVORES");
+                // AST.printDot(c1);
+                // AST.printDot(c2);
+                
+                c1_NodeKind = AST.string_to_nodekind(c1.getText());
+                c2_NodeKind = AST.string_to_nodekind(c2.getText());
+                
+                // Pega o tipo maior entre as duas arvores
+                bigger_type = AST.unification(
+                    c1_NodeKind, 
+                    c2_NodeKind
+                );
+
+                multOP.addInfo(bigger_type);
+
+                // Atribui o tipo das mesmas a uma variável para
+                // facilitar
+
+                // Caso o tipo da primeira arvore seja difente do 
+                // tipo maior é necessário um nó de conversão.
+                // Não haverá o caso onde ambas sejam diferentes do 
+                // tipo maior, pois o tipo maior pega o maior entre 
+                // os tipos dos filhos.
+                if(!c1_NodeKind.toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c1_NodeKind.toString(), bigger_type);
+                    unification_node.addChild(c1);
+                    multOP.addChild(unification_node);
+                    multOP.addChild(c2);
+
+                } else if(!c2_NodeKind.toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c2_NodeKind.toString(), bigger_type);
+                    multOP.addChild(c1);
+                    unification_node.addChild(c2);
+                    multOP.addChild(unification_node);
+
+                }else{
+                    multOP.addChild(c1);
+                    multOP.addChild(c2);
+                }
+
+            } else if (AST.is_tree(c1) || AST.is_tree(c2)){
+                System.out.println("------UMA ARVORE-----");
+                
+                
+                // System.out.println("GALHO - UMA ARVORE");
+                if (AST.is_tree(c2)){
+                    AST aux_node = c2;
+                    c2 = c1;
+                    c1 = aux_node;
+                }
+                // AST.printDot(c1);
+                // AST.printDot(c2);
+                
+                // Atribui o tipo da arvore para facilitar
+                c1_NodeKind = AST.string_to_nodekind(c1.getText());
+
+                System.out.println("c2.getNodeKind: " + c2.getNodeKind());
+
+                // Pega o tipo maior entre uma arvore e um nó simples
+                bigger_type = AST.unification(
+                    c1_NodeKind, 
+                    c2.getNodeKind()
+                );
+                multOP.addInfo(bigger_type);
+
+                if(!c1_NodeKind.toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c1_NodeKind.toString(), bigger_type);
+                    unification_node.addChild(c1);
+                    multOP.addChild(unification_node);
+                    multOP.addChild(c2);
+
+                } else if(!c2.getNodeKind().toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c2.getNodeKind().toString(), bigger_type);
+                    multOP.addChild(c1);
+                    unification_node.addChild(c2);
+                    multOP.addChild(unification_node);
+                }else{
+                    multOP.addChild(c1);
+                    multOP.addChild(c2);
+                }
+                
+            } else {
+                System.out.println("------ZERO ARVORE-----");
+
+                // Pega o tipo maior entre uma arvore e um nó simples
+                bigger_type = AST.unification(
+                    c1.getNodeKind(), 
+                    c2.getNodeKind()
+                );
+                multOP.addInfo(bigger_type);
+
+                if(!c1.getNodeKind().toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c1.getNodeKind().toString(), bigger_type);
+                    unification_node.addChild(c1);
+                    multOP.addChild(unification_node);
+                    multOP.addChild(c2);
+                
+                } else if(!c2.getNodeKind().toString().equals(bigger_type)){
+                    AST unification_node = AST.convertion_node_generator(c2.getNodeKind().toString(), bigger_type);
+                    multOP.addChild(c1);
+                    unification_node.addChild(c2);
+                    multOP.addChild(unification_node);
+                }else{
+                    multOP.addChild(c1);
+                    multOP.addChild(c2);
+                }
+
+            }
+               
+                
+            if(i == 0){
+                listTypes.remove(0);
+                listTypes.remove(0);
+                listTypes.add(0, multOP);
+            } else {
+                listTypes.remove(i);
+                listTypes.add(i, multOP);
+            }
+
+        }
+
+        // System.out.println();
+        // System.out.println("Result of multi: " + bigger_typer);
+        // System.out.println();
+
+        // AST.printDot(multOP);
+        // AST.printDot(listTypes.get(listTypes.size()-1));
+        return listTypes.get(listTypes.size()-1);
+    }
+
+
+    //multiplicativeExpression : castExpression (('*'|'/'|'%') castExpression)*
+	@Override
+    public AST visitMultiplicativeExpression(CParser.MultiplicativeExpressionContext ctx) {
+       
+        AST node;
+        String bigger_typer = new String();
+        String bigger_type_aux = new String();
+
+        ArrayList<AST> listTypes = new ArrayList<AST>();
+        AST aux;
+
         for(int i = 0; i < ctx.castExpression().size(); i++){
 
             aux = visit(ctx.castExpression(i));
@@ -395,7 +532,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             NodeKind c2_NodeKind = null;
 
             if(AST.is_tree(c1) && AST.is_tree(c2)){
-                // System.out.println("GALHO - DUAS ARVORES");
+                System.out.println("DUAS ARVORES");
                 // AST.printDot(c1);
                 // AST.printDot(c2);
                 
@@ -436,6 +573,8 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 }
 
             } else if (AST.is_tree(c1) || AST.is_tree(c2)){
+                System.out.println("UMA ARVORES");
+
                 // System.out.println("GALHO - UMA ARVORE");
                 if (AST.is_tree(c2)){
                     AST aux_node = c2;
@@ -472,6 +611,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 }
                 
             } else {
+                System.out.println("ZERO ARVORES");
 
                 // Pega o tipo maior entre uma arvore e um nó simples
                 bigger_type = AST.unification(
@@ -541,6 +681,13 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
         AST node = visit(ctx.primaryExpression());
         String name = node.getText();
+
+        if(node.kind == NodeKind.PLUS_NODE || node.kind == NodeKind.TIMES_NODE){
+            System.out.println("Inicio da função de postfix: " + name + " " + node.kind.toString());   
+            return visit(ctx.primaryExpression());
+        }
+
+        // System.out.println("");
     
         // Verifica se o retorno foi uma função
         if(!ctx.LeftParen().isEmpty()){
@@ -548,7 +695,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             //NÓS DE FUNÇÃO TEM TYPE ESPECÍFICO, TALVEZ DÊ ERRO
 
             if(!ft.verifyIfAlreadyExists(name)){ 
-                System.out.println("Simbolo " + name + " nao encontrado.");
+                System.out.println("Simbolo2 " + name + " nao encontrado.");
                 return new AST(NodeKind.NULL_NODE);
             }
 
@@ -622,7 +769,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     //System.out.println("Function name " + name);
                     node.addInfo(name + "(" + auxArgs + ")");
 
-                    AST.printDot(node);
+                    // AST.printDot(node);
                     return node;
                 }else{
                     System.out.println("Erro de tipo inconsistente na função " + name + ".");
@@ -652,6 +799,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     escopo = this.escopoAtual;
                 }
                 //name = x;
+                System.out.println("Antes do lookup: " + name);
                 if(vt.lookUp(name, escopo)){//A variável existe
                     
                     //Criando node correspondente
@@ -680,7 +828,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 }else{
                     AST rt = new AST(NodeKind.NULL_NODE);
                     rt.addInfo(name);
-                    System.out.println("Simbolo " + name + " nao encontrado");
+                    // System.out.println("Simbolo3 " + name + " nao encontrado");
                     return rt;//NULL_NODE
                 }
 
@@ -716,10 +864,15 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         null_node = new AST(NodeKind.NULL_NODE);
         //System.out.println("Primary Expression2");
 
+        if(ctx.expression() != null){
+            return visit(ctx.expression());
+        }
+        
         if(ctx.Identifier() != null){
             //System.out.println("Primary Expression3");
             this.type = "NAME";
             String name = ctx.Identifier().getText();
+            // System.out.println("(var/func) O que o primary encontrou? " + name);
 
             null_node.addInfo(name);
 
@@ -732,7 +885,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
             String value = ctx.Constant().getText();
             String type = const_type_checker(value);
-
+            // System.out.println("(const) O que o primary encontrou? " + value);
             switch (type) {
                 case "int":
                     node = new AST(NodeKind.INT_VAL_NODE, Integer.valueOf(value), value);
@@ -758,8 +911,8 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             // return null_node;
         }
         
-        AST aux = visit(ctx.expression());
-        return aux;
+        // AST aux = visit(ctx.expression());
+        return visitChildren(ctx);
     }
 
     // Isso aqui converte as constantes para tipo.
@@ -789,7 +942,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     if(vt.lookUp(s, escopo)){
                         return vt.getType(s, escopo);
                     }else{
-                        System.out.println("Simbolo " + s + " nao encontrado.");
+                        System.out.println("Simbolo4 " + s + " nao encontrado.");
                         return "no_type";
                     }
                 }
@@ -898,7 +1051,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     this.type = type;
                     break;
                 default:
-                    System.out.println("Simbolo desconhecido: " + type + ".");
+                    System.out.println("Simbolo desconhecido1: " + type + ".");
             }
         }else{
             return visit(ctx.typedefName());
