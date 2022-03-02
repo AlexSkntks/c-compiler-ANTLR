@@ -49,7 +49,7 @@ public enum NodeKind {
 	},
     PLUS_NODE {
 		public String toString() {
-            return "+";
+            return "+ ou -";
         }
 	},
     STR_VAL_NODE {
@@ -59,7 +59,7 @@ public enum NodeKind {
 	},
     TIMES_NODE {
 		public String toString() {
-            return "*";
+            return "* ou /";
         }
 	},
     NULL_NODE {

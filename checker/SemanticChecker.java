@@ -101,6 +101,63 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         return new AST(NodeKind.NULL_NODE);
     }
 
+    //assignmentExpression : conditionalExpression | unaryExpression assignmentOperator assignmentExpression | DigitSequence 
+    @Override
+    public AST visitAssignmentExpression(CParser.AssignmentExpressionContext ctx){
+
+        //Está acontecendo alguma alteração no valor de variável
+        if(ctx.assignmentOperator() != null){
+
+            AST assign = new AST(NodeKind.ASSIGN_NODE);
+
+            AST rChild = visit(ctx.assignmentExpression());//initializer
+
+            AST lChild = visit(ctx.unaryExpression());//Variável
+
+            String varName = lChild.getText();
+
+            assign.addChild(lChild);
+
+            System.out.println("Var name " + lChild.getText() + "\n attDOT: \n");
+            //AST.printDot(rChild);
+        
+            if(AST.is_tree(rChild)){
+
+                if( lChild.getNodeKind().toString().equals(rChild.getText()) ){
+                    assign.addChild(rChild);
+                } else{
+
+                    AST cast_type = AST.convertion_node_generator(
+                        rChild.getText(), // -> ladoDireito
+                        lChild.getNodeKind().toString() //node -> ladoEsquerdo
+                    );
+
+                    //System.out.println("CAST_TYPE " + cast_type.getNodeKind().toString());
+                    cast_type.addChild(rChild);
+                    assign.addChild(cast_type);
+
+                }
+                
+            }else{
+                if( lChild.getNodeKind().toString().equals(rChild.getNodeKind().toString()) ){
+                    assign.addChild(rChild);
+                } else{
+
+                    AST cast_type = AST.convertion_node_generator(
+                        rChild.getNodeKind().toString(),
+                        lChild.getNodeKind().toString()
+                    );
+
+                    cast_type.addChild(rChild);
+                    assign.addChild(cast_type);
+                }
+                
+            }
+            //AST.printDot(assign);
+            return assign;
+        }
+        return visitChildren(ctx); 
+    }
 
     //initDeclaratorList : initDeclarator (',' initDeclarator)*
 	@Override
@@ -221,7 +278,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 
             }
             this.type = aux;
-            AST.printDot(assign);
+            //AST.printDot(assign);
 
         }else{
             nv = new VarInfo(nome, this.type, this.line, escopo, null);
@@ -229,7 +286,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 System.out.println("A variável : " + nome + " já foi declarada.");
             }
             //AST.printDot(node);
-
         }
 
         //System.out.println("VARDECLARATION");
@@ -292,8 +348,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     //     return aux;
     // }
 
-
-    //TODO ir desecebdo até encontrar onde retorna
     //additiveExpression :  multiplicativeExpression (('+'|'-') multiplicativeExpression)*
 	@Override
     public AST visitAdditiveExpression(CParser.AdditiveExpressionContext ctx) {
@@ -346,7 +400,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             NodeKind c2_NodeKind = null;
 
             if(AST.is_tree(c1) && AST.is_tree(c2)){
-                System.out.println("------DUAS ARVORES-----");
+                //System.out.println("------DUAS ARVORES-----");
 
                 // System.out.println("GALHO - DUAS ARVORES");
                 // AST.printDot(c1);
@@ -389,7 +443,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 }
 
             } else if (AST.is_tree(c1) || AST.is_tree(c2)){
-                System.out.println("------UMA ARVORE-----");
+                // System.out.println("------UMA ARVORE-----");
                 
                 
                 // System.out.println("GALHO - UMA ARVORE");
@@ -430,7 +484,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 }
                 
             } else {
-                System.out.println("------ZERO ARVORE-----");
+                //System.out.println("------ZERO ARVORE-----");
 
                 // Pega o tipo maior entre uma arvore e um nó simples
                 bigger_type = AST.unification(
@@ -532,7 +586,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             NodeKind c2_NodeKind = null;
 
             if(AST.is_tree(c1) && AST.is_tree(c2)){
-                System.out.println("DUAS ARVORES");
+               // System.out.println("DUAS ARVORES");
                 // AST.printDot(c1);
                 // AST.printDot(c2);
                 
@@ -573,7 +627,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 }
 
             } else if (AST.is_tree(c1) || AST.is_tree(c2)){
-                System.out.println("UMA ARVORES");
+                //System.out.println("UMA ARVORES");
 
                 // System.out.println("GALHO - UMA ARVORE");
                 if (AST.is_tree(c2)){
@@ -611,7 +665,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 }
                 
             } else {
-                System.out.println("ZERO ARVORES");
+                //System.out.println("ZERO ARVORES");
 
                 // Pega o tipo maior entre uma arvore e um nó simples
                 bigger_type = AST.unification(
@@ -683,7 +737,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         String name = node.getText();
 
         if(node.kind == NodeKind.PLUS_NODE || node.kind == NodeKind.TIMES_NODE){
-            System.out.println("Inicio da função de postfix: " + name + " " + node.kind.toString());   
+            //System.out.println("Inicio da função de postfix: " + name + " " + node.kind.toString());   
             return visit(ctx.primaryExpression());
         }
 
@@ -799,7 +853,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     escopo = this.escopoAtual;
                 }
                 //name = x;
-                System.out.println("Antes do lookup: " + name);
+                //System.out.println("Antes do lookup: " + name);
                 if(vt.lookUp(name, escopo)){//A variável existe
                     
                     //Criando node correspondente
