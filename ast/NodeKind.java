@@ -190,6 +190,21 @@ public enum NodeKind {
         public String toString() {
             return "void";
         }
+    },
+    COMPILATION_UNIT_NODE{
+        public String toString() {
+            return "AST";
+        }
+    },
+    EXTERNAL_DECLARATION{
+        public String toString() {
+            return "external";
+        }
+    },
+    BLOCK_ITEM_LIST{
+        public String toString() {
+            return "block_item_list";
+        }
     }
     ;
 

@@ -2,12 +2,22 @@ int func(int a){
     return 0;
 }
 
-int main(){
-    char z = 'a';
-    
-    float y = (z+1)+(func(0) * 1);
+int pow(int a, int b){
+    return 0;
+}
 
-    y = func(2);
-    // int count = 1 * pow(1,2);
+int z = 10;
+int lol;
+
+int main(){
+
+    char z;
+    
+    float y = 1*4+3/7;
+
+    y = z + 1;
+
+    int count = 1 * pow(1,2);
+
     return 0;
 }

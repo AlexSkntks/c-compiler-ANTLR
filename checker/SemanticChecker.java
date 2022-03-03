@@ -69,6 +69,42 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         ft.imprime();
     }
 
+    //Inicio da parseTree
+    // @Override public AST visitCompilationUnit(CParser.CompilationUnitContext ctx){
+
+    //     AST root = new AST(NodeKind.COMPILATION_UNIT_NODE);
+    //     root.addChild(visitChildren(ctx));
+    //     return null; 
+
+    // }
+
+	@Override 
+    //Não é o root mas o nó tem o nome do root na parseTree 
+    public AST visitTranslationUnit(CParser.TranslationUnitContext ctx) {
+
+        AST root = new AST(NodeKind.COMPILATION_UNIT_NODE);
+        AST child;
+
+        for(int i = 0; i < ctx.externalDeclaration().size(); i++){
+            child = visit(ctx.externalDeclaration(i));
+            root.addChild(child);
+        }
+
+        AST.printDot(root);
+        return null;
+    }
+
+    //externalDeclaration : functionDefinition | declaration |';'
+	@Override 
+    public AST visitExternalDeclaration(CParser.ExternalDeclarationContext ctx) {
+
+        if(ctx.functionDefinition() != null){
+            return visit(ctx.functionDefinition());
+        }else{
+            return visit(ctx.declaration());
+        }
+    }
+
 
 	// @Override
     // public String visitDeclarator(CParser.DeclaratorContext ctx) {
@@ -77,6 +113,18 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     //     //System.out.println("Children " + lol);
     //     return lol;
     // }
+
+	@Override
+    public AST visitCompoundStatement(CParser.CompoundStatementContext ctx) {
+
+        AST aux = visit(ctx.blockItemList());
+
+        // if(aux.getNodeKind() != NodeKind.NULL_NODE){
+        //     AST.printDot(aux);
+        // }
+        return aux;
+    }
+
 
     //declaration : declarationSpecifiers initDeclaratorList? ';' | ...
 	@Override 
@@ -98,7 +146,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             // AST.printDot(node);
         }
 
-        return new AST(NodeKind.NULL_NODE);
+        return node;
     }
 
     //assignmentExpression : conditionalExpression | unaryExpression assignmentOperator assignmentExpression | DigitSequence 
@@ -118,7 +166,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
             assign.addChild(lChild);
 
-            System.out.println("Var name " + lChild.getText() + "\n attDOT: \n");
+            //System.out.println("Var name " + lChild.getText() + "\n attDOT: \n");
             //AST.printDot(rChild);
         
             if(AST.is_tree(rChild)){
@@ -179,7 +227,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 	}
 
     // initDeclarator : declarator ('=' initializer)?
-    //! É aqui que devemos tratar se a inicialização está correta!!!!!!!!
 	@Override
     public AST visitInitDeclarator(CParser.InitDeclaratorContext ctx) {
 
@@ -219,7 +266,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             nv = new VarInfo(nome, this.type, this.line, escopo, null);  
 
             if(!vt.insert(nv)){
-                System.out.println("A variável : " + nome + " já foi declarada.");
+                System.out.println("Alol variável : " + nome + " já foi declarada.");
             }
 
             String aux = this.type;
@@ -290,7 +337,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
         //System.out.println("VARDECLARATION");
         
-		return node;
+		return assign;
 	}
 
     // declarationSpecifiers : declarationSpecifier+
@@ -1077,12 +1124,70 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             // System.out.println("FUNCTION DECLARATION");
             // AST.printDot(funcDec);
 
-            visit(ctx.compoundStatement());
+            aux = visit(ctx.compoundStatement());
+
+            if(aux.getNodeKind() != NodeKind.NULL_NODE){  
+                funcDec.addChild(visit(ctx.compoundStatement()));
+            }
+
+            //AST.printDot(funcDec);
             this.isInBlock = false;
-            return null;
+            //AST.printDot(funcDec);
+            return funcDec;
+        }
+        //System.out.println("ASJJ");
+        return funcDec;
+    }
+
+    //blockItemList : blockItem+
+	@Override 
+    public AST visitBlockItemList(CParser.BlockItemListContext ctx) {
+
+        AST blockList = new AST(NodeKind.BLOCK_ITEM_LIST);
+        AST block;
+
+        if(ctx.blockItem().size() == 1){
+            return new AST(NodeKind.NULL_NODE);
         }
 
-        return null;
+        for(int i = 0; i < ctx.blockItem().size(); i++){
+            block = visit(ctx.blockItem(i));
+            if(block.getNodeKind() != NodeKind.NULL_NODE){
+                blockList.addChild(block);
+            }
+        }
+        //System.out.println("BLOCKLIST");
+        //AST.printDot(blockList);
+        return blockList;
+    }
+
+    //expressionStatement : expression? ';'
+	@Override
+    public AST visitExpressionStatement(CParser.ExpressionStatementContext ctx) {
+        if(ctx.expression() != null){
+            return visit(ctx.expression());
+        }
+        return visitChildren(ctx);
+    }
+
+    /**
+     * statement
+    :   labeledStatement
+    |   compoundStatement
+    |   expressionStatement
+    |   selectionStatement
+    |   iterationStatement
+    |   jumpStatement
+    |   ('__asm' | '__asm__') ('volatile' | '__volatile__') '(' (logicalOrExpression (',' logicalOrExpression)*)? (':' (logicalOrExpression (',' logicalOrExpression)*)?)* ')' ';'
+    ;
+     */
+    @Override 
+    public AST visitStatement(CParser.StatementContext ctx){
+
+        if(ctx.expressionStatement() != null){
+            return visit(ctx.expressionStatement());
+        }
+        return new AST(NodeKind.NULL_NODE);
     }
 
     // typeSpecifier : ('void' | 'char' | 'int' | 'float' | ...
