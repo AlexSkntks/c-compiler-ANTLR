@@ -796,7 +796,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             //NÓS DE FUNÇÃO TEM TYPE ESPECÍFICO, TALVEZ DÊ ERRO
 
             if(!ft.verifyIfAlreadyExists(name)){ 
-                System.out.println("Simbolo2 " + name + " nao encontrado.");
+                System.out.println("Simbolo " + name + " nao encontrado.");
                 return new AST(NodeKind.NULL_NODE);
             }
 
@@ -889,7 +889,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             //Inicializando a lista de argumentos passada para a função
 
         } else {//Verifica se foi constante ou variável
-            
             if(this.type.equals("NAME")){//Variável
                 // Escopo atual = 0 siginifica que a variável está fora
                 // de escopo, ou seja fora de uma função.
@@ -899,14 +898,11 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 if(this.isInBlock == true){
                     escopo = this.escopoAtual;
                 }
-                //name = x;
-                //System.out.println("Antes do lookup: " + name);
-                if(vt.lookUp(name, escopo)){//A variável existe
-                    
-                    //Criando node correspondente
 
+                if(vt.lookUp(name, escopo)){//A variável existe
+                    //Criando node correspondente
+                    
                     String var_type = vt.getType(name, escopo);
-                    //System.out.println("TYPE " + var_type);
 
                     switch (var_type){
                         case "int":
@@ -926,10 +922,33 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     //System.out.println("PRIMARY " + name);
                     //AST.printDot(node);
                     return node;//NODE_VAR*
-                }else{
+                }else if(vt.lookUp(name, 0)){
+
+                    String var_type = vt.getType(name, 0);
+
+                    switch (var_type){
+                        case "int":
+                            node = new AST(NodeKind.VAR_INT_NODE);
+                            break;
+                        case "char":
+                            node = new AST(NodeKind.VAR_CHAR_NODE);
+                            break;
+                        case "float":
+                            node = new AST(NodeKind.VAR_FLOAT_NODE);
+                            break;
+                        default:
+                            break;
+                    }
+                    node.addInfo(name);
+
+                    //System.out.println("PRIMARY " + name);
+                    //AST.printDot(node);
+                    return node;//NODE_VAR*
+                }
+                else{
                     AST rt = new AST(NodeKind.NULL_NODE);
                     rt.addInfo(name);
-                    // System.out.println("Simbolo3 " + name + " nao encontrado");
+                    System.out.println("Simbolo " + name + " nao encontrado");
                     return rt;//NULL_NODE
                 }
 

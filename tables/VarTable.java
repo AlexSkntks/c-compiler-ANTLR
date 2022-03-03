@@ -8,12 +8,15 @@ public class VarTable{
 	ArrayList<VarInfo> list = new ArrayList<VarInfo>();
 
 	public Boolean lookUp(String name, int escopo){
-
+		System.out.println("AAAAAA");
 		for (VarInfo varInfo : list) {
 			//compara se a variável pertence ao escopo
-			if(varInfo.getName().compareTo(name) == 0 && (varInfo.getEscopo() == escopo)){
+			if(varInfo.getName().equals(name) && (varInfo.getEscopo() == escopo)){
+				return true;
+			}else if(varInfo.getName().equals(name) && (varInfo.getEscopo() == 0)){
 				return true;
 			}
+
 		}
 		return false;
 	}
@@ -33,7 +36,7 @@ public class VarTable{
 
 		for (VarInfo varInfo : list) {
 			//compara se a variável pertence ao escopo
-			if(varInfo.getName().compareTo(name) == 0 && (varInfo.getEscopo() == escopo)){
+			if(varInfo.getName().equals(name) && (varInfo.getEscopo() == escopo)){
 				aux = varInfo.getValue();
 				return aux;
 			}
@@ -46,6 +49,8 @@ public class VarTable{
         for (VarInfo varInfo : list) {
 			//compara se a variável pertence ao escopo
 			if(varInfo.getName().compareTo(name) == 0 && (varInfo.getEscopo() == escopo)){
+				return varInfo.getType();
+			}else if(varInfo.getName().compareTo(name) == 0 && (varInfo.getEscopo() == 0)){
 				return varInfo.getType();
 			}
 		}

@@ -51,14 +51,14 @@ run:
 runall:
 	-for FILE in $(IN1)/*.c; do \
         echo "\nRunning $${FILE}" &&\
-		$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $${FILE} &&\
+		$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) checker/Main $${FILE} &&\
 		echo;\
     done;
 
 runallFalse:
 	-for FILE in $(IN2)/*.c; do \
         echo "\nRunning $${FILE}" &&\
-		$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) Main $${FILE} &&\
+		$(JAVA) $(CLASS_PATH_OPTION):$(BIN_PATH) checker/Main $${FILE} &&\
 		echo;\
     done;
 
