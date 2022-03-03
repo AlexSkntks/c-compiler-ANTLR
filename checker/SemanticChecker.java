@@ -1127,7 +1127,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             aux = visit(ctx.compoundStatement());
 
             if(aux.getNodeKind() != NodeKind.NULL_NODE){  
-                funcDec.addChild(visit(ctx.compoundStatement()));
+                funcDec.addChild(aux);
             }
 
             //AST.printDot(funcDec);
