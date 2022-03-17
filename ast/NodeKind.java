@@ -205,6 +205,16 @@ public enum NodeKind {
         public String toString() {
             return "block_item_list";
         }
+    },
+    JUMP_NODE{
+        public String toString() {
+            return "jump_node";
+        }
+    },
+    RETURN_NODE{
+        public String toString() {
+            return "return_node";
+        }
     }
     ;
 
@@ -225,6 +235,9 @@ public enum NodeKind {
             case FUNC_TYPE_INT_NODE:
             case FUNC_TYPE_CHAR_NODE:
             case FUNC_TYPE_VOID_NODE:
+            case INT2CHAR:
+            case INT2FLOAT:
+            case CHAR2FLOAT:
                 return true;
             default:
                 return false;

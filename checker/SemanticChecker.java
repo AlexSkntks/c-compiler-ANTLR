@@ -132,10 +132,12 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         AST node = new AST(NodeKind.VAR_DECLARATION_NODE);
         AST typeChild = new AST(NodeKind.NULL_NODE);
         AST varDec = new AST(NodeKind.NULL_NODE);
+        AST varList = new AST(NodeKind.VAR_DECLARATION_LIST_NODE);
 
         if(ctx.initDeclaratorList() == null){//Ver visitDeclarationSpecifiers
             varDec = visit(ctx.declarationSpecifiers());
-            node.addChild(varDec);
+            varList.addChild(varDec);
+            node.addChild(varList);
             // AST.printDot(node);
         }else{
             //Deve retornar o node com informações de tipo, mas aqui não é necessário colocar na AST
@@ -232,7 +234,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
         AST node = new AST(NodeKind.NULL_NODE);
         AST assign = new AST(NodeKind.ASSIGN_NODE);
-
         String nome = visit(ctx.declarator()).getText();
 
         int escopo = 0;
@@ -305,7 +306,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
 
                 }
                 
-            }else{
+            }else{//Verificando os tipos da "atribuição"
                 if( node.getNodeKind().toString().equals(chieldInitializer.getNodeKind().toString()) ){
                     assign.addChild(chieldInitializer);
                 } else{
@@ -333,6 +334,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 System.out.println("A variável : " + nome + " já foi declarada.");
             }
             //AST.printDot(node);
+            return node;
         }
 
         //System.out.println("VARDECLARATION");
@@ -504,8 +506,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 
                 // Atribui o tipo da arvore para facilitar
                 c1_NodeKind = AST.string_to_nodekind(c1.getText());
-
-                System.out.println("c2.getNodeKind: " + c2.getNodeKind());
 
                 // Pega o tipo maior entre uma arvore e um nó simples
                 bigger_type = AST.unification(
@@ -1165,10 +1165,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         AST blockList = new AST(NodeKind.BLOCK_ITEM_LIST);
         AST block;
 
-        if(ctx.blockItem().size() == 1){
-            return new AST(NodeKind.NULL_NODE);
-        }
-
         for(int i = 0; i < ctx.blockItem().size(); i++){
             block = visit(ctx.blockItem(i));
             if(block.getNodeKind() != NodeKind.NULL_NODE){
@@ -1206,7 +1202,32 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         if(ctx.expressionStatement() != null){
             return visit(ctx.expressionStatement());
         }
+
+        if(ctx.jumpStatement() != null){
+            AST node = new AST(NodeKind.JUMP_NODE);
+            AST returnNode = new AST(NodeKind.RETURN_NODE);
+            node.addChild(returnNode);
+            if(visit(ctx.jumpStatement()) != null){
+                node.addChild(visit(ctx.jumpStatement()));
+            }
+            return node;
+        }
         return new AST(NodeKind.NULL_NODE);
+    }
+
+    //jumpStatement
+    // : ('goto' Identifier
+    // |   ('continue'| 'break')
+    // |   'return' expression?
+    // |   'goto' unaryExpression // GCC extension
+    // )
+    // ';'
+	@Override
+    public AST visitJumpStatement(CParser.JumpStatementContext ctx) {
+        if(ctx.expression() != null){
+            return visit(ctx.expression());
+        }
+        return visitChildren(ctx);
     }
 
     // typeSpecifier : ('void' | 'char' | 'int' | 'float' | ...

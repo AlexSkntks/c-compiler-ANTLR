@@ -123,28 +123,34 @@ public class AST {
 	        	System.err.printf("%d", this.intData);
 	        } else if (this.kind == NodeKind.CHAR_VAL_NODE){
 	        	System.err.printf("%c", this.charData);
-            } else if(this.kind == NodeKind.PARAMETER_INT_NODE){
+          	} else if(this.kind == NodeKind.PARAMETER_INT_NODE){
 	        	System.err.printf("%s", this.getText());
 			} else if(this.kind == NodeKind.PARAMETER_CHAR_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.PARAMETER_FLOAT_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.FUNCTION_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.VAR_CHAR_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.VAR_INT_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.VAR_FLOAT_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.FUNC_TYPE_FLOAT_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.FUNC_TYPE_INT_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.FUNC_TYPE_CHAR_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.FUNC_TYPE_VOID_NODE){
-	        	System.err.printf("%s", this.getText());
+				System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.CHAR2INT){
+				System.err.printf("%s", this.getText());
+			}else if (this.kind == NodeKind.INT2FLOAT){
+				System.err.printf("%s", this.getText());
+			}else if(this.kind == NodeKind.CHAR2FLOAT){
+				System.err.printf("%s", this.getText());
 			}
 
 	    }
@@ -211,7 +217,7 @@ public class AST {
 	//Quando é uma atribuição
 	//A variável que está sofrenado cast (old_type), vai ganhar um cast para new_type (lado esquerdo)
     public static AST convertion_node_generator(String old_type, String new_type){
-		///oldType (INT), newType (float)
+		AST node;
 
         if(old_type.equals("no_type")){
             return new AST(NodeKind.NULL_NODE);
@@ -219,11 +225,17 @@ public class AST {
         //System.out.println("OLD " + old_type + " e NEW " + new_type);
         // UPCAST
         if (old_type.equals("char") && new_type.equals("int") ){
-            return new AST(NodeKind.CHAR2INT);
+			node = new AST(NodeKind.CHAR2INT);
+			node.addInfo("CHAR2INT");
+            return node;
         } else if (old_type.equals("char") && new_type.equals("float") ){
-            return new AST(NodeKind.CHAR2FLOAT);
+			node = new AST(NodeKind.CHAR2FLOAT);
+			node.addInfo("CHAR2FLOAT");
+            return node;
         } else if (old_type.equals("int") && new_type.equals("float") ){
-            return new AST(NodeKind.INT2FLOAT);
+			node = new AST(NodeKind.INT2FLOAT);
+			node.addInfo("INT2FLOAT");
+            return node;
         } else{
             // DOWNCAST
             if (old_type.equals("int") && new_type.equals("char") ){

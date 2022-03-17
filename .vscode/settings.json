@@ -1,6 +1,7 @@
 {
 	"java.project.referencedLibraries": [
 		"lib/**/*.jar",
-		"/home/lucas/desktop/ufes/compiladores/antlr-4.9.2-complete.jar"
+		"/home/lucas/desktop/ufes/compiladores/antlr-4.9.2-complete.jar",
+		"/usr/local/lib/antlr-4.9.2-complete.jar"
 	]
 }

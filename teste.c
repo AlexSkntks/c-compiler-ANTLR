@@ -1,23 +1,20 @@
-int func(int a){
-    return 0;
+int x, y = 1, z;
+int w;
+
+int sqrt(float num){
+    int x = 3;
+    num = num + x/3;
+    return x + 1 / num;
 }
 
-int pow(int a, int b){
-    return 0;
-}
+int func(int a, char b){
 
-int z = 10;
-int lol;
+    return b;
+}
 
 int main(){
 
-    char z;
-    
-    float y = 1*4+3/7;
-
-    y = z + 1;
-
-    int count = 1 * pow(1,2);
-
+    int x = 1*(4+5.6)*10/'4';
+    int y = w;
     return 0;
 }
