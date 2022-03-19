@@ -6,6 +6,8 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
+import ast.AST;
+
 // import ANTLR's runtime libraries
 import java.io.File;
 import java.io.FileReader;
@@ -42,12 +44,13 @@ public class Main {
 		try {
 			System.out.println("Iniciando teste");
 			ParseTree tree = parser.compilationUnit(); // begin parsing at init rule
-			// System.out.println(tree.toStringTree(parser)); // print LISP-style tree
 			SemanticChecker checker = new SemanticChecker();
 			checker.visit(tree);
-			checker.printTables();
 
+			//AST.printDot(checker.getAST());
+			checker.printTables();
 			System.out.println("Revisão sintática realizada com êxito.");
+			
 		} catch (Exception e) {
 			System.out.println(e);
 		}

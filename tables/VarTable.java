@@ -8,7 +8,6 @@ public class VarTable{
 	ArrayList<VarInfo> list = new ArrayList<VarInfo>();
 
 	public Boolean lookUp(String name, int escopo){
-		System.out.println("AAAAAA");
 		for (VarInfo varInfo : list) {
 			//compara se a variável pertence ao escopo
 			if(varInfo.getName().equals(name) && (varInfo.getEscopo() == escopo)){

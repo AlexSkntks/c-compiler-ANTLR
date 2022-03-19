@@ -22,6 +22,8 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     private VarTable vt = new VarTable(); //    Tabela de variáveis.
     private StrTable st = new StrTable(); //    Tabela de variáveis.
     private FuncTable ft = new FuncTable(); //  Tabela de funções
+    private AST ast = new AST(NodeKind.NULL_NODE);
+    
     private String lastF;//Auxiliar para o nome da função
 
     private boolean passed = true;
@@ -59,6 +61,10 @@ public class SemanticChecker extends CBaseVisitor<AST> {
      *  Atribuições fora de escopo com inicializador não estático pode ter comportamento inesperado
      */
 
+    AST getAST(){
+        return this.ast;
+    }
+
     // Exibe o conteúdo das tabelas em stdout.
     void printTables() {
         System.out.println();
@@ -89,8 +95,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             child = visit(ctx.externalDeclaration(i));
             root.addChild(child);
         }
-
-        AST.printDot(root);
+        this.ast = root;
         return null;
     }
 
@@ -263,12 +268,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         // Caso exista o sinal de igualdade
         if(ctx.Assign() != null){
             this.line = ctx.Assign().getSymbol().getLine();
-            
-            nv = new VarInfo(nome, this.type, this.line, escopo, null);  
-
-            if(!vt.insert(nv)){
-                System.out.println("Alol variável : " + nome + " já foi declarada.");
-            }
 
             String aux = this.type;
             //! Quando operações aritméticas estiverem completas, adicionar o child de atribuição
@@ -280,14 +279,11 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             //função com parâmetro errado, variável não declarada, função indefinida
             if(chieldInitializer.getNodeKind() == NodeKind.NULL_NODE){
                 assign.addChild(chieldInitializer);
-                //AST.printDot(assign);
                 return assign;
             }
             
             if(AST.is_tree(chieldInitializer)){
-                // System.out.println("LEFTTYPE " + node.getNodeKind().toString());
-                // System.out.println("RIGHT TYPE " + chieldInitializer.getText());
-
+                nv = new VarInfo(nome, this.type, this.line, escopo, null);
                 if( node.getNodeKind().toString().equals(chieldInitializer.getText()) ){
                     assign.addChild(chieldInitializer);
                 } else{
@@ -307,6 +303,24 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 }
                 
             }else{//Verificando os tipos da "atribuição"
+                
+                String constType = null;
+                switch (chieldInitializer.getNodeKind().toString()) {
+                    case "int":
+                    //System.out.println("Int " + );
+                        constType = Integer.toString(chieldInitializer.intData);
+                        break;
+                    case "char":
+                        constType = Character.toString(chieldInitializer.charData);
+                        break;
+                    case "float":
+                        constType = Float.toString(chieldInitializer.floatData);
+                        break;
+                    default:
+                }
+
+                nv = new VarInfo(nome, this.type, this.line, escopo, constType);
+
                 if( node.getNodeKind().toString().equals(chieldInitializer.getNodeKind().toString()) ){
                     assign.addChild(chieldInitializer);
                 } else{
@@ -324,6 +338,9 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     assign.addChild(cast_type);
                 }
                 
+            }
+            if(!vt.insert(nv)){
+                System.out.println("A variável : " + nome + " já foi declarada.");
             }
             this.type = aux;
             //AST.printDot(assign);

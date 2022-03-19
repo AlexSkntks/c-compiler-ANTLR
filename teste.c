@@ -4,7 +4,7 @@ int w;
 int sqrt(float num){
     int x = 3;
     num = num + x/3;
-    return x + 1 / num;
+    return num;
 }
 
 int func(int a, char b){
@@ -16,5 +16,6 @@ int main(){
 
     int x = 1*(4+5.6)*10/'4';
     int y = w;
+    char zebra = 'i';
     return 0;
 }
