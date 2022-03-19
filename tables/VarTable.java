@@ -61,5 +61,9 @@ public class VarTable{
 			info.showInfo();
 		}
 	}
+
+    public int size() {
+        return list.size();
+    }
 }
 
