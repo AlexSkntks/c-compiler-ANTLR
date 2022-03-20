@@ -1039,7 +1039,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                     return node;
                 case "float":
                     node = new AST(NodeKind.FLOAT_VAL_NODE, Float.valueOf(value), value);
-                    //System.out.println("Primary Expression5");
                     return node;
                 case "char":
                     node = new AST(NodeKind.CHAR_VAL_NODE, value.charAt(1), value);

@@ -39,5 +39,4 @@ public final class DataStack extends Stack<Word> {
 		f.close();
 		return sb.toString();
 	}
-	
 }

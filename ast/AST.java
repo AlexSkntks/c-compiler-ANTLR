@@ -46,12 +46,12 @@ public class AST {
 
 	// Cria o nó com um dado float.
 	public AST(NodeKind kind, float floatData, String value) {
-		this(kind, 0, floatData, ' ', null);
+		this(kind, 0, floatData, ' ', value);
 	}
 
     // Cria o nó com um dado char.
 	public AST(NodeKind kind, char charData, String value) {
-		this(kind, 0, 0.0f, charData, null);
+		this(kind, 0, 0.0f, charData, value);
 	}
 
     public AST(NodeKind kind){

@@ -1,11 +1,12 @@
 package code;
 import ast.*;
+import checker.Pilha;
 import tables.FuncTable;
 import tables.VarTable;
 
 public class Interpreter extends ASTBaseVisitor<AST>{
 
-    private final DataStack stack;
+    private final Pilha stack;
     private final Memory memory;
     private final VarTable vt;
     private final FuncTable ft;
@@ -13,7 +14,7 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     public Interpreter(VarTable vt, FuncTable ft){
         this.vt = vt;
         this.ft = ft;
-        this.stack = new DataStack();
+        this.stack = new Pilha();
 		this.memory = new Memory(vt);
     }
 
@@ -22,7 +23,6 @@ public class Interpreter extends ASTBaseVisitor<AST>{
 
         for(int i = 0; i < node.getChildrenSize(); i++){
             visit(node.getChild(i));//AST
-            System.out.println("FILHO " + node.getChild(i).getNodeKind().toString());
         }
         
         return null;
@@ -39,11 +39,12 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     protected AST visitFunctionDeclarationNode(AST node) {
         // TODO Auto-generated method stub
         // TODO visitador dos parametros do function
-        System.out.println("Tipo da função: " + visit(node.getChild(0)));
-        System.out.println("Nome da função: " + visit(node.getChild(1)));
-        // BlocItemList
-        System.out.println("Corpo da função: " + visit(node.getChild(2)));
-        
+        //System.out.println("Tipo da função: " + visit(node.getChild(0)));
+        //System.out.println("Nome da função: " + visit(node.getChild(1)));
+        visit(node.getChild(0));
+        visit(node.getChild(1));
+        // BlocItemList   
+        visit(node.getChild(2)); 
         return null;
     }
 
@@ -53,7 +54,6 @@ public class Interpreter extends ASTBaseVisitor<AST>{
         // TODO Falta tratar o jump_node, ou seja o retorno da função 
         for(int i = 0; i < node.getChildrenSize(); i++){
             visit(node.getChild(i));//AST
-            System.out.println("FILHO " + node.getChild(i).getNodeKind().toString());
         }
         return null;
     }
@@ -69,16 +69,15 @@ public class Interpreter extends ASTBaseVisitor<AST>{
         // TODO Auto-generated method stub
         for(int i = 0; i < node.getChildrenSize(); i++){
             visit(node.getChild(i));//AST
-            System.out.println("FILHO DECLARATION LIST " + node.getChild(i).getNodeKind());
         }
         return null;
     }
 
     // "=" == assignNode
+    // Chamar o filho da direita
+    // Olhar o tipo do lado esquerdo para fazer pop com o tipo de dado correto
     @Override
     protected AST vistAssignNode(AST node) {
-        System.out.println("SUBTREE-AST");
-        System.out.println(visit(node.getChild(0)));
         // Não é necessário fazer a visitação do filho da esqeurda
         // pois as informações que necessitamos para verificar e 
         // armazenar são obtidas de forma mais simples como demonstrado a baixo.
@@ -86,20 +85,27 @@ public class Interpreter extends ASTBaseVisitor<AST>{
         String type = node.getChild(0).getNodeKind().toString();
         // Lado direito da equação, tudo q será atribuido a variável.
         visit(node.getChild(1));
-        
+        System.out.print("A variavel " + name + " Esta recebendo ");
         // TODO artimética na pilha seguindo o exemplo do char
         switch (node.getChild(1).getNodeKind().toString()) {
             case "char":
                 // TODO char value = stack.popc()
                 // TODO memory.insert(value)
+                System.out.println(" " + stack.popc());
                 break;
             case "int":
+                System.out.println(" " + stack.popi());
                 break;
             case "float":
+                System.out.println(" " + stack.popf());
                 break;
             case "+":
+                visit(node.getChild(0));
+                System.out.println(" " + stack.pop());
                 break;
             case "*":
+                visit(node.getChild(0));
+                System.out.println(" " + stack.pop());
                 break;
             default:
                 System.out.println("Erro inesperado ocorreu!");
@@ -109,23 +115,24 @@ public class Interpreter extends ASTBaseVisitor<AST>{
 
         return null;
     }
-
+    
     @Override
     protected AST visitintValNode(AST node) {
-        // TODO Auto-generated method stub
         System.out.println("Valor da variável inteira: " + node.getText());
+        stack.push(node.getText());
         return null;
     }
 
     @Override
     protected AST visitFloatValNode(AST node) {
-        // TODO Auto-generated method stub
+        //System.out.println("Valor da variável float: " + node.getText());
+        stack.push(node.getText());
         return null;
     }
 
     @Override
     protected AST visitCharValNode(AST node) {
-        // TODO Auto-generated method stub
+        stack.push(node.getText());
         return null;
     }
 
@@ -136,14 +143,67 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     }
 
     @Override
+    //Verificar quandoo um dos lados é arvore. Pelo print ele tá pegando errado quando vem de arvore
     protected AST visitPlusNode(AST node) {
-        // TODO Auto-generated method stub
+        switch (node.getText()) {
+            case "char":
+                break;
+            case "int":
+                // Chama o visitador para o filho da esq
+
+                visit(node.getChild(0));
+                visit(node.getChild(1));
+
+                int rInt = stack.popi();
+                int lInt = stack.popi();
+
+                int resultInt = lInt + rInt;
+                stack.push(Integer.toString(resultInt));
+                break;
+            case "float":
+                // Chama o visitador para o filho da esq
+                visit(node.getChild(0));
+                // Chama o visitador para o filho da dir
+                visit(node.getChild(1));
+                float rFloat = stack.popf();
+                float lFloat = stack.popf();
+                float resultFloat = lFloat + rFloat;
+                stack.push(Float.toString(resultFloat));
+                break;
+            default:
+                break;
+        }
         return null;
     }
 
     @Override
     protected AST visitTimesNode(AST node) {
-        // TODO Auto-generated method stub
+        switch (node.getText()) {
+            case "char":
+                break;
+            case "int":
+                // Chama o visitador para o filho da esq
+                visit(node.getChild(0));
+                // Chama o visitador para o filho da dir
+                visit(node.getChild(1));
+                int rInt = stack.popi();
+                int lInt = stack.popi();
+                int resultInt = lInt * rInt;
+                stack.push(Integer.toString(resultInt));
+                break;
+            case "float":
+                // Chama o visitador para o filho da esq
+                visit(node.getChild(0));
+                // Chama o visitador para o filho da dir
+                visit(node.getChild(1));
+                float rFloat = stack.popf();
+                float lFloat = stack.popf();
+                float resultFloat = lFloat * rFloat;
+                stack.push(Float.toString(resultFloat));
+                break;
+            default:
+                break;
+        }
         return null;
     }
 
@@ -154,6 +214,9 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     }
 
     @Override
+    //Pega da pilha
+    //Converte
+    //Joga na Pilha
     protected AST visitChar2Int(AST node) {
         // TODO Auto-generated method stub
         return null;
@@ -166,6 +229,9 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     }
 
     @Override
+    //Pega da pilha
+    //Converte
+    //Joga na Pilha
     protected AST visitInt2Float(AST node) {
         // TODO Auto-generated method stub
         return null;
@@ -184,6 +250,9 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     }
 
     @Override
+    //Pega da pilha
+    //Converte
+    //Joga na Pilha
     protected AST visitFloat2Int(AST node) {
         // TODO Auto-generated method stub
         return null;

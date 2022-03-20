@@ -59,7 +59,7 @@ public enum NodeKind {
 	},
     TIMES_NODE {
 		public String toString() {
-            return "* ou /";
+            return "*";
         }
 	},
     NULL_NODE {
