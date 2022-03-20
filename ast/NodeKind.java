@@ -49,7 +49,7 @@ public enum NodeKind {
 	},
     PLUS_NODE {
 		public String toString() {
-            return "+ ou -";
+            return "+";
         }
 	},
     STR_VAL_NODE {

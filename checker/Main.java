@@ -22,6 +22,7 @@ import tools.*;
 
 import parser.CLexer;
 import checker.SemanticChecker;
+import code.Interpreter;
 import parser.CParser;
 
 public class Main {
@@ -47,8 +48,11 @@ public class Main {
 			SemanticChecker checker = new SemanticChecker();
 			checker.visit(tree);
 
-			//AST.printDot(checker.getAST());
-			checker.printTables();
+			AST.printDot(checker.getAST());
+		
+			Interpreter inter = new Interpreter(checker.getVarTable(), checker.getFuncTable());
+			inter.visit(checker.getAST());
+			
 			System.out.println("Revisão sintática realizada com êxito.");
 			
 		} catch (Exception e) {

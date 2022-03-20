@@ -65,6 +65,13 @@ public class SemanticChecker extends CBaseVisitor<AST> {
         return this.ast;
     }
 
+    VarTable getVarTable(){
+        return this.vt;
+    }
+
+    FuncTable getFuncTable(){
+        return this.ft;
+    }
     // Exibe o conteúdo das tabelas em stdout.
     void printTables() {
         System.out.println();
