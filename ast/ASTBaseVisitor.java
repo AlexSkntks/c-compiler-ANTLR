@@ -24,6 +24,10 @@ public abstract class ASTBaseVisitor<T> {
 	// código todo espalhado entre elas...
 	public T visit(AST node) {
 		switch (node.kind) {
+            case COMPILATION_UNIT_NODE:
+				return visitCompilationUnitNode(node);
+			case EXTERNAL_DECLARATION:
+				return visitExternalDeclaration(node);
 			case ASSIGN_NODE:
 				return vistAssignNode(node);
 			case INT_VAL_NODE:
@@ -82,10 +86,6 @@ public abstract class ASTBaseVisitor<T> {
 				return visitFuncTypeFCharNode(node);
 			case FUNC_TYPE_VOID_NODE:
 				return visitFuncTypeVoidNode(node);
-			case COMPILATION_UNIT_NODE:
-				return visitCompilationUnitNode(node);
-			case EXTERNAL_DECLARATION:
-				return visitExternalDeclaration(node);
 			case BLOCK_ITEM_LIST:
 				return visitBlockItemList(node);
 			case JUMP_NODE:
@@ -98,6 +98,10 @@ public abstract class ASTBaseVisitor<T> {
 				return null;
 		}
 	}
+
+    protected abstract T visitCompilationUnitNode(AST node);
+
+	protected abstract T visitExternalDeclaration(AST node);
 
 	protected abstract T vistAssignNode(AST node);
 
@@ -154,10 +158,6 @@ public abstract class ASTBaseVisitor<T> {
 	protected abstract T visitFuncTypeFCharNode(AST node);
 
 	protected abstract T visitFuncTypeVoidNode(AST node);
-
-	protected abstract T visitCompilationUnitNode(AST node);
-
-	protected abstract T visitExternalDeclaration(AST node);
 
 	protected abstract T visitBlockItemList(AST node);
 

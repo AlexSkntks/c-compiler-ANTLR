@@ -92,7 +92,8 @@ public class SemanticChecker extends CBaseVisitor<AST> {
     // }
 
 	@Override 
-    //Não é o root mas o nó tem o nome do root na parseTree 
+    // Não é o root mas o nó tem o nome do root na parseTree 
+    // Primeira função a ser chamada ao criar a parse tree
     public AST visitTranslationUnit(CParser.TranslationUnitContext ctx) {
 
         AST root = new AST(NodeKind.COMPILATION_UNIT_NODE);
