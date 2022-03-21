@@ -23,6 +23,7 @@ import tools.*;
 import parser.CLexer;
 import checker.SemanticChecker;
 import code.Interpreter;
+import code.Word;
 import parser.CParser;
 
 public class Main {
@@ -52,7 +53,7 @@ public class Main {
 		
 			Interpreter inter = new Interpreter(checker.getVarTable(), checker.getFuncTable());
 			inter.visit(checker.getAST());
-			
+
 			System.out.println("Revisão sintática realizada com êxito.");
 			
 		} catch (Exception e) {
