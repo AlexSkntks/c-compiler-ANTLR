@@ -1,7 +1,12 @@
 package code;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import ast.*;
 import checker.Pilha;
 import tables.FuncTable;
+import tables.VarInfo;
 import tables.VarTable;
 
 public class Interpreter extends ASTBaseVisitor<AST>{
@@ -10,12 +15,42 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     private final Memory memory;
     private final VarTable vt;
     private final FuncTable ft;
+    private int escopo = 0;
+    private Boolean isInBlock = false;
+    private Map<Integer, Integer> map = new HashMap<>();
 
     public Interpreter(VarTable vt, FuncTable ft){
         this.vt = vt;
         this.ft = ft;
         this.stack = new Pilha();
 		this.memory = new Memory(vt);
+        initMap();   
+    }
+
+    // Gera um ID único para cada variável, e essa informação é usada no
+    // map para recuperar o ID da varipavel na memória
+    private int hash(String name, int escopo){
+        String conc = name + Integer.toString(escopo);
+        return conc.hashCode();
+    }
+
+    //Adiciona o hash da variável no map com indices sequenciais de memória
+    private void initMap(){
+        ArrayList<VarInfo> list = vt.getList();
+        int i = 0;
+        
+        for (VarInfo var : list) {
+            map.put(hash(var.getName(), var.getEscopo()), i++);
+        }
+
+    }
+
+    public void printMap(){
+        String name;
+        for (VarInfo var : vt.getList()) {
+            name = var.getName();
+            System.out.println(name + " - " + map.get(this.hash(name, var.getEscopo())));
+        }
     }
 
     @Override

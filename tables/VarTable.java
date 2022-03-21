@@ -44,6 +44,10 @@ public class VarTable{
 		return null;
 	}
 
+	public ArrayList<VarInfo> getList(){
+		return this.list;
+	}
+
     public String getType(String name, int escopo){
         for (VarInfo varInfo : list) {
 			//compara se a variável pertence ao escopo
