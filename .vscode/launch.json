@@ -9,19 +9,6 @@
             "name": "Launch Main",
             "request": "launch",
             "mainClass": "checker.Main",
-            "projectName": "c-compiler-ANTLR_658cb022"
-        },
-        {
-            "type": "java",
-            "name": "Launch Current File",
-            "request": "launch",
-            "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "Launch Main",
-            "request": "launch",
-            "mainClass": "Main",
             "projectName": "c-compiler-ANTLR_658cb022",
             "args": "teste.c"
         }
