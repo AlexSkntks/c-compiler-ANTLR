@@ -235,9 +235,11 @@ public enum NodeKind {
             case FUNC_TYPE_INT_NODE:
             case FUNC_TYPE_CHAR_NODE:
             case FUNC_TYPE_VOID_NODE:
-            case INT2CHAR:
             case INT2FLOAT:
             case CHAR2FLOAT:
+            case INT2CHAR:
+            case FLOAT2CHAR:
+            case FLOAT2INT:
                 return true;
             default:
                 return false;

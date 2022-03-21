@@ -145,13 +145,19 @@ public class AST {
 				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.FUNC_TYPE_VOID_NODE){
 				System.err.printf("%s", this.getText());
-			}else if(this.kind == NodeKind.CHAR2INT){
+			}else if(this.kind == NodeKind.CHAR2INT){ //Upcast
 				System.err.printf("%s", this.getText());
 			}else if (this.kind == NodeKind.INT2FLOAT){
 				System.err.printf("%s", this.getText());
 			}else if(this.kind == NodeKind.CHAR2FLOAT){
 				System.err.printf("%s", this.getText());
-			}
+			}else if(this.kind == NodeKind.INT2CHAR){ // Downcast
+                System.err.printf("%s", this.getText());
+            }else if(this.kind == NodeKind.FLOAT2CHAR){
+                System.err.printf("%s", this.getText());
+            }else if(this.kind == NodeKind.FLOAT2INT){
+                System.err.printf("%s", this.getText());
+            }
 
 	    }
 
@@ -239,11 +245,17 @@ public class AST {
         } else{
             // DOWNCAST
             if (old_type.equals("int") && new_type.equals("char") ){
-                return new AST(NodeKind.INT2CHAR);
+                node = new AST(NodeKind.INT2CHAR);
+                node.addInfo("INT2CHAR");
+                return node;
             } else if (old_type.equals("float") && new_type.equals("char") ){
-                return new AST(NodeKind.FLOAT2CHAR);   
+                node = new AST(NodeKind.FLOAT2CHAR);
+                node.addInfo("FLOAT2CHAR");
+                return node;  
             } else if (old_type.equals("float") && new_type.equals("int") ){
-                return new AST(NodeKind.FLOAT2INT);    
+                node = new AST(NodeKind.FLOAT2INT);
+                node.addInfo("FLOAT2INT");
+                return node;   
             }
         }
 

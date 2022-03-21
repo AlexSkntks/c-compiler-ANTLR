@@ -218,13 +218,21 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     //Converte
     //Joga na Pilha
     protected AST visitChar2Int(AST node) {
-        // TODO Auto-generated method stub
+        visit(node.getChild(0));
+        char c = this.stack.popc();
+        Integer i = (int)c;
+        String s = i.toString();
+        this.stack.push(s);
         return null;
     }
 
     @Override
     protected AST visitchar2Float(AST node) {
-        // TODO Auto-generated method stub
+        visit(node.getChild(0));
+        char c = this.stack.popc();
+        Float f = (float)c;
+        String s = f.toString();
+        this.stack.push(s);
         return null;
     }
 
@@ -233,19 +241,42 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     //Converte
     //Joga na Pilha
     protected AST visitInt2Float(AST node) {
-        // TODO Auto-generated method stub
+        visit(node.getChild(0));
+        // Pega o valor da stack em int
+        Integer i = this.stack.popi();
+        // Conversão feita para float
+        Float f = i.floatValue();
+        // Para salvar na pilha deve-se converter o valor
+        // para String.
+        String s = f.toString();
+        this.stack.push(s);
         return null;
     }
 
     @Override
+    //Pega da pilha
+    //Converte
+    //Joga na Pilha
     protected AST visitInt2Char(AST node) {
-        // TODO Auto-generated method stub
+        visit(node.getChild(0));
+        int i = this.stack.popi();
+        char c = (char)i;
+        String s = Character.toString(c);
+        this.stack.push(s);
         return null;
     }
 
     @Override
+    //Pega da pilha
+    //Converte
+    //Joga na Pilha
     protected AST visitFloat2Char(AST node) {
-        // TODO Auto-generated method stub
+        visit(node.getChild(0));
+        float f = this.stack.popf();
+        int i = Math.round(f);
+        char c = (char)i;
+        String s = Character.toString(c);
+        this.stack.push(s);
         return null;
     }
 
@@ -254,7 +285,12 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     //Converte
     //Joga na Pilha
     protected AST visitFloat2Int(AST node) {
-        // TODO Auto-generated method stub
+        visit(node.getChild(0));
+        float f = this.stack.popf();
+        Integer i = Math.round(f);
+        String s = i.toString();
+        this.stack.push(s);
+        System.out.println("chegou no nó de conversão");
         return null;
     }
 
