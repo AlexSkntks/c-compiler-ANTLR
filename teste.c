@@ -3,11 +3,12 @@ float sqrt(float num){
     return 0;
 }
 
-int a = 1;
-int z = 8 + a;//9 - 8+1
+int a = 4;
+int z = 9;
 
 int main(){
-    float y = 1;
-    int x = (z + y) * 4;//40
+    int y = 1.49;
+    float w = (z + y);
+    int x =  w * a;
     return 0;
 }
