@@ -72,10 +72,7 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     // function_definition == FunctionDeclaration
     @Override
     protected AST visitFunctionDeclarationNode(AST node) {
-        // TODO Auto-generated method stub
-        // TODO visitador dos parametros do function
-        //System.out.println("Tipo da função: " + visit(node.getChild(0)));
-        //System.out.println("Nome da função: " + visit(node.getChild(1)));
+
         this.isInBlock = true;
         this.escopo++;
         visit(node.getChild(0));
@@ -121,40 +118,35 @@ public class Interpreter extends ASTBaseVisitor<AST>{
         // armazenar são obtidas de forma mais simples como demonstrado a baixo.
         String name = node.getChild(0).getText();
         String type = node.getChild(0).getNodeKind().toString();
-        Word word = new Word();
-        // Lado direito da equação, tudo q será atribuido a variável.
+        int escopoAtual = 0;
+        if(isInBlock){
+            escopoAtual = escopo;
+        }
+        // Lado direito da equação, tudo que será atribuido a variável.
         visit(node.getChild(1));
-        System.out.print("A variavel " + name + " Esta recebendo ");
-        // TODO artimética na pilha seguindo o exemplo do char
-        switch (node.getChild(1).getNodeKind().toString()) {
+
+        switch (type) {
             case "char":
-                // TODO char value = stack.popc()
-                // TODO memory.insert(value)
+                System.out.println();
                 System.out.println(" " + stack.popc());
                 break;
             case "int":
                 //Pega o valor da pilha
                 int intValue = stack.popi();
                 //Pega o hash da variável para obter o seu índice em memória
-                int intKey = hash(name, escopo);
+                int intKey = hash(name, escopoAtual);
                 //Utilza a chave para obter indice em memória e altera o valor
-                memory.set(map.get(intKey), word.fromInt(intValue));
+                System.out.println("A variável " + name + " esta recebendo " + intValue);
+                memory.set(map.get(intKey), Word.fromInt(intValue));
                 break;
             case "float":
-                 //Pega o valor da pilha
-                 float floatValue = stack.popf();
-                 //Pega o hash da variável para obter o seu índice em memória
-                 int floatKey = hash(name, escopo);
-                 //Utilza a chave para obter indice em memória e altera o valor
-                 //memory.set(map.get(floatKey), word.fromFloat(floatValue));//Insre em byte
-                 break;
-            case "+":
-                visit(node.getChild(0));
-                System.out.println(" " + stack.pop());
-                break;
-            case "*":
-                visit(node.getChild(0));
-                System.out.println(" " + stack.pop());
+                //Pega o valor da pilha
+                float floatValue = stack.popf();
+                //Pega o hash da variável para obter o seu índice em memória
+                int floatKey = hash(name, escopoAtual);
+                //Utilza a chave para obter indice em memória e altera o valor
+                System.out.println("A variável " + name + " esta recebendo " + floatValue);
+                memory.set(map.get(floatKey), Word.fromFloat(floatValue));//Insere em byte
                 break;
             default:
                 System.out.println("Erro inesperado ocorreu!");
@@ -167,7 +159,6 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     
     @Override
     protected AST visitintValNode(AST node) {
-        System.out.println("Valor da variável inteira: " + node.getText());
         stack.push(node.getText());
         return null;
     }
@@ -339,7 +330,6 @@ public class Interpreter extends ASTBaseVisitor<AST>{
         Integer i = Math.round(f);
         String s = i.toString();
         this.stack.push(s);
-        System.out.println("chegou no nó de conversão");
         return null;
     }
 
@@ -376,12 +366,23 @@ public class Interpreter extends ASTBaseVisitor<AST>{
 
     @Override
     protected AST visitVarIntNode(AST node) {
+        // Verifica se valor a ser obtido está dentro ou fora de um escopo
         int escopoAtual = 0;
         if(isInBlock){
             escopoAtual = this.escopo;
         }
-        int key = hash(node.getText(), escopoAtual);
-        Word word = memory.get(map.get(key));
+        String name = node.getText();
+        int key = hash(name, escopoAtual);
+        Integer id = map.get(key);
+
+        // Verifica se existe uma chave válida para essa variável no escopo da função
+        // Caso não exista, o escopo é zero
+        if(id == null){
+            key = hash(name, 0);
+            id = map.get(key);
+        }
+
+        Word word = memory.get(id);
 
         stack.push(Integer.toString(word.toInt()));
         return null;
@@ -389,15 +390,25 @@ public class Interpreter extends ASTBaseVisitor<AST>{
 
     @Override
     protected AST visitVarFloatNode(AST node) {
+        // Verifica se valor a ser obtido está dentro ou fora de um escopo
         int escopoAtual = 0;
         if(isInBlock){
             escopoAtual = this.escopo;
         }
-        int key = hash(node.getText(), escopoAtual);
-        Word word = memory.get(map.get(key));
+        String name = node.getText();
+        int key = hash(name, escopoAtual);
+        Integer id = map.get(key);
+
+        // Verifica se existe uma chave válida para essa variável no escopo da função
+        // Caso não exista, o escopo é zero
+        if(id == null){
+            key = hash(name, 0);
+            id = map.get(key);
+        }
+
+        Word word = memory.get(id);
 
         stack.push(Float.toString(word.toFloat()));
-        
         return null;
     }
 

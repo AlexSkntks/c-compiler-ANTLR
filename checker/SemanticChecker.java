@@ -267,7 +267,8 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 node = new AST(NodeKind.VAR_CHAR_NODE);
                 break;
             default://ERRO DE TIPO INDEFINIDO, ver visitTypeSpecifier
-                System.out.println("DEU UM ERRÂO");
+                System.out.println("DEU UM ERRÃO, ABORTANDO O PROGRAMA...");
+                System.exit(1);
                 break;
         }
 
