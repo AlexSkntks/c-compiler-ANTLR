@@ -51,12 +51,12 @@ public class Main {
 
 			AST.printDot(checker.getAST());
 		
-			// Interpreter inter = new Interpreter(checker.getVarTable(), checker.getFuncTable());
-			// inter.visit(checker.getAST());
-			// System.out.println("--------------------------------");
-			// System.out.println("Mapeamento das variáveis na memória");
-			// inter.printMap();
-			// System.out.println("Revisão sintática realizada com êxito.");
+			Interpreter inter = new Interpreter(checker.getVarTable(), checker.getFuncTable());
+			inter.visit(checker.getAST());
+			System.out.println("--------------------------------");
+			System.out.println("Mapeamento das variáveis na memória");
+			inter.printMap();
+			System.out.println("Revisão sintática realizada com êxito.");
 			
 		} catch (Exception e) {
 			System.out.println(e);
