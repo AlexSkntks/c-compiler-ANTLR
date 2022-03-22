@@ -6,3 +6,4 @@ parser
 faz-arvore/bin
 settings.json
 makefile
+.vscode
