@@ -30,6 +30,17 @@ public class Word {
 		int intBits = Float.floatToIntBits(value);
 		return fromInt(intBits);
 	}
+
+    public static Word fromChar(char c) {
+        Integer i = (int) c;
+        return fromInt(i);
+    }
+
+    public char toChar() {
+        int i = this.toInt();
+        char c = (char) i;
+        return c;
+    }
 	
 	// Interpreta a word como um valor inteiro.
 	public int toInt() {
@@ -44,5 +55,7 @@ public class Word {
 		int intBits = this.toInt();
 		return Float.intBitsToFloat(intBits);
 	}
+
+    
 	
 }

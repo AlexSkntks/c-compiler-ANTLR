@@ -127,8 +127,13 @@ public class Interpreter extends ASTBaseVisitor<AST>{
 
         switch (type) {
             case "char":
-                System.out.println();
-                System.out.println(" " + stack.popc());
+                //Pega o valor da pilha
+                char charValue = stack.popc();
+                //Pega o hash da variável para obter o seu índice em memória
+                int charKey = hash(name, escopoAtual);
+                //Utilza a chave para obter indice em memória e altera o valor
+                System.out.println("A variável " + name + " esta recebendo " + charValue);
+                memory.set(map.get(charKey), Word.fromChar(charValue));
                 break;
             case "int":
                 //Pega o valor da pilha
@@ -165,14 +170,13 @@ public class Interpreter extends ASTBaseVisitor<AST>{
 
     @Override
     protected AST visitFloatValNode(AST node) {
-        //System.out.println("Valor da variável float: " + node.getText());
         stack.push(node.getText());
         return null;
     }
 
     @Override
     protected AST visitCharValNode(AST node) {
-        stack.push(node.getText());
+        stack.push(String.valueOf(node.getText().charAt(1)));
         return null;
     }
 
@@ -187,6 +191,17 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     protected AST visitPlusNode(AST node) {
         switch (node.getText()) {
             case "char":
+                // Chama o visitador para o filho da esq
+
+                visit(node.getChild(0));
+                visit(node.getChild(1));
+
+                int rChar = (int) stack.popc();
+                int lChar = (int) stack.popc();
+
+                int resultChar = lChar + rChar;
+                Character newCharacter = (char) resultChar;
+                stack.push(String.valueOf(newCharacter));
                 break;
             case "int":
                 // Chama o visitador para o filho da esq
@@ -220,7 +235,18 @@ public class Interpreter extends ASTBaseVisitor<AST>{
     protected AST visitTimesNode(AST node) {
         switch (node.getText()) {
             case "char":
-                break;
+                 // Chama o visitador para o filho da esq
+
+                 visit(node.getChild(0));
+                 visit(node.getChild(1));
+ 
+                 int rChar = (int) stack.popc();
+                 int lChar = (int) stack.popc();
+ 
+                 int resultChar = lChar * rChar;
+                 Character newCharacter = (char) resultChar;
+                 stack.push(String.valueOf(newCharacter));
+                 break;
             case "int":
                 // Chama o visitador para o filho da esq
                 visit(node.getChild(0));
@@ -366,33 +392,30 @@ public class Interpreter extends ASTBaseVisitor<AST>{
 
     @Override
     protected AST visitVarIntNode(AST node) {
-        // Verifica se valor a ser obtido está dentro ou fora de um escopo
-        int escopoAtual = 0;
-        if(isInBlock){
-            escopoAtual = this.escopo;
-        }
-        String name = node.getText();
-        int key = hash(name, escopoAtual);
-        Integer id = map.get(key);
-
-        // Verifica se existe uma chave válida para essa variável no escopo da função
-        // Caso não exista, o escopo é zero
-        if(id == null){
-            key = hash(name, 0);
-            id = map.get(key);
-        }
-
-        Word word = memory.get(id);
-
+        Word word = visitVarNode(node);
         stack.push(Integer.toString(word.toInt()));
         return null;
     }
 
     @Override
     protected AST visitVarFloatNode(AST node) {
+        Word word = visitVarNode(node);
+        stack.push(Float.toString(word.toFloat()));
+        return null;
+    }
+
+    @Override
+    protected AST visitVarCharNode(AST node) {
+        Word word = visitVarNode(node);
+        stack.push(String.valueOf((word.toChar())) );
+        return null;
+    }
+
+    private Word visitVarNode(AST node){
+        
         // Verifica se valor a ser obtido está dentro ou fora de um escopo
         int escopoAtual = 0;
-        if(isInBlock){
+        if(this.isInBlock){
             escopoAtual = this.escopo;
         }
         String name = node.getText();
@@ -408,14 +431,7 @@ public class Interpreter extends ASTBaseVisitor<AST>{
 
         Word word = memory.get(id);
 
-        stack.push(Float.toString(word.toFloat()));
-        return null;
-    }
-
-    @Override
-    protected AST visitVarCharNode(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        return word;
     }
 
     @Override
