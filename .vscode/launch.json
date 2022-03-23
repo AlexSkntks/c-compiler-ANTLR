@@ -9,9 +9,9 @@
             "name": "Launch Java Program",
             "request": "launch",
             "mainClass": "checker.Main",
-            "projectName": "c-compiler-ANTLR_658cb022",
             "args": "teste.c"
         }
+        
        
     ]
 }
