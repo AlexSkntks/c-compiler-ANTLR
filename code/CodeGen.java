@@ -121,6 +121,25 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         }
 
     }
+
+    private Word getFromMemory(AST node){
+        // Pega o escopo da variável
+        int escopoAtual = 0;
+        if(this.isInBlock){
+            escopoAtual = this.escopo;
+        }
+        String name = node.getText();
+        int floatKey = hash(node.getText(), escopoAtual);
+        Integer id = map.get(floatKey);
+        // Verifica se existe uma chave válida para essa variável no escopo da função
+        // Caso não exista, o escopo é zero
+        if(id == null){
+            floatKey= hash(name, 0);
+            id = map.get(floatKey);
+        }
+        Word w = memory.get(id);
+        return w;
+    }
     // ----------------------------------------------------------------------------
 	// Reg ---------------------------------------------------------------------
 	private int newIntReg() {
@@ -302,33 +321,36 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitPlusNode(AST node) {
-        // switch (node.getText()) {
-        //     case "char":
-        //     case "int":
-        //         // Chama o visitador para o filho da esq
+        switch (node.getText()) {
+            case "char":
+            case "int":
+                // Chama o visitador para o filho da esq
+                // temp1 e 2 são os indices dos valores para soma
+                // enquanto temp3 será o resultado
+                int temp1 = visit(node.getChild(0));
+                int temp2 = visit(node.getChild(1));
+                int temp3 = this.newIntReg();
 
-        //         visit(node.getChild(0));
-        //         visit(node.getChild(1));
+                // Pega os valores a serem somados pelos seus indices
+                int rInt = this.intRegister[temp1];
+                int lInt = this.intRegister[temp2];
 
-        //         int rInt = stack.popi();
-        //         int lInt = stack.popi();
-
-        //         int resultInt = lInt + rInt;
-        //         stack.push(Integer.toString(resultInt));
-        //         break;
-        //     case "float":
-        //         // Chama o visitador para o filho da esq
-        //         visit(node.getChild(0));
-        //         // Chama o visitador para o filho da dir
-        //         visit(node.getChild(1));
-        //         float rFloat = stack.popf();
-        //         float lFloat = stack.popf();
-        //         float resultFloat = lFloat + rFloat;
-        //         stack.push(Float.toString(resultFloat));
-        //         break;
-        //     default:
-        //         break;
-        // }
+                // Soma os valores
+                int resultInt = lInt + rInt;
+                // guarda o resultado da soma no indice correto
+                this.intRegister[temp3] = resultInt;
+                // Printa a soma em mips
+                System.out.println("add $t" + temp3 + ", $t" + temp2 + ", $t" + temp1);
+                this.intRegister[temp1] = null;
+                this.intRegister[temp2] = null;
+                // retorna indice da soma
+                return temp3;
+            case "float":
+               System.out.println("Não foi implementada soma para float.");
+                break;
+            default:
+                break;
+        }
         return null;
     }
 
@@ -426,14 +448,16 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitFloat2Int(AST node) {
-        // TODO Auto-generated method stub
-        int r = visit(node.getChild(0));
-        float f = this.floatRegister[r];
-        this.floatRegister[r] = null;
+        int rF = visit(node.getChild(0));
+        float f = this.floatRegister[rF];
+        this.floatRegister[rF] = null;
         Integer i = Math.round(f);
-        r = newIntReg();
-        this.intRegister[r] = i;
-        return r;
+        int rI = newIntReg();
+        this.intRegister[rI] = i;
+
+        //Converte de float em IEEE para integer
+        System.out.println("cvt.w.s $f" + rI + ", $f" + rF);
+        return rI;
     }
 
     @Override
@@ -494,8 +518,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitVarFloatNode(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        Word w = getFromMemory(node);
+        float f = w.toFloat();
+        int r = this.newFloatReg();
+        this.floatRegister[r] = f;
+        System.out.println("lw $t" + r + ", " + node.getText());
+        return r;
     }
 
     @Override
