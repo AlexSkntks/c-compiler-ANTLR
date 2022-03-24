@@ -75,12 +75,6 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// Contadores para geração de código.
 	// Próxima posição na memória de código para emit.
 	private static int nextInstr;
-	// Número de registradores temporários já utilizados.
-	// Usamos um valor arbitrário, mas depois seria necessário
-	// fazer o processo de alocação de registradores. Isto está
-	// fora do escopo da disciplina.
-	private static int intRegsCount;
-	private static int floatRegsCount;
 	
 	public CodeGen(VarTable vt, FuncTable ft) {
 		this.code = new Instruction[INSTR_MEM_SIZE];
@@ -94,12 +88,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	@Override
 	public void execute(AST root) {
 		nextInstr = 0;
-		intRegsCount = 0;
-		floatRegsCount = 0;
-	    // dumpStrTable();
 	    visit(root);
-	    // emit(HALT);
-	    // dumpProgram();
 	}
     // ----------------------------------------------------------------------------
 	// Utils ---------------------------------------------------------------------
@@ -231,32 +220,20 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer vistAssignNode(AST node) {
-        // TODO Auto-generated method stub
         String name = node.getChild(0).getText();
         String type = node.getChild(0).getNodeKind().toString();
         int escopoAtual = 0;
         if(isInBlock){
             escopoAtual = escopo;
         }
+        System.out.println(" # assign ");
         // Lado direito da equação, tudo que será atribuido a variável.
         int r = visit(node.getChild(1));
-
         switch (type) {
             case "char":
-                // Os registradores salvam valores em Integer, pois
-                // ele pode ser comparado com NULL diferente de int 
-                // a memoria do mips possui apenas inteiros e floats.
-                // Não é possível converter Integer para Char via cast
-                // assim convertemos: char <- int <- Integer
-                // char charValue = (char) (int) this.intRegister[r];
-                // //Pega o hash da variável para obter o seu índice em memória
-                // int charKey = hash(name, escopoAtual);
-                // //Utilza a chave para obter indice em memória e altera o valor
-                // System.out.println("A variável " + name + " esta recebendo " + charValue);
-                // memory.set(map.get(charKey), Word.fromChar(charValue));
-                // break;
+                // Os valores em mmória são todos INT, então o tratamento para 
+                // char é o mesmo
             case "int":
-                //Pega o valor da pilha
                 int intValue = this.intRegister[r];
                 //Pega o hash da variável para obter o seu índice em memória
                 int intKey = hash(name, escopoAtual);
@@ -265,7 +242,6 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 System.out.println("sw $t" + r + ", " + name);
                 break;
             case "float":
-                //Pega o valor da pilha
                 float floatValue = this.floatRegister[r];
                 //Pega o hash da variável para obter o seu índice em memória
                 int floatKey = hash(name, escopoAtual);
@@ -321,8 +297,10 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitPlusNode(AST node) {
+        System.out.println(" # sum");
         switch (node.getText()) {
             case "char":
+            //É o mesmo caso que o int, pois um char é representado por um número inteiro
             case "int":
                 // Chama o visitador para o filho da esq
                 // temp1 e 2 são os indices dos valores para soma
@@ -346,9 +324,26 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 // retorna indice da soma
                 return temp3;
             case "float":
-               System.out.println("Não foi implementada soma para float.");
-                break;
+                int t1 = visit(node.getChild(0));
+                int t2 = visit(node.getChild(1));
+                int t3 = this.newFloatReg();
+
+                // Pega os valores a serem somados pelos seus indices
+                Float rFloat = this.floatRegister[t1];
+                Float lFloat= this.floatRegister[t2];
+
+                // Soma os valores
+                Float resultFloat = lFloat + rFloat;
+                // guarda o resultado da soma no indice correto
+                this.floatRegister[t3] = resultFloat;
+                // Printa a soma em mips
+                System.out.println("add.s $f" + t3 + ", $f" + t2 + ", $f" + t1);
+                this.floatRegister[t1] = null;
+                this.floatRegister[t2] = null;
+                return t3;
             default:
+                System.out.println("Bad operation with +");
+                System.exit(1);
                 break;
         }
         return null;
@@ -356,7 +351,63 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitTimesNode(AST node) {
-        // TODO Auto-generated method stub
+        System.out.println(" # times");
+        switch (node.getText()) {
+            case "char":
+            //É o mesmo caso que o int, pois um char é representado por um número inteiro
+            case "int":
+                // Chama o visitador para o filho da esq
+                // temp1 e 2 são os indices dos valores para soma
+                // enquanto temp3 será o resultado
+                int temp1 = visit(node.getChild(0));
+                int temp2 = visit(node.getChild(1));
+                int temp3 = this.newIntReg();
+
+                // Pega os valores a serem somados pelos seus indices
+                int rInt = this.intRegister[temp1];
+                int lInt = this.intRegister[temp2];
+
+                // Soma os valores
+                int resultInt = lInt * rInt;
+                // guarda o resultado da soma no indice correto
+                this.intRegister[temp3] = resultInt;
+                // Printa a soma em mips
+                System.out.println("mult $t" + temp2 + ", $t" + temp1);
+
+                //  O resultado da multiplicação em MIPS é armazenado em dois registradores
+                //  hi e lo. Não estamos tratando Overflow, portanto apenas multiplicações dentro
+                //  da faixa de valores de 32bits serão exibidos corretamente
+
+                // Traz o resultado do lo
+                System.out.println("mflo $t" + temp3);
+
+                this.intRegister[temp1] = null;
+                this.intRegister[temp2] = null;
+                // retorna indice da soma
+                return temp3;
+            case "float":
+                int t1 = visit(node.getChild(0));
+                int t2 = visit(node.getChild(1));
+                int t3 = this.newFloatReg();
+
+                // Pega os valores a serem somados pelos seus indices
+                Float rFloat = this.floatRegister[t1];
+                Float lFloat= this.floatRegister[t2];
+
+                // Soma os valores
+                Float resultFloat = lFloat + rFloat;
+                // guarda o resultado da soma no indice correto
+                this.floatRegister[t3] = resultFloat;
+                // Printa a soma em mips
+                System.out.println("add.s $f" + t3 + ", $f" + t2 + ", $f" + t1);
+                this.floatRegister[t1] = null;
+                this.floatRegister[t2] = null;
+                return t3;
+            default:
+                System.out.println("Bad operation with +");
+                System.exit(1);
+                break;
+        }
         return null;
     }
 
@@ -373,13 +424,11 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitchar2Float(AST node) {
+        System.out.println("# char to float");
         int r = visit(node.getChild(0));
         int i = this.intRegister[r];
         this.intRegister[r] = null;
         float f = (float) i;
-        System.out.println("# The MIPS compiler doesn't have" +
-        "instructions to set a single floating point with a immediate value" +
-        "\n# Then the following instructions are really important.");
 
         //Coloca o valor inteiro em um registrador
         int tempRt = newIntReg();
@@ -397,23 +446,13 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
     }
 
 
-    /**
-     * 
-     *  aux <- memory(0)
-     *  (float) 3 -> memory(0)
-        memory(0) -> rFloat
-        aux -> memory(0)
-        return rFloat
-     */
     @Override
     protected Integer visitInt2Float(AST node) {
+        System.out.println("# int to float");
         int r = visit(node.getChild(0));
         int i = this.intRegister[r];
         this.intRegister[r] = null;
         float f = (float) i;
-        System.out.println("# The MIPS compiler doesn't have" +
-        "instructions to set a single floating point with a immediate value" +
-        "\n# Then the following instructions are really important.");
 
         //Coloca o valor inteiro em um registrador
         int tempRt = newIntReg();
@@ -448,22 +487,22 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitFloat2Int(AST node) {
+        System.out.println("# float to int");
         int rF = visit(node.getChild(0));
         float f = this.floatRegister[rF];
         this.floatRegister[rF] = null;
+
+
         Integer i = Math.round(f);
         int rI = newIntReg();
         this.intRegister[rI] = i;
-
-        //Converte de float em IEEE para integer
-        System.out.println("cvt.w.s $f" + rI + ", $f" + rF);
+        System.out.println("li $t" + rI + ", " + i);
         return rI;
     }
 
     @Override
     protected Integer visitParameterIntNode(AST node) {
         // TODO Auto-generated method stub
-        // visit(node.getChild(idx));
         for(int i = 0; i < node.getChildrenSize(); i++){
             visit(node.getChild(i));//AST
         }
@@ -512,8 +551,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitVarIntNode(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        Word w = getFromMemory(node);
+        int i = w.toInt();
+        int r = this.newIntReg();
+        this.intRegister[r]= i;
+        System.out.println("lw $t" + r + ", " + node.getText());
+        return r;
     }
 
     @Override
@@ -528,8 +571,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitVarCharNode(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        Word w = getFromMemory(node);
+        int i = w.toInt();
+        int r = this.newIntReg();
+        this.intRegister[r]= i;
+        System.out.println("lw $t" + r + ", " + node.getText());
+        return r;
     }
 
     @Override

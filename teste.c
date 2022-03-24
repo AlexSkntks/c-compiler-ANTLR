@@ -1,6 +1,6 @@
+int x = 3;//97
+
 
 int main(){
-    int x = 'a';
-    float y = 1 + 3;
-    int z = y;
+    int y = (1 + 5) * (3);
 }
