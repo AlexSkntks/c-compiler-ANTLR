@@ -260,7 +260,6 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             this.line = ctx.Assign().getSymbol().getLine();
 
             String aux = this.type;
-            //! Quando operações aritméticas estiverem completas, adicionar o child de atribuição
             AST chieldInitializer = visit(ctx.initializer());//Arvore de initializer
 
             assign.addChild(node);
@@ -272,12 +271,12 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                 return assign;
             }
 
-            String varType = node.getNodeKind().toString();
-
+            String lType = node.getNodeKind().toString();
+            String rType = chieldInitializer.getNodeKind().toString();
             if(AST.is_tree(chieldInitializer)){
                 
-                nv = new VarInfo(nome, varType, this.line, escopo, null);
-                if( varType.equals(chieldInitializer.getText()) ){
+                nv = new VarInfo(nome, lType, this.line, escopo, null);
+                if( lType.equals(chieldInitializer.getText()) ){
                     assign.addChild(chieldInitializer);
                 } else{
 
@@ -293,7 +292,7 @@ public class SemanticChecker extends CBaseVisitor<AST> {
             }else{//Verificando os tipos da "atribuição"
                 
                 String constType = null;
-                switch (chieldInitializer.getNodeKind().toString()) {
+                switch (rType) {
                     case "int":
                         constType = Integer.toString(chieldInitializer.intData);
                         break;
@@ -305,17 +304,14 @@ public class SemanticChecker extends CBaseVisitor<AST> {
                         break;
                     default:
                 }
+                
 
-                nv = new VarInfo(nome, varType, this.line, escopo, constType);
-
-                if( varType.equals(chieldInitializer.getNodeKind().toString()) ){
+                if( lType.equals(rType) ){
+                    nv = new VarInfo(nome, lType, this.line, escopo, constType);
                     assign.addChild(chieldInitializer);
                 } else{
-     
-                    AST cast_type = AST.convertion_node_generator(
-                        chieldInitializer.getNodeKind().toString(),
-                        varType
-                    );
+                    nv = new VarInfo(nome, lType, this.line, escopo, null);
+                    AST cast_type = AST.convertion_node_generator(rType, lType);
 
                     cast_type.addChild(chieldInitializer);
                     assign.addChild(cast_type);

@@ -39,8 +39,8 @@ public class Main {
 
 			AST.printDot(checker.getAST());
 		
-			Interpreter inter = new Interpreter(checker.getVarTable(), checker.getFuncTable());
-			inter.visit(checker.getAST());
+			// Interpreter inter = new Interpreter(checker.getVarTable(), checker.getFuncTable());
+			// inter.visit(checker.getAST());
 			// System.out.println("--------------------------------");
 			// System.out.println("Mapeamento das variáveis na memória");
 			// inter.printMap();
@@ -48,6 +48,7 @@ public class Main {
 
             CodeGen codeGen = new CodeGen(checker.getVarTable(), checker.getFuncTable());
 		    codeGen.execute(checker.getAST());
+			//checker.printTables();
 			
 		} catch (Exception e) {
 			System.out.println(e);

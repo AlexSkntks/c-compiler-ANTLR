@@ -190,9 +190,9 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         System.out.println(".data");
         for (VarInfo var : list) {
             if (var.getValue() != null){
-                System.out.println(var.getName() + " : " + var.getValue());
+                System.out.println(var.getName() + ": " + var.getValue());
             } else{
-                System.out.println(var.getName() + " : 0");
+                System.out.println(var.getName() + ": 0");
             }
         }
         System.out.println(".text");
