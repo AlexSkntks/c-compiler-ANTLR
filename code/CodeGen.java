@@ -329,9 +329,23 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         int i = this.intRegister[r];
         this.intRegister[r] = null;
         float f = (float) i;
-        r = newFloatReg();
-        this.floatRegister[r] = f;
-        return r;
+        System.out.println("# The MIPS compiler doesn't have" +
+        "instructions to set a single floating point with a immediate value" +
+        "\n# Then the following instructions are really important.");
+
+        //Coloca o valor inteiro em um registrador
+        int tempRt = newIntReg();
+        System.out.println("li $t" + tempRt + ", " + i);
+
+        //Coloca o valor para um registrador de float
+        int tempFloatRt = newFloatReg();
+        this.floatRegister[tempFloatRt] = f;
+        System.out.println("mtc1 $t" + tempRt + ", $f" + tempFloatRt);
+
+        //Converte para IEEE
+        System.out.println("cvt.s.w $f" + tempFloatRt + ", " + tempFloatRt);
+
+        return tempFloatRt;
     }
 
 
