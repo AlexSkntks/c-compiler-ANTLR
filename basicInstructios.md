@@ -41,3 +41,15 @@ Carrega o valor da memória para o registrador (float)
 
         l.s rt, label
         l.s rt, position
+
+---
+
+Move o valor de rt para um registrador de ponto flutuante
+        
+        mct1 rt, floatRegister
+
+---
+
+Converte o valor inteiro do floatRegister1 e coloca em floatRegister0
+
+        cvt.s.w floatRegister0 floatRegister1

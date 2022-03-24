@@ -47,27 +47,21 @@ import tables.FuncTable;
 import tables.StrTable;
 import tables.VarInfo;
 import tables.VarTable;
-// import typing.Type;
 
-/*
- * Visitador da AST para geração básica de código. Funciona de
- * forma muito similar ao interpretador do laboratório anterior,
- * mas agora estamos trabalhando com um ambiente de execução 
- * com código de 3 endereços. Isto quer dizer que não existe mais
- * pilha e todas as operações são realizadas via registradores.
- * 
- * Note que não há uma área de memória de dados no código abaixo.
- * Esta área fica agora na TM, que a "arquitetura" de execução.
- */
 public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 	private final Instruction code[]; // Code memory
 	private final FuncTable ft;
 	private final VarTable vt;
     private Memory memory;
-    // Registradores
+
+    // Registradores são vetor de Integer,
+    // dessa forma podemos colocar null nas posições
+    // e procurar por um registrador vazio
     private Integer[] intRegister = new Integer[32];
     private Float[] floatRegister = new Float[32];
+
+
     private int escopo = 0;
     private Boolean isInBlock = false;
     private Map<Integer, Integer> map = new HashMap<>();
@@ -111,6 +105,8 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     }
 
+    // Retorna um dado da memória
+    // Recebe um nó de variável
     private Word getFromMemory(AST node){
         // Pega o escopo da variável
         int escopoAtual = 0;
@@ -131,7 +127,9 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
     }
     // ----------------------------------------------------------------------------
 	// Reg ---------------------------------------------------------------------
-	private int newIntReg() {
+	
+    //  Ve
+    private int newIntReg() {
 		for (int i = 0; i < 32; i++) {
             if(this.intRegister[i] == null){
                 return i;
@@ -185,19 +183,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// ----------------------------------------------------------------------------
 	// AST Traversal --------------------------------------------------------------
 	
-	// private int newIntReg() {
-	// 	return intRegsCount++; 
-	// }
-    
-	// private int newFloatReg() {
-	// 	return floatRegsCount++;
-	// }
-	
     @Override
     protected Integer visitCompilationUnitNode(AST node) {
         // TODO Auto-generated method stub
         ArrayList<VarInfo> list = this.vt.getList();
         System.out.println(".data");
+
+        // Aloca espaço na memória para as variáveis que foram declaradas
+        // no programa. E inicializa as variáveis que recebem um valor 
+        // logo na inicialização
         for (VarInfo var : list) {
             if (var.getValue() != null){
                 System.out.println(var.getName() + ": " + var.getValue());
@@ -488,14 +482,21 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
     @Override
     protected Integer visitFloat2Int(AST node) {
         System.out.println("# float to int");
+
+        //Recebe o registrador com o valor a ser convertido
         int rF = visit(node.getChild(0));
         float f = this.floatRegister[rF];
         this.floatRegister[rF] = null;
 
-
+        //Converte para inteiro
         Integer i = Math.round(f);
+
+        //Armazena em um registrador inteiro
         int rI = newIntReg();
         this.intRegister[rI] = i;
+
+        // Como o valor é convertido nesse trecho de código
+        // basta alocar um registrador inteiro e colocar esse valors
         System.out.println("li $t" + rI + ", " + i);
         return rI;
     }
