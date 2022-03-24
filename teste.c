@@ -1,4 +1,5 @@
 
 int main(){
-    float x = 'w';
+    int x = 'a';
+    float y = 10;
 }

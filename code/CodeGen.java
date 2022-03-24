@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sun.jdi.Value;
+
 import ast.AST;
 import ast.ASTBaseVisitor;
 import tables.FuncTable;
@@ -250,6 +252,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 int floatKey = hash(name, escopoAtual);
                 //Utilza a chave para obter indice em memória e altera o valor
                 memory.set(map.get(floatKey), Word.fromFloat(floatValue));//Insere em byte
+                System.out.println("sw $f" + r + ", " + name);
                 break;
             default:
                 System.out.println("Erro inesperado ocorreu!");
@@ -331,15 +334,37 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         return r;
     }
 
+
+    /**
+     * 
+     *  aux <- memory(0)
+     *  (float) 3 -> memory(0)
+        memory(0) -> rFloat
+        aux -> memory(0)
+        return rFloat
+     */
     @Override
     protected Integer visitInt2Float(AST node) {
         int r = visit(node.getChild(0));
         int i = this.intRegister[r];
         this.intRegister[r] = null;
         float f = (float) i;
-        r = newFloatReg();
-        this.floatRegister[r] = f;
-        return null;
+        System.out.println("# The MIPS compiler doesn't have" +
+        "instructions to set a single floating point with a immediate value" +
+        "\n# Then the following instructions are really important.");
+
+        //Coloca o valor inteiro em um registrador
+        int tempRt = newIntReg();
+        System.out.println("li $t" + tempRt + ", " + i);
+
+        //Coloca o valor para um registrador de float
+        int tempFloatRt = newFloatReg();
+        System.out.println("mtc1 $t" + tempRt + ", $f" + tempFloatRt);
+
+        //Converte para IEEE
+        System.out.println("cvt.s.w $f" + tempFloatRt + ", " + tempFloatRt);
+
+        return tempFloatRt;
     }
 
     @Override

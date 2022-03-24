@@ -30,3 +30,14 @@ Coloca o endereço da variável no registrador
 
 ---
 
+Carrega o valor do registrador (float) para a memória
+
+        s.s rt, label
+        s.s rt, position
+
+---
+
+Carrega o valor da memória para o registrador (float)
+
+        l.s rt, label
+        l.s rt, position
