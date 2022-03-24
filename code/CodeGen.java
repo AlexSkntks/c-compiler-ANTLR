@@ -359,6 +359,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
         //Coloca o valor para um registrador de float
         int tempFloatRt = newFloatReg();
+        this.floatRegister[tempFloatRt] = f;
         System.out.println("mtc1 $t" + tempRt + ", $f" + tempFloatRt);
 
         //Converte para IEEE
