@@ -252,7 +252,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 int floatKey = hash(name, escopoAtual);
                 //Utilza a chave para obter indice em memória e altera o valor
                 memory.set(map.get(floatKey), Word.fromFloat(floatValue));//Insere em byte
-                System.out.println("sw $f" + r + ", " + name);
+                System.out.println("s.s $f" + r + ", " + name);
                 break;
             default:
                 System.out.println("Erro inesperado ocorreu!");
@@ -302,7 +302,33 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitPlusNode(AST node) {
-        // TODO Auto-generated method stub
+        // switch (node.getText()) {
+        //     case "char":
+        //     case "int":
+        //         // Chama o visitador para o filho da esq
+
+        //         visit(node.getChild(0));
+        //         visit(node.getChild(1));
+
+        //         int rInt = stack.popi();
+        //         int lInt = stack.popi();
+
+        //         int resultInt = lInt + rInt;
+        //         stack.push(Integer.toString(resultInt));
+        //         break;
+        //     case "float":
+        //         // Chama o visitador para o filho da esq
+        //         visit(node.getChild(0));
+        //         // Chama o visitador para o filho da dir
+        //         visit(node.getChild(1));
+        //         float rFloat = stack.popf();
+        //         float lFloat = stack.popf();
+        //         float resultFloat = lFloat + rFloat;
+        //         stack.push(Float.toString(resultFloat));
+        //         break;
+        //     default:
+        //         break;
+        // }
         return null;
     }
 
@@ -343,7 +369,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         System.out.println("mtc1 $t" + tempRt + ", $f" + tempFloatRt);
 
         //Converte para IEEE
-        System.out.println("cvt.s.w $f" + tempFloatRt + ", " + tempFloatRt);
+        System.out.println("cvt.s.w $f" + tempFloatRt + ", $f" + tempFloatRt);
 
         return tempFloatRt;
     }
@@ -377,7 +403,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         System.out.println("mtc1 $t" + tempRt + ", $f" + tempFloatRt);
 
         //Converte para IEEE
-        System.out.println("cvt.s.w $f" + tempFloatRt + ", " + tempFloatRt);
+        System.out.println("cvt.s.w $f" + tempFloatRt + ", $f" + tempFloatRt);
 
         return tempFloatRt;
     }
