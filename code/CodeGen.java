@@ -222,9 +222,18 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
         switch (type) {
             case "char":
-                System.out.println("assign n foi implementado para char");
-                System.exit(1);
-                break;
+                // Os registradores salvam valores em Integer, pois
+                // ele pode ser comparado com NULL diferente de int 
+                // a memoria do mips possui apenas inteiros e floats.
+                // Não é possível converter Integer para Char via cast
+                // assim convertemos: char <- int <- Integer
+                // char charValue = (char) (int) this.intRegister[r];
+                // //Pega o hash da variável para obter o seu índice em memória
+                // int charKey = hash(name, escopoAtual);
+                // //Utilza a chave para obter indice em memória e altera o valor
+                // System.out.println("A variável " + name + " esta recebendo " + charValue);
+                // memory.set(map.get(charKey), Word.fromChar(charValue));
+                // break;
             case "int":
                 //Pega o valor da pilha
                 int intValue = this.intRegister[r];
@@ -274,8 +283,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitCharValNode(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        // Retorna um indice de registrador válido
+        int r = newIntReg();
+        // Carrega o valor inteiro no registrador
+        this.intRegister[r] = (int)node.getText().charAt(1);
+        System.out.println("li $t" + r + ", " + node.getText());
+        return r;
     }
 
     @Override
@@ -304,32 +317,45 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitChar2Int(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        return visit(node.getChild(0));
     }
 
     @Override
     protected Integer visitchar2Float(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        int r = visit(node.getChild(0));
+        int i = this.intRegister[r];
+        this.intRegister[r] = null;
+        float f = (float) i;
+        r = newFloatReg();
+        this.floatRegister[r] = f;
+        return r;
     }
 
     @Override
     protected Integer visitInt2Float(AST node) {
-        // TODO Auto-generated method stub
+        int r = visit(node.getChild(0));
+        int i = this.intRegister[r];
+        this.intRegister[r] = null;
+        float f = (float) i;
+        r = newFloatReg();
+        this.floatRegister[r] = f;
         return null;
     }
 
     @Override
     protected Integer visitInt2Char(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        return visit(node.getChild(0));
     }
 
     @Override
     protected Integer visitFloat2Char(AST node) {
-        // TODO Auto-generated method stub
-        return null;
+        int r = visit(node.getChild(0));
+        float f = this.floatRegister[r];
+        this.floatRegister[r] = null;
+        Integer i = Math.round(f);
+        r = newIntReg();
+        this.intRegister[r] = i;
+        return r;
     }
 
     @Override
