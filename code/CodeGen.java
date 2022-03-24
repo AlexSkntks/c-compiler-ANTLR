@@ -35,6 +35,9 @@ import static code.OpCode.WIDf;
 // import static typing.Type.INT_TYPE;
 // import static typing.Type.REAL_TYPE;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,12 +51,14 @@ import tables.StrTable;
 import tables.VarInfo;
 import tables.VarTable;
 
+
 public final class CodeGen extends ASTBaseVisitor<Integer> {
 
 	private final Instruction code[]; // Code memory
 	private final FuncTable ft;
 	private final VarTable vt;
     private Memory memory;
+    BufferedWriter writer;
 
     // Registradores são vetor de Integer,
     // dessa forma podemos colocar null nas posições
@@ -76,6 +81,13 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         this.ft = ft;
         initMap();
         this.memory = new Memory(vt);
+        try {
+            this.writer = new BufferedWriter(new FileWriter("saida.asm"));
+            
+        } catch (IOException e) {
+            System.out.println("Um erro ocorreu.");
+            System.exit(1);
+        }
 	}
 	
 	// Função principal para geração de código.
@@ -83,6 +95,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	public void execute(AST root) {
 		nextInstr = 0;
 	    visit(root);
+        try {
+            this.writer.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 	}
     // ----------------------------------------------------------------------------
 	// Utils ---------------------------------------------------------------------
@@ -184,10 +202,16 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 	// AST Traversal --------------------------------------------------------------
 	
     @Override
-    protected Integer visitCompilationUnitNode(AST node) {
+    protected Integer visitCompilationUnitNode(AST node){
         // TODO Auto-generated method stub
         ArrayList<VarInfo> list = this.vt.getList();
         System.out.println(".data");
+        try {
+            this.writer.write(".data\n");
+            
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+        }
 
         // Aloca espaço na memória para as variáveis que foram declaradas
         // no programa. E inicializa as variáveis que recebem um valor 
@@ -195,11 +219,32 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         for (VarInfo var : list) {
             if (var.getValue() != null){
                 System.out.println(var.getName() + ": " + var.getValue());
+                try {
+                    this.writer.write(var.getName() + ": " + var.getValue() + "\n");
+                    
+                } catch (Exception e) {
+                    System.out.println("Error na escrita.");
+                }
             } else{
                 System.out.println(var.getName() + ": 0");
+                try {
+                    this.writer.write(var.getName() + ": 0" + "\n");
+                    
+                } catch (Exception e) {
+                    System.out.println("Error na escrita.");
+                    System.exit(1);
+                }
             }
         }
+
         System.out.println(".text");
+        try {
+            this.writer.write(".text" + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
+
         for(int i = 0; i < node.getChildrenSize(); i++){
             visit(node.getChild(i));//AST
         }
@@ -221,6 +266,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
             escopoAtual = escopo;
         }
         System.out.println(" # assign ");
+        try {
+            this.writer.write(" # assign " + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
         // Lado direito da equação, tudo que será atribuido a variável.
         int r = visit(node.getChild(1));
         switch (type) {
@@ -233,7 +284,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 int intKey = hash(name, escopoAtual);
                 //Utilza a chave para obter indice em memória e altera o valor
                 memory.set(map.get(intKey), Word.fromInt(intValue));
+
                 System.out.println("sw $t" + r + ", " + name);
+                try {
+                    this.writer.write("sw $t" + r + ", " + name + "\n");
+                } catch (Exception e) {
+                    System.out.println("Error na escrita.");
+                    System.exit(1);
+                }
+
                 break;
             case "float":
                 float floatValue = this.floatRegister[r];
@@ -241,7 +300,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 int floatKey = hash(name, escopoAtual);
                 //Utilza a chave para obter indice em memória e altera o valor
                 memory.set(map.get(floatKey), Word.fromFloat(floatValue));//Insere em byte
+                
                 System.out.println("s.s $f" + r + ", " + name);
+                try {
+                    this.writer.write("s.s $f" + r + ", " + name + "\n");
+                } catch (Exception e) {
+                    System.out.println("Error na escrita.");
+                    System.exit(1);
+                }
+
                 break;
             default:
                 System.out.println("Erro inesperado ocorreu!");
@@ -259,7 +326,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         int r = newIntReg();
         // Carrega o valor inteiro no registrador
         this.intRegister[r] = Integer.valueOf(node.getText());
+
         System.out.println("li $t" + r + ", " + node.getText());
+        try {
+            this.writer.write("li $t" + r + ", " + node.getText() + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
+
         return r;
     }
 
@@ -269,7 +344,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         int r = newFloatReg();
         // Carrega o valor inteiro no registrador
         this.floatRegister[r] = Float.valueOf(node.getText());
+
         System.out.println("li $t" + r + ", " + node.getText());
+        try {
+            this.writer.write("li $t" + r + ", " + node.getText() + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
+
         return r;
     }
 
@@ -279,7 +362,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         int r = newIntReg();
         // Carrega o valor inteiro no registrador
         this.intRegister[r] = (int)node.getText().charAt(1);
+
         System.out.println("li $t" + r + ", " + node.getText());
+        try {
+            this.writer.write("li $t" + r + ", " + node.getText() + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
+
         return r;
     }
 
@@ -292,6 +383,13 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
     @Override
     protected Integer visitPlusNode(AST node) {
         System.out.println(" # sum");
+        try {
+            this.writer.write(" # sum" + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
+
         switch (node.getText()) {
             case "char":
             //É o mesmo caso que o int, pois um char é representado por um número inteiro
@@ -311,8 +409,16 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 int resultInt = lInt + rInt;
                 // guarda o resultado da soma no indice correto
                 this.intRegister[temp3] = resultInt;
+
                 // Printa a soma em mips
                 System.out.println("add $t" + temp3 + ", $t" + temp2 + ", $t" + temp1);
+                try {
+                    this.writer.write("add $t" + temp3 + ", $t" + temp2 + ", $t" + temp1 + "\n");
+                } catch (Exception e) {
+                    System.out.println("Error na escrita.");
+                    System.exit(1);
+                }
+                
                 this.intRegister[temp1] = null;
                 this.intRegister[temp2] = null;
                 // retorna indice da soma
@@ -330,12 +436,21 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 Float resultFloat = lFloat + rFloat;
                 // guarda o resultado da soma no indice correto
                 this.floatRegister[t3] = resultFloat;
+
                 // Printa a soma em mips
                 System.out.println("add.s $f" + t3 + ", $f" + t2 + ", $f" + t1);
+                try {
+                    this.writer.write("add.s $f" + t3 + ", $f" + t2 + ", $f" + t1 + "\n");
+                } catch (Exception e) {
+                    System.out.println("Error na escrita.");
+                    System.exit(1);
+                }
+
                 this.floatRegister[t1] = null;
                 this.floatRegister[t2] = null;
                 return t3;
             default:
+
                 System.out.println("Bad operation with +");
                 System.exit(1);
                 break;
@@ -345,7 +460,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitTimesNode(AST node) {
+
         System.out.println(" # times");
+        try {
+            this.writer.write(" # times" + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
+
         switch (node.getText()) {
             case "char":
             //É o mesmo caso que o int, pois um char é representado por um número inteiro
@@ -365,8 +488,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 int resultInt = lInt * rInt;
                 // guarda o resultado da soma no indice correto
                 this.intRegister[temp3] = resultInt;
+
                 // Printa a soma em mips
                 System.out.println("mult $t" + temp2 + ", $t" + temp1);
+                try {
+                    this.writer.write("mult $t" + temp2 + ", $t" + temp1 + "\n");
+                } catch (Exception e) {
+                    System.out.println("Error na escrita.");
+                    System.exit(1);
+                }
 
                 //  O resultado da multiplicação em MIPS é armazenado em dois registradores
                 //  hi e lo. Não estamos tratando Overflow, portanto apenas multiplicações dentro
@@ -374,6 +504,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
                 // Traz o resultado do lo
                 System.out.println("mflo $t" + temp3);
+                try {
+                    this.writer.write("mflo $t" + temp3 + "\n");
+                } catch (Exception e) {
+                    System.out.println("Error na escrita.");
+                    System.exit(1);
+                }
 
                 this.intRegister[temp1] = null;
                 this.intRegister[temp2] = null;
@@ -392,8 +528,16 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
                 Float resultFloat = lFloat + rFloat;
                 // guarda o resultado da soma no indice correto
                 this.floatRegister[t3] = resultFloat;
+
                 // Printa a soma em mips
                 System.out.println("add.s $f" + t3 + ", $f" + t2 + ", $f" + t1);
+                try {
+                    this.writer.write("add.s $f" + t3 + ", $f" + t2 + ", $f" + t1 + "\n");
+                } catch (Exception e) {
+                    System.out.println("Error na escrita.");
+                    System.exit(1);
+                }
+
                 this.floatRegister[t1] = null;
                 this.floatRegister[t2] = null;
                 return t3;
@@ -418,7 +562,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitchar2Float(AST node) {
+
         System.out.println("# char to float");
+        try {
+            this.writer.write("# char to float" + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
+
         int r = visit(node.getChild(0));
         int i = this.intRegister[r];
         this.intRegister[r] = null;
@@ -427,14 +579,33 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         //Coloca o valor inteiro em um registrador
         int tempRt = newIntReg();
         System.out.println("li $t" + tempRt + ", " + i);
+        try {
+            this.writer.write("li $t" + tempRt + ", " + i + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
 
         //Coloca o valor para um registrador de float
         int tempFloatRt = newFloatReg();
         this.floatRegister[tempFloatRt] = f;
+
         System.out.println("mtc1 $t" + tempRt + ", $f" + tempFloatRt);
+        try {
+            this.writer.write("mtc1 $t" + tempRt + ", $f" + tempFloatRt + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
 
         //Converte para IEEE
         System.out.println("cvt.s.w $f" + tempFloatRt + ", $f" + tempFloatRt);
+        try {
+            this.writer.write("cvt.s.w $f" + tempFloatRt + ", $f" + tempFloatRt + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
 
         return tempFloatRt;
     }
@@ -442,7 +613,15 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitInt2Float(AST node) {
+
         System.out.println("# int to float");
+        try {
+            this.writer.write("# int to float" + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
+
         int r = visit(node.getChild(0));
         int i = this.intRegister[r];
         this.intRegister[r] = null;
@@ -451,14 +630,32 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         //Coloca o valor inteiro em um registrador
         int tempRt = newIntReg();
         System.out.println("li $t" + tempRt + ", " + i);
+        try {
+            this.writer.write("li $t" + tempRt + ", " + i + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
 
         //Coloca o valor para um registrador de float
         int tempFloatRt = newFloatReg();
         this.floatRegister[tempFloatRt] = f;
         System.out.println("mtc1 $t" + tempRt + ", $f" + tempFloatRt);
+        try {
+            this.writer.write("mtc1 $t" + tempRt + ", $f" + tempFloatRt + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
 
         //Converte para IEEE
         System.out.println("cvt.s.w $f" + tempFloatRt + ", $f" + tempFloatRt);
+        try {
+            this.writer.write("cvt.s.w $f" + tempFloatRt + ", $f" + tempFloatRt + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
 
         return tempFloatRt;
     }
@@ -481,7 +678,14 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
 
     @Override
     protected Integer visitFloat2Int(AST node) {
+
         System.out.println("# float to int");
+        try {
+            this.writer.write("# float to int" + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
 
         //Recebe o registrador com o valor a ser convertido
         int rF = visit(node.getChild(0));
@@ -498,6 +702,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         // Como o valor é convertido nesse trecho de código
         // basta alocar um registrador inteiro e colocar esse valors
         System.out.println("li $t" + rI + ", " + i);
+        try {
+            this.writer.write("li $t" + rI + ", " + i + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
         return rI;
     }
 
@@ -540,6 +750,7 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
     @Override
     protected Integer visitFunctionDeclarationNode(AST node) {
         // TODO Auto-generated method stub
+        String name = node.getChild(1).getText();
         this.isInBlock = true;
         this.escopo++;
         visit(node.getChild(0));
@@ -557,6 +768,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         int r = this.newIntReg();
         this.intRegister[r]= i;
         System.out.println("lw $t" + r + ", " + node.getText());
+        try {
+            this.writer.write("lw $t" + r + ", " + node.getText() + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
         return r;
     }
 
@@ -567,6 +784,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         int r = this.newFloatReg();
         this.floatRegister[r] = f;
         System.out.println("lw $t" + r + ", " + node.getText());
+        try {
+            this.writer.write("lw $t" + r + ", " + node.getText() + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
         return r;
     }
 
@@ -577,6 +800,12 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
         int r = this.newIntReg();
         this.intRegister[r]= i;
         System.out.println("lw $t" + r + ", " + node.getText());
+        try {
+            this.writer.write("lw $t" + r + ", " + node.getText() + "\n");
+        } catch (Exception e) {
+            System.out.println("Error na escrita.");
+            System.exit(1);
+        }
         return r;
     }
 
