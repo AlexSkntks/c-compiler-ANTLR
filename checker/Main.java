@@ -1,28 +1,16 @@
 package checker;
 
-import java.io.IOException;
-
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
 import ast.AST;
 
-// import ANTLR's runtime libraries
-import java.io.File;
-import java.io.FileReader;
-import java.util.Scanner;
-
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.nio.file.NoSuchFileException;
-
 
 import tools.*;
 
 import parser.CLexer;
-import checker.SemanticChecker;
+import code.CodeGen;
 import code.Interpreter;
-import code.Word;
 import parser.CParser;
 
 public class Main {
@@ -46,16 +34,20 @@ public class Main {
 			System.out.println("Iniciando teste");
 			ParseTree tree = parser.compilationUnit(); // begin parsing at init rule
 			SemanticChecker checker = new SemanticChecker();
+            
 			checker.visit(tree);
 
 			AST.printDot(checker.getAST());
 		
 			Interpreter inter = new Interpreter(checker.getVarTable(), checker.getFuncTable());
 			inter.visit(checker.getAST());
-			System.out.println("--------------------------------");
-			System.out.println("Mapeamento das variáveis na memória");
-			inter.printMap();
-			System.out.println("Revisão sintática realizada com êxito.");
+			// System.out.println("--------------------------------");
+			// System.out.println("Mapeamento das variáveis na memória");
+			// inter.printMap();
+			// System.out.println("Revisão sintática realizada com êxito.");
+
+            CodeGen codeGen = new CodeGen(checker.getVarTable(), checker.getFuncTable());
+		    codeGen.execute(checker.getAST());
 			
 		} catch (Exception e) {
 			System.out.println(e);

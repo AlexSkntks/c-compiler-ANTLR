@@ -3,7 +3,6 @@ package ast;
 import java.util.ArrayList;
 import java.util.List;
 
-import tables.VarTable;
 // Implementação dos nós da AST.
 public class AST {
 

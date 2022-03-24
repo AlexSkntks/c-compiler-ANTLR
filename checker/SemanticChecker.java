@@ -1,12 +1,6 @@
 package checker;
 import java.util.ArrayList;
 
-import javax.print.DocFlavor.STRING;
-import javax.sound.midi.SysexMessage;
-
-import org.antlr.v4.runtime.Token;
-import org.w3c.dom.Node;
-
 import parser.CBaseVisitor;
 import parser.CParser;
 import tables.FuncTable;
