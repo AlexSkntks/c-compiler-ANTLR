@@ -1,10 +1,9 @@
-int x = 3;//97
-
-int qualquer(){
-    int a = 2;
-    return 12;
+int sqrt(){
+    return 0;
 }
 
 int main(){
-    char y = (1 + 5) * '3';
+    float a = 'a';
+    int x = a + 1;
+    char z = x;
 }

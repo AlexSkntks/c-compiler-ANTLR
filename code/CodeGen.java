@@ -751,6 +751,28 @@ public final class CodeGen extends ASTBaseVisitor<Integer> {
     protected Integer visitFunctionDeclarationNode(AST node) {
         // TODO Auto-generated method stub
         String name = node.getChild(1).getText();
+        if(!name.equals("main")){
+            System.out.println("# As seguintes instruções não fazem parte da função Main.");
+            System.out.println("# Elas compoem o corpo de outras funções declaradas no escopo");
+            System.out.println("# do arquivo de entrada.");
+            try {
+                this.writer.write("# As seguintes instruções não fazem parte da função Main.\n");
+                this.writer.write("# Elas compoem o corpo de outras funções declaradas no escopo\n");
+                this.writer.write("# do arquivo de entrada.\n");
+                
+            } catch (Exception e) {
+                System.out.println("Error na escrita.");
+                System.exit(1);
+            }
+        }else {
+            System.out.println("# Main");
+            try {
+                this.writer.write("# Main\n");
+            } catch (Exception e) {
+                System.out.println("Error na escrita.");
+                System.exit(1);
+            }
+        }
         this.isInBlock = true;
         this.escopo++;
         visit(node.getChild(0));
